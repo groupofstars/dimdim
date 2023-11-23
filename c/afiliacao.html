@@ -1,0 +1,672 @@
+<style>
+  .d-block.w-100 {
+    max-height: 300px!important;
+  }
+  .info-box.bg-default{
+    background-color: #22242e !important;
+    border-left: 3px solid #555bcd;
+  }
+
+  .card.bg-default{
+    background-color: #1d1e26!important;
+  }
+</style>
+
+ <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Área do Afiliado</h1>
+          </div>
+          <div class="col-auto">
+           
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+
+    <!-- Main content -->
+    <section class="content" style="position: relative;top: -20px;">
+      <div class="container-fluid">
+    
+
+
+    <div class="card bg-default">
+      <div class="card-body">
+
+
+       <div class="row" style="position: relative;top: -35px;">
+          <div class="col-12 col-md-8">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title">Minhas Vendas</h5>
+
+                
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <div class="row">
+                  
+                  <div class="col-12 col-lg-12">
+                   <div class="chart-container"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                    <canvas id="lineChart" style="display: block; width: 1005px; height: 270px;" class="chartjs-render-monitor" width="1005" height="270"></canvas>
+                  </div>
+                 
+                    <!-- /.chart-responsive -->
+                  </div>
+                  <!-- /.col -->
+                  
+                </div>
+                <!-- /.row -->
+              </div>
+              <!-- ./card-body -->
+             
+            </div>
+            <!-- /.card -->
+
+          <div class="row">
+            <div class="col-6">
+                <div class="info-box bg-default">
+                  <span class="info-box-icon">
+                   <i class="fas fa-money-bill-alt"></i>
+                  </span>
+                  <div class="info-box-content">
+                    <span class="info-box-text">
+                      Faturamento Total
+                    </span>
+                    <span class="info-box-number" id="faturamento-total">
+                      R$ 0,00
+                    </span>
+                 
+                  
+                  </div>
+
+                  </div>
+            </div>
+
+
+             <div class="col-6">
+                <div class="info-box bg-default">
+                  <span class="info-box-icon">
+                    <i class="fas fa-trophy"></i>
+                  </span>
+                  <div class="info-box-content">
+                    <span class="info-box-text">
+                        Posição no Ranking
+                    </span>
+                    <span class="info-box-number" id="m-position">0</span>
+                 
+                  </div>
+
+                  </div>
+            </div>
+          </div>
+
+
+          </div>
+          <!-- /.col -->
+        <div>
+
+      </div>
+<div class="col-12 col-md-4">
+          <div class="col-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-users"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Usuarios</span>
+                <span class="info-box-number" id="leads">1</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-12">
+            <div class="info-box mb-3">
+              <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-hand-holding-usd"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Saldo Pendente</span>
+                <span class="info-box-number" id="saldo">R$&nbsp;143,95</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+
+
+             <!-- /.col -->
+          <div class="col-12">
+            <div class="info-box mb-3">
+              <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-clock"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Saque Pendente</span>
+                <span class="info-box-number" id="saque_pendente">R$&nbsp;0,00</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+
+
+          <!-- fix for small devices only -->
+          <div class="clearfix hidden-md-up"></div>
+
+          <div class="col-12">
+            <div class="info-box mb-3">
+              <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-mouse"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Cliques no link</span>
+                <span class="info-box-number" id="cliques">0</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+       
+        </div>
+</div>
+
+        <hr>
+
+         <div class="row">
+
+          <div class="col-md-7 col-12">
+            <div class="card">
+              <div class="card-header">
+                Solicitações 
+
+                <div class="card-tools">
+
+                  <div class="row">
+                   
+                    <div class="col">
+
+                      
+
+                      <div class="input-group input-group-sm" >
+                        <input type="date" id="data_init" class="form-control float-right">   
+                        - 
+                         <input type="date" id="data_final" class="form-control float-right">   
+                      </div>
+
+                       <button class="btn btn-sm bmt mb-2 mt-3 float-right" onclick="solicitar(0)">
+                          Solicitar saque
+                      </button>
+
+                    </div>
+                   
+                  </div>
+                </div>
+
+
+              </div>
+              <div class="card-body table-responsive p-0">
+                
+                <table class="table">
+                </table>
+
+
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-5 col-12">
+            <div class="row">
+                
+                <div class="col-12">
+                    <div class="card">
+                      <div class="card-body">
+                        
+                        <div class="form-group" style="text-align: initial;">
+                                <h5>Link de indicação</h5>
+                                <p>Indique e ganhe <b id="porcentagem">0%</b> mensais</p>
+                              <div class="input-group mb-3">
+                                  <input type="text" class="form-control" id="meu-link">
+                                  <div class="input-group-append">
+                                    <button class="btn btn-outline-danger" onclick="copy()">Copiar</button>
+                                  </div>
+                              </div>
+                        </div>
+
+                      </div>
+                    </div>
+                </div>
+
+
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-body">
+                      <h5>Pixel do Facebook</h5>
+                      <p> Adicione o seu Pixel Facebook  para rastrear conversões.
+                          Nós disparamos o evento "CompleteRegistration" no Pixel Facebook. </p>
+
+                          <hr>
+
+
+                        <div class="form-group">
+                          <input class="form-control" id="meu-pixel" placeholder="Eg: 512458452">
+                        </div>
+
+                        <button class="btn btn-sm btn-block btn-success" onclick="save_pixel()">
+                          Salvar Alterações
+                        </button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+
+
+
+      </div>
+    </div>
+
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+<!-- PAGE PLUGINS -->
+<!-- jQuery Mapael -->
+<script src="plugins/jquery-mousewheel/jquery.mousewheel.js"></script>
+<script src="plugins/raphael/raphael.min.js"></script>
+<script src="plugins/jquery-mapael/jquery.mapael.min.js"></script>
+<script src="plugins/jquery-mapael/maps/usa_states.min.js"></script>
+<!-- ChartJS -->
+<script src="plugins/chart.js/Chart.min.js"></script>
+
+<script type="text/javascript">
+/*Posição e faturamento total*/
+  $(()=>{
+    user = 'user='+localStorage.getItem('usermail');
+    $.post("whats/afiliado/data.php", user, (t)=>{
+      t = JSON.parse(t);
+      $("#faturamento-total").html(t.total);
+      $("#m-position").html(t.position);
+    })
+  })
+/*Posição e faturamento total*/
+
+/*Copy*/
+  function copy(){
+    url = $("#meu-link").val();
+  navigator.clipboard.writeText(url);
+
+  success("Link Copiado");
+}
+/*Copy*/
+
+/*Salvando pixel*/
+  function save_pixel(){
+    user = localStorage.getItem('usermail');
+    pixel = $("#meu-pixel").val();
+
+    dados = 'user='+user+'&pixel='+pixel;
+    $.post("whats/afiliado/pixel.php", dados, (t)=>{
+      if(t == 1){
+        success("Pixel Salvo com sucesso");
+      }
+    })
+  }
+/*Salvando pixel*/
+
+/*Solicitações de saque*/
+$("#data_final, #data_init").on('change', function (){
+  data_init = $("#data_init").val();
+  data_final = $("#data_final").val();
+
+  if(data_init != ''){
+    console.log(`data init: ${data_init} & data final: ${data_final}`);
+    soli_saques(data_init, data_final);
+  }
+})
+
+soli_saques('0', '0');
+function soli_saques(init, final){
+  user = localStorage.getItem('usermail');
+
+  dados = `user=${user}&data_init=${init}&data_final=${final}`;
+
+  $("table").html(`<div class="container mt-4 mb-4 text-center"><div class="spinner-border text-light" role="status">
+                    <span class="sr-only">Loading...</span>
+                   </div></div>`);
+
+  console.log("esses sao os dados > "+dados);
+
+setTimeout(()=>{
+
+  $.post("whats/afiliado/saques/listar.php", dados, (t)=>{
+    
+    if(t != 0){
+
+      t = JSON.parse(t);
+       body = ` <thead>
+                          <tr>
+                            <th class="no-border">Solicitado</th>
+                            <th class="no-border">Valor</th>
+                            <th class="no-border">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>`;
+
+      t.forEach((r)=>{
+
+        if(r.status == 1){
+          status = `<span class="badge badge-warning" data-toggle="tooltip" data-placement="top" style="cursor:pointer;" title="Seu Saque foi enviado ao Administrador">EM PROCESSO</span>`;
+        }else if(r.status == 2){
+          status = `<span class="badge badge-success" 
+          data-toggle="tooltip" data-placement="top" style="cursor:pointer;" title="Aguarde até 48 para o recebimento em sua conta">APROVADO</span>`;
+        }else if(r.status == 3){
+          status = `<span class="badge badge-danger" data-toggle="tooltip" data-placement="top" style="cursor:pointer;" title="${r.msg}">CANCELADO</span>`;
+        }
+        body += ` <tr style="white-space: nowrap;">
+                    <td>${r.data}</td>
+                    <td><b>R$ ${r.valor}</b></td>
+                    <td>
+                      ${status}
+                    </td>
+                  </tr>`;
+      })
+
+      body += `</tbody>`;
+    }else{
+      body = `<div class='container mt-4 mb-4'>
+                <h5 class='text-center'>Nada Encontrado</h5>
+              </div>`;
+    }
+
+
+    $("table").html(body);
+  })
+
+  },1000);
+
+
+}
+/*Solicitações de saques*/
+dadosafd();
+function dadosafd(){
+
+      user = 'user='+localStorage.getItem('usermail');
+    
+  $.post("whats/afiliado/dados.php", user, (l)=>{
+    l = JSON.parse(l);
+
+    $("#leads").html(l.users);
+    $("#saque_pendente").html(l.saque.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+
+    $("#saldo").html(l.saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+
+     
+
+    $("#cliques").html(l.cliques);
+    $("#meu-link").val(l.link);
+    $("#meu-pixel").val(l.pixel);
+    $("#porcentagem").html(l.porcentagem+"%");
+  })
+  
+  $.post("whats/afiliado/grafico.php", user, (t)=>{
+      
+      t = JSON.parse(t);
+
+      dados_users = t.users.split(",");
+      dados_vendas = t.vendas.split(",");
+      
+
+
+  var lineChart = document.getElementById('lineChart').getContext('2d');
+  var myLineChart = new Chart(lineChart, {
+      type: 'line',
+      data: {
+        labels: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Augosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+        datasets: [{
+          label: "Usuários",
+          borderColor: "#4e54c6",
+          pointBorderColor: "#FFF",
+          pointBackgroundColor: "#4e54c6",
+          pointBorderWidth: 2,
+          pointHoverRadius: 4,
+          pointHoverBorderWidth: 1,
+          pointRadius: 4,
+          backgroundColor: 'transparent',
+          fill: true,
+          borderWidth: 2,
+          data: dados_users
+        },
+
+        {
+          label: "Vendas",
+          borderColor: "white",
+          pointBorderColor: "#4e54c6",
+          pointBackgroundColor: "white",
+          pointBorderWidth: 2,
+          pointHoverRadius: 4,
+          pointHoverBorderWidth: 1,
+          pointRadius: 4,
+          backgroundColor: 'transparent',
+          fill: true,
+          borderWidth: 2,
+          data: dados_vendas
+        }
+        ]
+
+      },
+      options : {
+        responsive: true, 
+        maintainAspectRatio: false,
+        legend: {
+          position: 'bottom',
+          labels : {
+            padding: 10,
+            fontColor: '#FFF',
+          }
+        },
+        tooltips: {
+          bodySpacing: 4,
+          mode:"nearest",
+          intersect: 0,
+          position:"nearest",
+          xPadding:10,
+          yPadding:10,
+          caretPadding:10
+        },
+        layout:{
+          padding:{left:15,right:15,top:15,bottom:15}
+        }
+      }
+    });
+})
+}
+
+
+function add_conta(){
+  $("#add-nova-conta").modal("show");
+}
+
+function add_pix(){
+  user = localStorage.getItem('usermail');
+  nome_pix = $("#nome-pix").val();
+  chave = $("#chave-pix").val();
+  dados = `user=${user}&nome=${nome_pix}&chave=${chave}`; 
+  $.post("whats/afiliado/saques/pix.php", dados, (t)=>{
+    if(t == 1){
+      $("#nome-pix").val("");
+      $("#chave-pix").val("");
+      $("#add-nova-conta").modal("hide");
+      success("Adicionado com sucesso");
+      solicitar(1);
+    }
+  })
+}
+
+/*Solicitar*/
+  function solicitar(ss){
+    user = 'user='+localStorage.getItem('usermail');
+    $.post("whats/afiliado/saques/solicitando.php", user, (t)=>{
+    
+      if(t != 0){
+        t = JSON.parse(t);
+
+        $("#saldo-dispo").val(t.saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+        contas = '';
+        t.contas.forEach((r)=>{
+          contas += `<li class="list-group-item d-flex justify-content-between align-items-center" id="sele-${r.id}" onclick="seleciona_conta(${r.id})" style="cursor:pointer;">
+                
+                <b>${r.nome}</b> <small>(${r.pix})</small>
+                
+                  <input type="hidden" id="id-da-conta" value="${r.id}">
+                  <i class="far fa-circle" id="conta-${r.id}"></i>
+            </li>`;
+        })
+
+        
+      }else{
+        contas  = `<li class="list-group-item text-center d-flex justify-content-between align-items-center">
+                   Nenhuma Conta Encontrada
+             
+                  </li>`;
+      }
+
+      $(".listagem-contas").html(contas);
+
+      if(ss == 0){
+        $("#solicitar-saque").modal("show");
+      }
+    })
+    
+  }
+/*Solicitar*/
+
+/*Enviando solicitação de saque*/
+  function seleciona_conta(id){
+    console.log("Selecionado: "+id);
+    $(".list-group-item.d-flex.justify-content-between.align-items-center.selecionado").attr("class", "list-group-item d-flex justify-content-between align-items-center");
+    $("#sele-"+id).toggleClass("selecionado");
+
+    check = $("#sele-"+id).hasClass("selecionado");
+    $(".fas.fa-check-circle").attr("class", "far fa-circle");
+    if(check == true){
+        $("#sele-"+id).find("#conta-"+id).attr("class", "fas fa-check-circle");
+    }else{
+       $("#sele-"+id).find("#conta-"+id).attr("class", "far fa-circle");
+    } 
+  }
+  function solicitar_saque(){
+    user = localStorage.getItem('usermail');
+    saque = $("#saque-solicita").val();
+    conta = $(".selecionado").find("#id-da-conta").val();
+
+    
+    dados = `user=${user}&saque=${saque}&conta=${conta}`;
+
+    $.post("whats/afiliado/saques/soli.php", dados, (t)=>{
+      if(t == 1){
+        soli_saques('0', '0');
+        success("Saque Solicitado");
+        dadosafd();
+        $(".modal.fade.show").modal("hide");
+      }else if(t == 2){
+        error("Escolha uma conta pix");
+      }else{
+        error("Saldo Solicitado Insuficiente");
+
+      }
+    })
+ 
+  }
+/*Enviando solicitação de saque*/
+
+</script>
+
+
+<!-- Modal -->
+<div class="modal fade" id="add-nova-conta" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 1555;">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+     
+      <div class="modal-body">
+        <h5 class="text-center">Adicionar Conta</h5>
+        <hr>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="form-group">
+              <label>Nome identificador</label>
+              <input class="form-control" id="nome-pix">
+            </div>
+          </div>
+          <div class="col-12">
+             <div class="form-group">
+              <label>Sua chave pix</label>
+              <input class="form-control" id="chave-pix">
+            </div>
+          </div>
+        </div>
+       
+      </div>
+      <div class="container mb-2">
+         <button type="button" class="btn btn-danger btn-sm btn-block" data-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-success btn-sm btn-block" onclick="add_pix()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="solicitar-saque" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+     
+      <div class="modal-body">
+        <h5 class="text-center">Solicitar Saque</h5>
+        <hr>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="form-group">
+              <label>Saldo Disponível</label>
+              <input class="form-control" id="saldo-dispo" disabled >
+            </div>
+          </div>
+          <div class="col-12">
+             <div class="form-group">
+              <label>Quantidade a Sacar</label>
+              <input class="form-control" id="saque-solicita">
+            </div>
+          </div>
+        </div>
+        <hr>
+        <h5 class="text-center">Minhas Contas Pix</h5>
+      
+        <ul class="list-group listagem-contas" style="max-height:125px;overflow-y: scroll;">
+        </ul>
+      </div>
+      
+      <hr>
+     <div class="container mt-2 mb-2">
+
+         <button type="button" class="btn btn-danger btn-sm btn-block" data-dismiss="modal">Cancelar</button>
+        <button class="btn btn-sm btn-info btn-block" onclick="add_conta()">
+          Adicionar Pix
+        </button>
+
+        <button type="button" class="btn btn-success btn-sm btn-block" onclick="solicitar_saque()">Solicitar</button>
+      </div>
+    </div>
+  </div>
+</div>

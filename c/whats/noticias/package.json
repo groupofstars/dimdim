@@ -1,0 +1,16 @@
+{
+  "name": "noticias",
+  "version": "1.0.0",
+  "description": "servidor pra captura de noticias",
+  "main": "index.js",
+  "scripts": {
+   "test": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "mysql2": "^2.3.3",
+    "node-cron": "^3.0.2"
+  }
+}

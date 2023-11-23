@@ -1,0 +1,210 @@
+  <div class="content-wrapper">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Meus Contatos</h1>
+          </div>
+          <div class="col-auto">
+
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section style="padding: 18px;position: relative;top: -70px;">
+  <div class="card">
+    <div class="card-body">
+        
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Nome</th>
+              <th scope="col">Número</th>
+              <th scope="col">Email</th>
+              <th scope="col">Status</th>
+              <th scope="col">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+          </tbody>
+        </table>
+
+    </div>
+  </div>
+
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/jquery.inputmask.min.js"></script>
+
+<script>
+  listar();
+  function listar(){
+    user = 'user='+localStorage.getItem('usermail');
+    $.post("whats/contatos/listar-contatos.php", user, (t)=>{
+      
+       l = '';
+      if(t != 0){
+        t = JSON.parse(t);
+        t.forEach((r)=>{
+          if(r.status == 'verificado'){
+            status = `<span class='badge badge-success'>${r.status}</span>`;
+          }else{
+            status = `<span class='badge badge-warning'>Não verificado</span>`;
+          }
+          l += `<tr>
+              <td>${r.nome}</td>
+              <td><span class='format-num'>${r.numero}</span></td>
+              <td>${r.email}</td>
+              <td>${status}</td>
+
+              <td>
+                <button class="btn btn-sm btn-primary" onclick="editar(${r.id})">
+                  <i class="fas fa-user-edit"></i>
+                  <b> EDITAR</b>
+                </button>
+                <button class="btn btn-sm btn-success" onclick="conversar('${r.numero}')">
+                  <i class="fab fa-whatsapp"></i>
+                  <b> CONVERSAR</b>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deletar(${r.id})">
+                  <i class="fas fa-trash"></i>
+                  <b> DELETAR</b>
+                </button>
+
+              </td>
+            </tr>`;
+        })
+      }else{
+         l += `<tr>
+              <td>----</td>
+              <td>----</td>
+              <td>----</td>
+              <td>----</td>
+              <td>----</td>
+            </tr>`;
+      }
+
+
+      $("tbody").html(l);
+      $(".format-num").mask("+00 (00) 00000-0000");
+    })
+  } 
+
+function deletar(id){
+  $.confirm({
+      theme: 'dark',
+      title: 'Atenção',
+      content: 'Deseja deletar este contato ? ',
+      buttons: {
+        SIM: function(){
+          $.post("whats/contatos/deletar-contato.php", "id="+id, (t)=>{
+            if(t == 1){
+              error("Contato deletado");
+              listar();
+            }
+          })
+        },
+        NÃO: {
+
+        }
+      }
+    })
+}
+
+
+function conversar(num){
+   window.open("https://wa.me/"+num, "_blank");
+}
+
+
+function editar(id){
+  $.post("whats/contatos/editar-contato.php", "id="+id, (t)=>{
+    t = JSON.parse(t);
+    $("#id-contato").val(t.id);
+    $("#nome-contato").val(t.nome);
+    $("#numero-contato").val(t.numero);
+    $("#email-contato").val(t.email);
+    $("#status-contato").val(t.status);
+
+  })
+  $("#modal-editar").modal("show");
+}
+
+function edit(){
+   id = $("#id-contato").val();
+   nome = $("#nome-contato").val();
+   numero = $("#numero-contato").val();
+   email = $("#email-contato").val();
+   status = $("#status-contato").val();
+   user = localStorage.getItem('usermail');
+   dados = `id=${id}&nome=${nome}&numero=${numero}&email=${email}&status=${status}`;
+
+   $.post("whats/contatos/edit-contato.php", dados, (t)=>{
+    if(t == 1){
+      success("Contato editado com sucesso");
+      $(".modal.fade.show").modal("hide");
+      listar();
+    }
+   })
+}
+
+$(".cancel").click(()=>{
+  $(".modal.fade.show").modal("hide");
+})
+
+</script>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="modal-editar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <input type="hidden" id="id-contato">
+        <div class="form-group">
+          <label>Nome</label>
+          <input class="form-control" id="nome-contato">
+        </div>
+
+
+        <div class="row">
+          <div class="col-6">
+            <div class="form-group">
+              <label>Número</label>
+              <input class="form-control" id="numero-contato">
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-group">
+              <label>Email</label>
+              <input class="form-control" id="email-contato">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select class="form-control" id="status-contato">
+            <option value="verificado">Verificado</option>
+            <option value="erro">Não Verificado</option>
+          </select>
+        </div>
+
+        <hr>
+        <div class="mt-2" style="text-align:end;">
+          <button class="btn btn-sm btn-danger cancel">
+            Cancelar
+          </button>
+          <button class="btn btn-sm btn-success" onclick="edit()">
+            Editar
+          </button>
+        </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+<!-- Modal Editar -->

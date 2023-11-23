@@ -1,0 +1,1384 @@
+ <link rel="stylesheet" type="text/css" href="plugins/codemirror/codemirror.css">
+    <link rel="stylesheet" type="text/css" href="plugins/codemirror/theme/default.css">
+
+<style>
+  .send-post{
+    color: #ffc107 !important;
+    font-weight: 700;
+    margin-left: 15px;
+  }
+
+  .send-post.breve{
+    color: #00b7ff !important;
+    font-weight: 700;
+    margin-left: 15px;
+  }
+
+  .after-post{
+    position: relative;
+    right: -15px;
+    font-weight: 600;
+    font-size: 14px;
+    top: 1px;
+    color:#423f3f !important;
+  }
+
+  .doc{
+    cursor: pointer;
+    display: flex;
+    padding: 10px;
+    text-align: center;
+    width: 100%;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+
+ .doc:hover{
+  cursor: pointer;
+  color: white !important;
+  background: #6cb9f9d9 !important;
+}
+
+  .card-body.lista-api{
+    padding:0px;
+  }
+
+  .circle-post {
+    display: none;
+
+  }
+
+  .card.links-api{
+    margin-bottom: 6px !important;
+    box-shadow: 1px 1px 2px 2px rgba(0,0,0,0.2);
+  }
+    strong{
+        color:#343a40d9!important;
+    }
+    
+    a.brand-link strong {
+  color: white !important;
+}
+</style>
+ <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>API WhatsApp</h1>
+          </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section style="position: relative;top: -30px;">
+      <div class="card" style="height: 100%;">
+        <div class="card-body">
+
+
+          <div class="row">
+            <div class="col-12 col-sm-8" style="height: 100%;">
+                <div class="card card-primary card-outline card-tabs">
+                    
+                    <div class="card-body api" style="height: 100%;box-shadow: 1px 1px 2px 3px rgba(0,0,0,0.2);">
+    
+               
+
+<div id="send-text">
+  <div style="display: flex;">
+    <h5>Envio de Texto</h5>
+    <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="0">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+  $url = "http://api.dimdimbet.com/send-text";
+
+  $data = array('instance' => "xxxxxxxxxx",
+                'to' => "xxxxxxxx",
+                'token' => "xxx-xx-xxxx",
+                'message' => "Mensagem a ser Enviada");
+
+
+  $options = array('http' => array(
+                 'method' => 'POST',
+                 'content' => http_build_query($data)
+  ));
+
+  $stream = stream_context_create($options);
+
+  $result = file_get_contents($url, false, $stream);
+
+  echo $result;
+?>
+  </textarea>
+</div>
+
+
+<div id="send-midia" class="mt-5">
+  <div style="display: flex;">
+    <h5>Envio de Mídia</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="1">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+$url = "http://api.dimdimbet.com/send-midia";
+
+$path = './images/25072022092150U4.png';
+
+
+$post_request = array(
+  "instance" => "xxxxxxxxxx",
+  "to" => "xxxxxxxxxxxxx",
+  "token" => "xxx-xx-xxxx",
+  "caption" => "teste de envio",
+  "type" => "image", //image ou video
+  "file" => curl_file_create($path)
+);
+
+$ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $post_request);
+  $result = curl_exec($ch);
+  curl_close($ch);
+ 
+
+ echo $result;
+
+?>
+  </textarea>
+</div>
+
+<div id="send-docs" class="mt-5">
+  <div style="display: flex;">
+    <h5>Envio de Documentos</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="2">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+$url = "http://api.dimdimbet.com/send-doc";
+
+
+$post_request = array(
+  "instance" => "xxxxxxxxxx",
+  "to" => "xxxxxxxxxxxxx",
+  "token" => "xxx-xx-xxxx",
+  "message" => "arquivo.pdf | xml | zip",
+  "url" => "http://link.com/arquivo.pdf"
+);
+
+$post_request = json_encode($post_request);
+$ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $post_request);
+  $result = curl_exec($ch);
+  curl_close($ch);
+ 
+
+ echo $result;
+
+?>
+  </textarea>
+</div>
+
+
+
+<div id="send-instance-create" class="mt-5">
+  <div style="display: flex;">
+    <h5>Criar Instância</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="3">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'http://api.dimdimbet.com/instance-create',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "name_instance": "TESTE DE API",
+    "token": "XXXX-XXX-XXXX",
+    "webhook": "",
+    "qrcode": false
+
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+
+
+  </textarea>
+</div>
+
+
+<div id="send-qrcode" class="mt-5">
+  <div style="display: flex;">
+    <h5>QRCode da Instância</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="4">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'http://api.dimdimbet.com/instance-qrcode',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "token": "XXXX-XXX-XXXX",
+    "hash": "XX00X011XX"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+
+
+  </textarea>
+</div>
+
+
+<div id="send-instance-delete" class="mt-5">
+  <div style="display: flex;">
+    <h5>Deletar Instancia</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="5">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+
+  $url = "http://api.dimdimbet.com/instance-delete";
+
+  $data = array('instance' => "XXXXXXX",
+                'token' => "xxx-xx-xxxx");
+
+
+  $options = array('http' => array(
+                 'method' => 'POST',
+                 'content' => http_build_query($data)
+  ));
+
+  $stream = stream_context_create($options);
+
+  $result = file_get_contents($url, false, $stream);
+
+  echo $result; 
+
+
+  </textarea>
+</div>
+
+
+<div id="send-mail" class="mt-5">
+  <div style="display: flex;">
+    <h5>Enviar Email</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="6">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+
+$url = "http://api.dimdimbet.com/send-mail";
+
+$post_request = array(
+                "name" => "Nome destinatário",
+                "email" => "exemplo@gmail.com",
+                "pass" => "senhaexemplo",
+                "to"=> "recebe-exemplo@gmail.com",
+                "title"=> "Seus Arquivos",
+                "message"=> "Aqui está seus documentos",
+                "doc"=> [["url" => "site.com/arquivo.pdf"], ["url" => "site.com/arquivo.xml"]]
+);
+
+$post_request = json_encode($post_request);
+$ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $post_request);
+  $result = curl_exec($ch);
+  curl_close($ch);
+ 
+
+ echo $result;
+
+
+  </textarea>
+</div>
+
+
+<div id="send-agendar" class="mt-5">
+  <div style="display: flex;">
+    <h5>Agendar Disparo</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="7">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+  $url = "http://api.dimdimbet.com/agendar-text";
+  
+  $data = array('instance' => "xxxxxxxxxxxxx",
+                'to' => "xxxxxxxxxxxx",
+                'token' => "xxxxx-xxx-xxxx",
+                'message' => "Mensagem a ser Enviada",
+                'data' => "2022-09-19 09:55:00");
+
+
+  $options = array('http' => array(
+                 'method' => 'POST',
+                 'content' => http_build_query($data)
+  ));
+
+  $stream = stream_context_create($options);
+
+  $result = file_get_contents($url, false, $stream);
+
+  echo $result;
+?>
+  
+  </textarea>
+</div>
+
+
+<div id="send-list-agenda" class="mt-5">
+  <div style="display: flex;">
+    <h5>Listar Agendamento</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="8">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+  $url = "http://api.dimdimbet.com/agendar-list";
+
+  $data = array('instance' => "xxxxxxxxxxx",
+                'token' => "xxxxx-xxx-xxxx");
+
+  $options = array('http' => array(
+                 'method' => 'POST',
+                 'content' => http_build_query($data)
+  ));
+
+  $stream = stream_context_create($options);
+
+  $result = file_get_contents($url, false, $stream);
+
+
+  $result = json_decode($result);
+
+  echo "<pre>";print_r($result);echo"</pre>";
+?>
+  
+  </textarea>
+</div>
+
+
+
+<div id="send-cancelar-agendamento" class="mt-5">
+  <div style="display: flex;">
+    <h5>Cancelar Agendamento</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="9">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+  $url = "http://api.dimdimbet.com/delete-agenda";
+  
+
+  $data = array('token' => "xxxx-xxx-xxxxx",
+                'hash' => "xxxxxxxx");
+
+  $options = array('http' => array(
+                 'method' => 'POST',
+                 'content' => http_build_query($data)
+  ));
+
+  $stream = stream_context_create($options);
+
+  $result = file_get_contents($url, false, $stream);
+
+  echo $result;
+?>
+
+  </textarea>
+</div>
+
+<div id="send-confirmacao1" class="mt-5">
+  <div style="display: flex;">
+    <h5>Confirmação</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="10">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+$curl = curl_init();
+
+  curl_setopt_array($curl, array(
+    CURLOPT_URL => 'api.dimdimbet.com/send-agendtext',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS =>'{
+      "instance": "xxxxxxxxxxxxx",
+      "to": "xx-xxxxx-xxxx",
+      "message": "Mensagem a ser Enviada",
+      "msg_confirma": "Confirmado ✅",
+      "msg_reagendar": "Vamos reagendar",
+      "msg_erro": "Desculpe, responda apenas com 1 ou 2 Muito Obrigado!!!",
+      "url_recebe": "'.$url_sistema.'",
+      "id_consulta": "xx"
+  }',
+   
+  ));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+?>
+  
+  </textarea>
+</div>
+
+<div id="send-retorno_confirmacao" class="mt-5">
+  <div style="display: flex;">
+    <h5>Retono da Confirmação</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="11">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+header('Access-Control-Allow-Origin: *');
+
+require_once("../../conexao.php");
+
+$dados = json_decode(file_get_contents('php://input'), false);
+
+$id = $dados->id;
+$status = $dados->status;
+
+if ($status == '1') {
+  $dados_status = 'Confirmado';
+}else{
+  $dados_status = 'Reagendar';  
+}
+
+if(isset($id)){
+     $pdo->query("UPDATE consultas SET status_aten = '$dados_status' where id = '$id'");
+}
+
+?>
+  
+  </textarea>
+</div>
+
+<div id="send-confirmacao_programada_1" class="mt-5">
+  <div style="display: flex;">
+    <h5>Agendar Disparo</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="13">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'http://api.dimdimbet.com/agendar-program',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "instance": "xxxxxxxxxxxxx",
+    "to": "xx-xxxxx-xxxx",
+    "message":"Olá tudo bem ? [1] confirma [2] Reagenda",
+    "msg_erro": "Por favor, confirme com  1 ou 2",
+    "msg_confirma": "Confirmado ✅",
+    "msg_reagendar": "Ok, vamos reagendar!",
+    "id_consulta":"xx",
+    "url_recebe": "'.$url_sistema.'",
+    "data": "2023-05-31 14:30:00",
+    "aviso": "02:00:00"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+
+//pegando o id
+$response = json_decode($response, false);
+$id = $response->id;
+
+?>
+  
+  </textarea>
+</div>
+
+<div id="send-confirmacao_programada_2" class="mt-5">
+  <div style="display: flex;">
+    <h5>Edição do Disparo</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="14">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'http://api.dimdimbet.com/agendar-edit',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "id": "10",
+    "data": "2023-05-31 14:30:00",
+    "aviso": "02:00:00"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+
+?>
+  
+  </textarea>
+</div>
+
+<div id="send-confirmacao_programada_3" class="mt-5">
+  <div style="display: flex;">
+    <h5>Cancelamento do Disparo</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="15">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'http://api.dimdimbet.com/agendar-delete',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "id": "10"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+
+?>
+  
+  </textarea>
+</div>
+
+<div id="send-confirmacao_programada_4" class="mt-5">
+  <div style="display: flex;">
+    <h5>Retorno do Disparo</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="16">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+header('Access-Control-Allow-Origin: *');
+
+require_once("../../conexao.php");
+
+$dados = json_decode(file_get_contents('php://input'), false);
+
+$id = $dados->id;
+$status = $dados->status;
+
+if ($status == '1') {
+  $dados_status = 'Confirmado';
+}else{
+  $dados_status = 'Reagendar';  
+}
+
+if(isset($id)){
+     $pdo->query("UPDATE consultas SET status_aten = '$dados_status' where id = '$id'");
+}
+
+?>
+  
+  </textarea>
+</div>
+
+<div id="send-massivo_texto" class="mt-5">
+  <div style="display: flex;">
+    <h5>Envio em Massa de Texto</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="12">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+require_once("../../conexao.php");
+
+@session_start();
+$id_empresa = @$_SESSION['id_empresa'];
+
+$delay      = @$_POST['delay']; //3000 = 3 Seguntos ||| Recomendado 15000 = 15 segundos
+$mensagem   = @$_POST['mensagem'];
+
+// Buscar os Contatos que sera enviados
+$resultado = $pdo->query("SELECT celular FROM clientes where empresa = '$id_empresa' and celular != '' and ativo = 'Sim'");
+
+$prefixo = '55';
+$numeros_formatados = array();
+
+foreach($resultado as $key){
+  $numero = preg_replace('/\D/', '', $key['celular']);
+  $numero_formatado = $prefixo . $numero;
+  $numeros_formatados[] = $numero_formatado;
+}
+
+$numeros_formatados = json_encode($numeros_formatados);
+
+$dados = '{
+    "programado": false,
+    "delay": '.$delay.',
+    "numeros": '.$numeros_formatados.',
+    "instancia": "xxxxxxxxxxx",
+    "mensagem": "'.$mensagem.'"
+}';
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://dimdimbet.com/massivo-texto.php',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS => $dados,
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+
+?>
+  
+  </textarea>
+</div>
+
+<div id="send-massivo_foto" class="mt-5">
+  <div style="display: flex;">
+    <h5>Envio em Massa de Foto</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="17">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+require_once("../../conexao.php");
+
+@session_start();
+$id_empresa = @$_SESSION['id_empresa'];
+
+$delay      = @$_POST['delay']; //3000 = 3 Seguntos ||| Recomendado 15000 = 15 segundos
+$dados_doc  = @$_POST['dados_doc'];
+$mensagem   = @$_POST['mensagem'];
+
+// Buscar os Contatos que sera enviados
+$resultado = $pdo->query("SELECT celular FROM clientes where empresa = '$id_empresa' and celular != '' and ativo = 'Sim'");
+
+$prefixo = '55';
+$numeros_formatados = array();
+
+foreach($resultado as $key){
+  $numero = preg_replace('/\D/', '', $key['celular']);
+  $numero_formatado = $prefixo . $numero;
+  $numeros_formatados[] = $numero_formatado;
+}
+
+$numeros_formatados = json_encode($numeros_formatados);
+
+$dados = '{
+    "programado": false,
+    "delay": '.$delay.',
+    "numeros": '.$numeros_formatados.',
+    "instancia": "xxxxxxxxxxx",
+    "mensagem": "'.$mensagem.'",    
+    "imagem": "'.$url_sistema.'sistema/img/mensagem_massa/'.$dados_doc.'"    
+
+}';
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://dimdimbet.com/massivo-img.php',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS => $dados,
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+
+?>
+  
+  </textarea>
+</div>
+
+<div id="send-massivo_documento" class="mt-5">
+  <div style="display: flex;">
+    <h5>Envio em Massa de Documento</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="18">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+require_once("../../conexao.php");
+
+@session_start();
+$id_empresa = @$_SESSION['id_empresa'];
+
+$delay      = @$_POST['delay']; //3000 = 3 Seguntos ||| Recomendado 15000 = 15 segundos
+$dados_doc  = @$_POST['dados_doc'];
+$mensagem   = @$_POST['mensagem'];
+
+// Buscar os Contatos que sera enviados
+$resultado = $pdo->query("SELECT celular FROM clientes where empresa = '$id_empresa' and celular != '' and ativo = 'Sim'");
+
+$prefixo = '55';
+$numeros_formatados = array();
+
+foreach($resultado as $key){
+  $numero = preg_replace('/\D/', '', $key['celular']);
+  $numero_formatado = $prefixo . $numero;
+  $numeros_formatados[] = $numero_formatado;
+}
+
+$numeros_formatados = json_encode($numeros_formatados);
+
+$dados = '{
+    "programado": false,
+    "delay": '.$delay.',
+    "numeros": '.$numeros_formatados.',
+    "instancia": "xxxxxxxxxxx",
+    "mensagem": "'.$mensagem.'",
+    "doc": "'.$url_sistema.'sistema/img/mensagem_massa/'.$dados_doc.'"
+}';
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://dimdimbet.com/massivo-doc.php',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS => $dados,
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+
+?>
+  
+  </textarea>
+</div>
+
+<div id="send-massivo_audio" class="mt-5">
+  <div style="display: flex;">
+    <h5>Envio em Massa de Audio</h5>
+     <button class="btn btn-sm btn-primary  ml-auto" onclick="copy_code(this)" id="19">
+      <b style="text-transform:uppercase;">Copiar Código</b>
+    </button>
+  </div>
+  <hr>
+  <textarea class="codemirror-textarea form-control">
+<?php
+require_once("../../conexao.php");
+
+@session_start();
+$id_empresa = @$_SESSION['id_empresa'];
+
+$delay      = @$_POST['delay']; //3000 = 3 Seguntos ||| Recomendado 15000 = 15 segundos
+$dados_doc  = @$_POST['dados_doc'];
+$mensagem   = @$_POST['mensagem'];
+
+// Buscar os Contatos que sera enviados
+$resultado = $pdo->query("SELECT celular FROM clientes where empresa = '$id_empresa' and celular != '' and ativo = 'Sim'");
+
+$prefixo = '55';
+$numeros_formatados = array();
+
+foreach($resultado as $key){
+  $numero = preg_replace('/\D/', '', $key['celular']);
+  $numero_formatado = $prefixo . $numero;
+  $numeros_formatados[] = $numero_formatado;
+}
+
+$numeros_formatados = json_encode($numeros_formatados);
+
+$dados = '{
+    "programado": false,
+    "delay": '.$delay.',
+    "numeros": '.$numeros_formatados.',
+    "instancia": "xxxxxxxxxxx",
+    "audio": "'.$url_sistema.'sistema/img/mensagem_massa/'.$dados_doc.'"
+
+}';
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://dimdimbet.com/massivo-audio.php',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS => $dados,
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+
+?>
+  
+  </textarea>
+</div>
+
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-4">
+              <div class="form-group">
+                  <label>Meu Token</label>
+                  <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="m-token">
+                    <div class="input-group-append">
+                      <button class="btn btn-primary" onclick="copy()">Copiar</button>
+                    </div>
+                  </div>
+              </div>
+
+              <hr>
+
+              <h6 class="text-center mb-3">
+                <strong>Dim Dim API</strong>
+              </h6>
+
+
+
+               <div class="card links-api">
+              <div class="card-header api-open" style="display: flex;">
+                 <strong>INSTÂNCIAS</strong>
+
+                  
+                   <button class="btn btn-primary btn-sm btn-xs ml-auto openexample">
+                     <b style="text-transform:uppercase;">Abrir</b>
+                  </button>
+
+
+                  <button class="btn  btn-danger btn-sm btn-xs ml-auto closeexample" style="display:none;">
+                     <b style="text-transform:uppercase;">Fechar</b>
+                  </button>
+              </div>
+              <div class="card-body lista-api" style="display:none;">
+              
+                    <div class="doc" id="instance-create">
+                        <strong class="send-post">POST</strong>
+                        <strong class="after-post">CRIAR INSTÂNCIA</strong>
+                        <strong class="circle-post">
+                          <i class="far fa-circle"></i>
+                        </strong>
+                    </div>
+
+                      <div class="doc" id="qrcode">
+                        <strong class="send-post">POST</strong>
+                        <strong class="after-post">GERAR QRCODE</strong>
+                        <strong class="circle-post">
+                          <i class="far fa-circle"></i>
+                        </strong>
+                    </div>
+
+                    <div class="doc" id="instance-delete">
+                        <strong class="send-post">POST</strong>
+                        <strong class="after-post">DELETAR INSTÂNCIA</strong>
+                        <strong class="circle-post">
+                          <i class="far fa-circle"></i>
+                        </strong>
+                    </div>
+              
+              </div>
+            </div>
+
+
+            <div class="card links-api">
+              <div class="card-header api-open" style="display: flex;">
+                 <strong>MENSAGENS</strong>
+
+                  
+                   <button class="btn btn-primary btn-sm btn-xs ml-auto openexample">
+                     <b style="text-transform:uppercase;">Abrir</b>
+                  </button>
+
+
+                  <button class="btn  btn-danger btn-sm btn-xs ml-auto closeexample" style="display:none;">
+                     <b style="text-transform:uppercase;">Fechar</b>
+                  </button>
+              </div>
+              <div class="card-body lista-api" style="display:none;">
+              
+                    <div class="doc" id="text">
+                        <strong class="send-post">POST</strong>
+                        <strong class="after-post">ENVIO DE TEXTO</strong>
+                        <strong class="circle-post">
+                          <i class="far fa-circle"></i>
+                        </strong>
+                    </div>
+
+
+                    <div class="doc" id="midia">
+                        <strong class="send-post">POST</strong>
+                        <strong class="after-post">ENVIO DE MÍDIA</strong>
+                        <strong class="circle-post">
+                          <i class="far fa-circle"></i>
+                        </strong>
+                    </div>
+
+
+                    
+                    <div class="doc" id="docs">
+                        <strong class="send-post">POST</strong>
+                        <strong class="after-post">ENVIO DE DOCUMENTOS</strong>
+                        <strong class="circle-post">
+                          <i class="far fa-circle"></i>
+                        </strong>
+                    </div>
+                    
+                     <div class="doc" id="mail">
+                        <strong class="send-post">POST</strong>
+                        <strong class="after-post">ENVIO DE EMAIL</strong>
+                        <strong class="circle-post">
+                          <i class="far fa-circle"></i>
+                        </strong>
+                    </div>
+
+
+                    <div class="doc" id="audio">
+                        <strong class="send-post breve">BREVE</strong>
+                        <strong class="after-post">ENVIO DE AUDIO</strong>
+                        <strong class="circle-post">
+                          <i class="far fa-circle"></i>
+                        </strong>
+                    </div>
+              
+              </div>
+            </div>
+
+    
+            <div class="card links-api">
+              <div class="card-header api-open" style="display: flex;">
+                 <strong>AGENDAMENTOS</strong>
+
+                  
+                   <button class="btn btn-primary btn-sm btn-xs ml-auto openexample">
+                     <b style="text-transform:uppercase;">Abrir</b>
+                  </button>
+
+
+                  <button class="btn  btn-danger btn-sm btn-xs ml-auto closeexample" style="display:none;">
+                     <b style="text-transform:uppercase;">Fechar</b>
+                  </button>
+              </div>
+              <div class="card-body lista-api" style="display:none;">
+
+
+                  <div class="doc" id="agendar">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">AGENDAR DISPARO</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+                   <div class="doc" id="list-agenda">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">LISTAR AGENDAMENTOS</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+
+                  <div class="doc" id="cancelar-agendamento">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">CANCELAR AGENDAMENTO</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+
+
+              </div>
+            </div>
+
+            <div class="card links-api">
+              <div class="card-header api-open" style="display: flex;">
+                 <strong>CONFIRMAÇÃO</strong>
+
+                  
+                   <button class="btn btn-primary btn-sm btn-xs ml-auto openexample">
+                     <b style="text-transform:uppercase;">Abrir</b>
+                  </button>
+
+
+                  <button class="btn  btn-danger btn-sm btn-xs ml-auto closeexample" style="display:none;">
+                     <b style="text-transform:uppercase;">Fechar</b>
+                  </button>
+              </div>
+              <div class="card-body lista-api" style="display:none;">
+
+
+                  <div class="doc" id="confirmacao1">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">CONFIRMAÇÃO AUTOMÁTICA</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+                  <div class="doc" id="retorno_confirmacao">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">RETONO DA CONFIRMAÇÃO</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+              </div>
+            </div>
+
+            <div class="card links-api">
+              <div class="card-header api-open" style="display: flex;">
+                 <strong>CONFIRMAÇÃO PROGRAMADA</strong>
+
+                  
+                   <button class="btn btn-primary btn-sm btn-xs ml-auto openexample">
+                     <b style="text-transform:uppercase;">Abrir</b>
+                  </button>
+
+
+                  <button class="btn  btn-danger btn-sm btn-xs ml-auto closeexample" style="display:none;">
+                     <b style="text-transform:uppercase;">Fechar</b>
+                  </button>
+              </div>
+              <div class="card-body lista-api" style="display:none;">
+
+
+                  <div class="doc" id="confirmacao_programada_1">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">AGENDAR DISPARO</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+                  <div class="doc" id="confirmacao_programada_2">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">EDIÇAO DO DISPARO</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+                  <div class="doc" id="confirmacao_programada_3">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">CANCELAR DISPARO</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+                  <div class="doc" id="confirmacao_programada_4">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">RETONO DO DISPARO</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+              </div>
+            </div>
+
+            <div class="card links-api">
+              <div class="card-header api-open" style="display: flex;">
+                 <strong>ENVIOS EM MASSA</strong>
+
+                  
+                   <button class="btn btn-primary btn-sm btn-xs ml-auto openexample">
+                     <b style="text-transform:uppercase;">Abrir</b>
+                  </button>
+
+
+                  <button class="btn  btn-danger btn-sm btn-xs ml-auto closeexample" style="display:none;">
+                     <b style="text-transform:uppercase;">Fechar</b>
+                  </button>
+              </div>
+              <div class="card-body lista-api" style="display:none;">
+
+
+                  <div class="doc" id="massivo_texto">
+                    <strong class="send-post">POST</strong>
+                    <strong class="after-post">ENVIO DE TEXTO</strong>
+                    <strong class="circle-post">
+                      <i class="far fa-circle"></i>
+                    </strong>
+                  </div>
+
+                  <div class="doc" id="massivo_foto">
+                      <strong class="send-post">POST</strong>
+                      <strong class="after-post">ENVIO DE FOTO</strong>
+                      <strong class="circle-post">
+                        <i class="far fa-circle"></i>
+                      </strong>
+                  </div>
+
+                  <div class="doc" id="massivo_documento">
+                      <strong class="send-post">POST</strong>
+                      <strong class="after-post">ENVIO DE DOCUMENTO</strong>
+                      <strong class="circle-post">
+                        <i class="far fa-circle"></i>
+                      </strong>
+                  </div>
+
+                  <div class="doc" id="massivo_audio">
+                      <strong class="send-post">POST</strong>
+                      <strong class="after-post">ENVIO DE AUDIO</strong>
+                      <strong class="circle-post">
+                        <i class="far fa-circle"></i>
+                      </strong>
+                  </div>
+
+              </div>
+            </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+</div>
+
+<script src="plugins/codemirror/codemirror.js"></script>
+<script src="plugins/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+<script src="plugins/codemirror/mode/xml/xml.js"></script>
+<script src="plugins/codemirror/mode/javascript/javascript.js"></script>
+<script src="plugins/codemirror/mode/css/css.js"></script>
+<script src="plugins/codemirror/mode/clike/clike.js"></script>
+<script src='plugins/codemirror/mode/php/php.js'></script>
+<script src='plugins/codemirror/addon/selection/active-line.js'></script>
+<script src='plugins/codemirror/addon/edit/matchbrackets.js'></script>
+<script src="./api.js"></script>
+<script>
+$(".openexample").click(function(){
+    console.log("abrindo");
+    $(this).closest("div").next(".lista-api").slideDown();
+    $(this).closest("div").find(".closeexample").css("display", "block");
+    $(this).closest("div").find(".openexample").css("display", "none");
+})
+
+$(".closeexample").click(function(){
+    $(this).closest("div").next(".lista-api").slideUp();
+    $(this).closest("div").find(".closeexample").css("display", "none");
+    $(this).closest("div").find(".openexample").css("display", "block");
+    
+})
+
+
+
+get_token();
+function get_token(){
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/user/dados.php", user, (t)=>{
+    t = JSON.parse(t)
+    $("#m-token").val(t.token);
+  })
+
+}
+
+codd();
+
+function codd(){
+  let all = $(".codemirror-textarea");
+  all.map((index)=>{
+    codeEditorElement = $(".codemirror-textarea")[index];
+  
+    let editor = CodeMirror.fromTextArea(codeEditorElement, {
+      mode : "application/x-httpd-php",
+      lineNumbers : true,
+      matchBrackets : true,
+      theme : "default",
+      lineWiseCopyCut : true,
+      undoDepth : 200
+    });
+  })
+}
+
+
+function copy(){
+  mt = $("#m-token").val();
+
+  navigator.clipboard.writeText(mt);
+
+  success("Token Copiado");
+}
+
+function copy_code(t){
+  id = t.id;
+  code = $(".codemirror-textarea")[id].value;
+  navigator.clipboard.writeText(code);
+  success("Código copiado");
+}
+
+$(".doc").click(function(){
+  $(".circle-post").find("i").attr("class", "far fa-circle");
+  $(this).find(".circle-post").find("i").attr("class", "fas fa-circle");
+
+
+  id = $(this).attr("id");
+  a = document.createElement("a");
+  a.setAttribute("href", `#send-${id}`);
+  a.click();
+})
+
+</script>

@@ -1,0 +1,226 @@
+ <style>
+   .pergunta-card {
+      padding: 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      background: rgba(0,0,0,0.1);
+      border-radius: 3px;
+   }
+
+
+   .more-desc{
+    font-size: 13px;
+    color: white;
+    font-weight: 399;
+    text-transform: uppercase;
+   }
+
+   .btn-more{
+    position: relative;
+    left: 475px;
+    top: -50px;
+    font-size: 12px;
+    text-transform: uppercase;
+    cursor: pointer;
+   }
+
+   .bd-status {
+    position: relative;
+    left: 380px;
+    top: -10px;
+    font-weight: 400;
+   }
+ </style>
+
+ <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Sistema de Cobranças</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+   <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+              
+            <div class="col-12 col-lg-7 table-responsive">
+              <table class="table">
+                  <thead>
+                    <tr>
+                      <th class="no-border">Cliente</th>
+                      <th class="no-border">Valor</th>
+                      <th class="no-border">Status</th>
+                      <th class="no-border">Data</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+              </table>
+
+            </div>
+            <div class="col-12 col-lg-5">
+              <div class="card">
+                <div class="card-header">
+                  Configurações
+                </div>
+                <div class="card-body">
+
+                   <div class="form-group">
+                    <label>Status do Robô</label>
+                    <select class="form-control status">
+                      <option value="true">Ligado</option>
+                      <option value="false">Desligado</option>
+                    </select>
+                  </div>
+
+
+                   <div class="form-group">
+                    <label>Instancia para cobrança</label>
+                    <select class="form-control" id="instance">
+                      
+                    </select>
+                  </div>
+
+
+                   <div class="form-group">
+                    <label>Link de cobrança</label>
+                    <select class="form-control" id="link">
+                      <option value="true">Habilitar</option>
+                      <option value="false">Desabilitar</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Mensagem de Cobrança</label>
+                    <textarea class="form-control msg" style="height: 170px;max-height: 170px;overflow-y: scroll;"></textarea>
+                  </div>
+
+                  <button class="btn btn-sm btn-success btn-block save">
+                      SALVAR CONFIGURAÇÕES
+                  </button>
+                  <span class="btn btn-default btn-block btn-sm" onclick="comousar()">
+                    MODO DE USO ?
+                  </span>
+                  <div class="modo" style="display: none;">
+                    
+                    <p class="mt-3">
+                      <h6>{nome} = Nome do Cliente</h6>
+                      <h6>{exp} = Data de Expiração</h6>
+                      <h6>{link} = Link de Pagamento</h6>
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+
+
+
+          </div>
+        </div>
+      </div>
+    </section>
+</div>
+
+<script>
+instances();
+config();
+cobr();
+function cobr(){
+  $.post("cobranca/listar.php", (t)=>{
+     l = '';
+    if(t != 0){
+
+      t = JSON.parse(t);
+      t.forEach((r)=>{
+        if(r.status == 1){
+          status = '<span class="badge badge-success">PAGO</span>';
+        }else{
+          status = '<span class="badge badge-danger">PENDENTE</span>';
+        }
+
+        l += `<tr style="white-space: nowrap;">
+                  <td>${r.cliente}</td>
+                  <td>${r.valor}</td>
+                  <td>${status}</td>
+                  <td>${r.data.split("-").reverse().join("-")}</td>
+                </tr>`;
+      })
+
+    }else{
+      l += `<tr style="white-space: nowrap;">
+                  <td>------</td>
+                  <td>------</td>
+                  <td>------</td>
+                  <td>------</td>
+                </tr>`;
+    }
+
+    $("tbody").html(l);
+  })
+}
+
+function config(){
+  $.post("cobranca/list-config.php", (t)=>{
+    t = JSON.parse(t);
+
+    $(".msg").val(t.mensagem);
+    $("#link").val(t.link);
+    $("#instance").val(t.instancia);
+    $(".status").val(t.status);
+  })
+}
+
+function instances(){
+  user = 'user='+localStorage.getItem('usermail');
+  i = '';
+  $.post("whats/user/numeros.php", user, (t)=>{
+     t = JSON.parse(t);
+    
+    t.forEach((r)=>{
+        i += `<option value='${r.num}'>${r.nome}</option>`;
+    })
+    $("#instance").html(i);
+  })
+}
+
+
+function comousar(){
+  $(".modo").slideToggle(500);
+}
+
+
+$(".save").click(()=>{
+  instance = $("#instance").val();
+  link = $("#link").val();
+  msg = $(".msg").val().trim();
+  status = $(".status").val();
+
+  $.confirm({
+    theme: 'dark',
+    title: 'Atenção',
+    content:'Deseja realmente alterar as configurações de cobrança ?',
+    buttons: {
+      SIM: function(){
+         dados = `msg=${msg}&link=${link}&instancia=${instance}&status=${status}`;
+          $.post("cobranca/config.php", dados, (t)=>{
+            if(t == 1){
+              success("Alterado com sucesso");
+            }
+          })
+        },
+        NÃO: {
+
+        }
+    }
+  })
+ 
+})
+
+</script>

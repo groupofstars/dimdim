@@ -1,0 +1,118 @@
+
+
+<html lang="en">
+   <head>
+
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>WhatsAfiliado registrar</title>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&amp;display=fallback">
+      <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+      <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+      <link rel="stylesheet" href="dist/css/adminlte.min.css?v=3.2.0">
+   </head>
+   <style>
+      #erro1, #errocpf {
+         display: none;
+      }
+
+      .register-page{
+                background: linear-gradient(135deg, #184e68 0%,#57ca85 100%) !important;
+            }
+   </style>
+   <body class="register-page" style="min-height: 570.8px;">
+      <div class="register-box">
+         <div class="register-logo" style="margin-bottom:-3.1rem!important;">
+             <img class="img-fluid" src="logo-login.png" width="400">
+         </div>
+         <div class="card">
+            <div class="card-body register-card-body">
+               <p class="login-box-msg">Preencha os dados abaixo</p>
+               <div class="text-center mb-3" id="erro1">
+                  <span class="badge badge-danger" style="padding:6px;border-radius: 10px;">
+                     Preencha todos os dados
+                  </span>
+               </div>
+                  <div class="input-group mb-3">
+                     <input type="text" class="form-control" placeholder="Seu nome" id="nome">
+                     <div class="input-group-append">
+                        <div class="input-group-text">
+                           <span class="fas fa-user"></span>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="input-group mb-3">
+                     <input type="text" class="form-control" placeholder="Seu CPF" id="cpf">
+                     <div class="input-group-append">
+                        <div class="input-group-text">
+                           <span class="fas fa-address-card"></span>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="input-group mb-3">
+                     <input type="email" class="form-control" placeholder="Email" id="email">
+                     <div class="input-group-append">
+                        <div class="input-group-text">
+                           <span class="fas fa-envelope"></span>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="input-group mb-3">
+                     <input type="password" class="form-control" placeholder="Senha" id="senha">
+                     <div class="input-group-append">
+                        <div class="input-group-text">
+                           <span class="fas fa-lock"></span>
+                        </div>
+                     </div>
+                  </div>
+                  
+                  <div class="text-center mt-2 mb-2" id="errocpf">
+                     <span class="badge badge-danger" style="padding:6px;border-radius: 10px;">
+                        CPF já cadastrado
+                     </span>
+                  </div>
+               <div class="social-auth-links text-center">
+                 
+                  <a id="registrar" class="btn btn-block btn-primary">
+                     Registrar
+                  </a>
+                  <a href="login.html" class="btn btn-block btn-danger">
+                     Voltar para o login
+                  </a>
+               </div>
+               
+            </div>
+         </div>
+      </div>
+      <script src="plugins/jquery/jquery.min.js"></script>
+      <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+      <script src="dist/js/adminlte.min.js?v=3.2.0"></script>
+   </body>
+</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.8/jquery.mask.min.js"></script>
+<script>
+   $("#cpf").mask('000.000.000-00');
+   $("#registrar").click(()=>{
+      nome = $("#nome").val();
+      email = $("#email").val();
+      senha = $("#senha").val();
+      cpf = $("#cpf").val();
+
+      if(nome == '' || email == '' || senha == '' || cpf == ''){
+         $("#erro1").css("display", "block");
+         console.log("erro");
+      }else{
+         dados = 'nome='+nome+'&email='+email+'&senha='+senha+'&cpf='+cpf;
+         $.post("api/registrar.php", dados, (t)=>{
+            if(t == 1){
+               location.href = 'login.html';
+            }else if(t == 0){
+               $("#errocpf").css("display", "block");
+            }
+         })
+      }
+   })
+</script>
+

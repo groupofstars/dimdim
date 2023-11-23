@@ -1,0 +1,357 @@
+<style>
+  .card-item{
+    box-shadow: 1 1px 1px 1px rgba(0,0,0,0.1);
+    border-left: 3px solid #008cff;
+    background: white !important;
+  }
+  .item-word {
+    padding: 10px;  
+    margin: 4px;
+  }
+  .remove-key {
+    background: #e74c3c;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    top: -10px;
+    left: 12px;
+    cursor: pointer;
+}
+</style>
+  <div class="content-wrapper">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Chatbot</h1>
+          </div>
+          <div class="col-auto">
+           
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+
+<section class="content" style="padding: 30px;position: relative;top: -70px;">
+  <div class="card">
+         <div class="card-header">
+              <h3 class="card-title name">Autoresponders</h3>
+         </div>
+
+         <div class="card-body">
+           <div class="row list"></div>
+         </div>
+</div>
+</section>
+</div>
+
+<script>
+  $(".row.list").on('click', '.show-me',function(){
+    if($(this).hasClass("down") == true){
+      $(this).removeClass("down");
+      $(this).find("i").attr("class", "fas fa-sort-down");
+    }else{
+      $(this).addClass("down");
+      $(this).find("i").attr("class", "fas fa-sort-up");
+    }
+    $(this).closest(".card").find(".card-body").slideToggle('down');
+  })
+
+  /*Listando as instancias*/
+  listar_instancias();
+  function listar_instancias(){
+    $(".card-title.name").html("Instâncias");
+    $(".card-tools").remove();
+
+    user = 'user='+localStorage.getItem('usermail');
+    $.post("whats/chatbot/instancias.php", user, (t)=>{
+      instancias = '';
+      if(t != 0){
+        t = JSON.parse(t);
+        t.forEach((r)=>{
+          instancias += ` <div class="col-4">
+               <div class="card">
+                 <div class="card-header">
+                   <h4 class="card-title">
+                     ${r.nome.substr(0,12)}...
+                   </h4>
+                   <div class="card-tools">
+                     <button class="btn btn-sm btn-primary show-me" onclick="perguntas(${r.id})">
+                      <i class="fas fa-sort-down" style="margin-left: 4px;margin-right: 4px;"></i>
+                     </button>
+                
+                     <button class="btn btn-sm btn-danger" onclick="removeall(${r.id})">
+                       <i class="fas fa-trash"></i>
+                     </button>
+                   </div>
+                 </div>
+                 <div class="card-body" id="${r.id}" style="display:none;">
+                  <div class="text-center">
+                  <div class="spinner-border text-light" role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                  </div>
+                 </div>
+               </div>
+             </div>`;
+        })
+      }else{
+
+      }
+
+      $(".row.list").html(instancias);
+    })
+  }
+  /*Listando as instancias*/
+
+  /*Buscando perguntas*/
+  function perguntas(id){
+    dados = 'instancia='+id;
+    $.post("whats/chatbot/perguntas.php", dados, (t)=>{
+      prt = `<button class="btn btn-sm btn-primary btn-block" onclick="add_palavra_chave(${id})">
+      <b>ADD PALAVRA CHAVE</b></button><hr><ul style="padding: 0px;">`;
+      if(t != 0){
+        t = JSON.parse(t);
+        t.forEach((r)=>{
+          prt += ` <li class="item" style="list-style:none;">
+          <div class="card card-item" style="background-color: rgba(0,0,0,0.1);">
+            <div class="card-header">
+              <h5 class="card-title">
+                ${r.pergunta.substr(0,7)} ... - <span class="badge badge-primary">${r.bots} Bots</span>
+              </h5>
+              <div class="card-tools">
+                <button class="btn btn-primary btn-xs" onclick="view(${r.id})">
+                   <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-danger btn-xs" onclick="removeKey(${r.id})">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            
+            </div>
+          
+          </div>
+        </li>`; 
+        })
+      }else{
+        prt += `<b>Nada encontrado</b>`;
+      }
+
+      prt += `</ul>`;
+
+      setTimeout(()=>{
+        $(`#${id}`).html(prt);
+      },1000);
+    })
+  }
+  /*Buscando perguntas*/
+
+
+
+  /*Buscando os responders*/
+  function view(id){
+
+    loader();
+
+    setTimeout(()=>{
+
+    $(".card-title").html("Fluxos do Chatbot");
+    $(".card-title").after(`<div class="card-tools"><button class="btn btn-sm btn-danger" onclick="back()" style="width: 150px;font-weight: 700;">VOLTAR</button></div>`);
+
+    $(".row.list").load(`whats/chatbot/pages/fluxos.html`, function(){
+      listar_fluxos(id);
+    
+
+    });
+   // $.post("whats/chatbot/listar-perguntas.php")
+
+    block_loader();
+    },1500);
+   
+  }
+  /*Buscando os responders*/
+
+
+  /*Deletando todos os bots*/
+  function removeall(id){
+    $.confirm({
+      theme: 'dark',
+      title: 'Atenção!',
+      content: 'Você deseja realmente deletar todos os bots dessa instância ?',
+      buttons: {
+        SIM: function(){
+          $.post("whats/chatbot/delete.php", 'id='+id, (t)=>{
+            if(t == 1){
+              error("Chatbot zerado");
+              listar_instancias();
+            }
+          })
+        },
+        NÃO: {
+
+        }
+      }
+    })
+  }
+  /*Deletando todos os bots*/
+
+  /*Deletando palavras chave*/
+  function removeKey(id){
+    $.confirm({
+      theme: 'dark',
+      title: 'Atenção',
+      content: 'Deseja deletar todos os fluxos dessas palavras chave?',
+      buttons: {
+        SIM: function(){
+          $.post("whats/chatbot/delete-key.php", 'id='+id, (t)=>{
+            if(t > 0){
+              error("Chaves e Fluxos deletados");
+              perguntas(t);
+            }
+          })
+        },
+        NÃO: {
+          
+        }
+      }
+    })
+  }
+  /*Deletando palavras chave*/
+
+
+   /*Adicionando palavras chave*/
+  function add_palavra_chave(id){
+    $("#instancia-keyword").val(id);
+    $("#modal-palavra-chave").modal('show');
+  }
+  /*Adicionando palavras chave*/
+
+  /*Removendo as palavras*/
+  $("#keyword-list").on('click', '.remove-key', function(){
+    texto = $(this).closest("span").text().slice(0, -1);
+    $(this).closest("span").remove();
+    
+    valores = $("#all-keyword").val().split(",");
+    valores = valores.filter(function(valor){
+      return valor !== texto;
+    })
+
+    $("#all-keyword").val(valores.join(","));
+
+  }) 
+  /*Removendo as palavras*/
+
+  /*Interpretando as palavras*/
+  $("input[id='keyword']").on('keyup', function(event){
+    if(event.which === 13){
+      palavra = $(this).val();
+
+
+      allKeys = $("#all-keyword").val()+","+palavra;
+      $("#all-keyword").val(allKeys);
+
+
+
+      allKeys = $("#all-keyword").val().split(",");
+
+      /*Remove palavras duplicadas*/
+      allKeys = allKeys.filter(function(item, index){
+        return allKeys.indexOf(item) === index;
+      })
+      /*Remove palavras duplicadas*/
+
+      /*Remove itens vazios*/
+      allKeys = $.grep(allKeys, function(valor){
+        return Boolean(valor);
+      })
+      /*Remove itens vazios*/
+
+      allKeys = '<span class="badge badge-default item-word mr-2">'+allKeys.join("<b class='ml-2 remove-key'>x</b></span><span class='badge badge-default item-word mr-2'>")+"<b class='ml-2 remove-key'>x</b></span>";
+
+      $("#keyword-list").html(allKeys);
+
+      $("#keyword").val("");
+      
+    }
+
+  })
+  /*Interpretando as palavras*/
+
+  /*Salvando as palavras*/
+  function salvar(){
+    id = $("#instancia-keyword").val();
+    keys = $("#all-keyword").val().split(",");
+
+    keys = $.grep(keys, function(valor){
+      return Boolean(valor);
+    })
+
+    keys = keys.filter(function(item, index){
+          return keys.indexOf(item) === index;
+        })
+
+    keys = keys.join("-");
+
+    dados = 'instance='+id+'&keys='+keys;
+    $.post("whats/chatbot/adicionar.php", dados, (t)=>{
+      if(t == 1){
+        $("#modal-palavra-chave").modal("hide");
+        $("#keyword-list").html("");
+        $("#keyword").val("");
+        perguntas(id);
+      }
+    })
+  }
+  /*Salvando as palavras*/
+
+
+  /*Fechando modais*/
+  function cancelar(){
+    $(".modal.fade.show").modal("hide");
+  }
+  /*Fechando modais*/
+</script>
+
+
+<!-- Modal add lista -->
+<div class="modal fade" id="modal-palavra-chave" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="focus">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">  
+        <div class="form-group">
+          <input type="hidden" id="instancia-keyword">
+          <h4 class="text-center">
+            Adicione as Palavras chaves
+          </h4>
+          <p class="text-center">De espaço após digitar, para inclui-la a lista.</p>
+          <hr>
+
+          <h5>
+            Palavras: <span id="keyword-list"></span>
+          </h5>
+          
+          <input id="keyword" class="form-control">
+          <input id="all-keyword" type="hidden">
+        </div>
+
+
+        <div class="mt-2" style="text-align: end;">
+          <button class="btn btn-sm btn-danger" onclick="cancelar()">
+           CANCELAR 
+          </button>
+          <button class="btn btn-sm btn-success" onclick="salvar()">
+            ADICIONAR
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+

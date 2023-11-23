@@ -1,0 +1,75 @@
+ <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Treinamentos</h1>
+          </div>
+          <div class="col-auto">
+            
+          </div>
+        
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+   <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="card">
+        <div class="card-body">
+
+
+            <div class="row" style="position: relative;top: -35px;">
+              <div class="col-12 col-sm-12">
+                
+                <!--Listagem dos cursos-->
+                <div id="cursos-div" style="display:none"></div>
+                <!--Listagem dos cursos-->
+
+                <!--Listagem dos modulos-->
+                <div id="modulos-div" style="display:none;"></div>
+                <!--Listagem dos modulos-->
+
+                <!--Listagem das aulas-->
+                <!--Listagem das aulas-->
+
+
+
+              </div>
+        </div>
+      </div>
+    </section>
+</div>
+
+
+
+<script>
+/*Iniciando*/
+$(()=>{
+  loader();
+  setTimeout(()=>{
+    block_loader();
+    $("#cursos-div").load("whats/admin/cursos/cursos.html");
+    $("#cursos-div").css("display", "block");
+  },2000);
+  
+})
+/*Iniciando*/
+
+
+/*Voltando pros cursos*/
+function back_cursos(){
+  $(".modulos-list").css("display", "none");
+  $(".cursos-list").toggle(500);
+  lista();
+}
+/*Voltando pros cursos*/
+
+
+</script>
+
+
+
+
+
+

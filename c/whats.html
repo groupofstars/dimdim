@@ -1,0 +1,477 @@
+ <link rel="stylesheet" href="plugins/summernote/summernote-bs4.min.css">
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Instâncias</h1>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm bmt" id="novonumero">
+              Nova Instância
+            </button>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+
+<section class="content" style="padding: 30px;position: relative;top: -70px;">
+  <div class="card">
+         <div class="card-header">
+              <h3 class="card-title">Suas instâncias</h3>
+              <div class="card-tools">
+
+                <div class="row">
+                  <div class="col">
+                    <div class="input-group input-group-sm" style="width: 180px;">
+                      <input type="text" id="search" class="form-control float-right" placeholder="Buscar">   
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+          </div>
+
+
+    <div class="card-body table-responsive p-0">
+      <table class="table">
+            <thead>
+              <tr>
+                <th class="no-border"></th>
+                <th class="no-border">Nome</th>
+                <th class="no-border">Instância</th>
+                <th class="no-border">Status</th>
+                <th class="no-border">Ações</th>
+                <th class="no-border">Planos</th>
+              </tr>
+            </thead>
+            <tbody>
+                    
+            </tbody>
+      </table>
+    </div>
+</div>
+</section>
+</div>
+<link rel="stylesheet" href="switch.css">
+
+<style>
+  .copyHash:hover{
+    cursor: pointer;
+  }
+</style>
+
+<script>
+$("#novonumero").click(function(){
+
+  $(".pross").css("display", "block");
+  $(".edit").css("display", "none");itens
+  $("#nome-identificador").val("");
+  $(".listar-itens").html("");
+  $("#totaltext").css("display", "none");
+  /*Verificando permissão de criação pra instancias*/
+  $.post("whats/admin/users/verifica-instancia.php", user, (t)=>{
+    t = JSON.parse(t);
+    if(t.status == true){
+      $("#addnum").modal("show");
+    }else{
+      $.alert({
+        theme: 'dark',
+        title: 'Ops',
+        content: 'Você não tem mais permissão, para criação de novas instâncias'
+      })
+    }
+  })
+
+
+})
+
+/*Inserir*/
+function criar(){
+  dados = new Object();
+  dados.user = localStorage.getItem('usermail');
+
+  dados.nome = $("#nome-identificador").val();
+ 
+  dados = JSON.stringify(dados);
+  $.post("whats/whats/add-instancias.php", dados, (r)=>{
+    if(r != 0){
+      r = JSON.parse(r);
+      scan(r.hash);
+
+      setTimeout(()=>{
+        $("#addnum").modal("hide");
+        listar();
+      },1300);
+      
+    }else{
+      error("Ocorreu um Erro");
+    }
+  })
+}
+/*Inserir*/
+
+/*Abrindo o scan*/
+function scan(hash){
+
+  $("#id-instance").val(hash);
+  $("#gerarqr").attr("disabled", "");
+  id = 'hash='+hash;
+ 
+  $.post("whats/whats/conectar.php", id, (t)=>{
+      if(t != 0){
+        $("#modal-scan").modal("show");
+        $("#qr").html(`<img class="img-fluid" src="${t}">`);
+
+
+          $("#seconds").html("13");
+          seconds = 13;
+          intervalo = setInterval(()=>{
+            seconds = seconds-1;
+            $("#seconds").html(seconds);
+            if(seconds == 0){
+              clearInterval(intervalo);
+              $("#gerarqr").removeAttr("disabled");
+            }
+
+            /*Verificando a conexão*/
+            $.post("whats/whats/verifica.php", id, (t)=>{
+                if(t == 1){
+                    success("Instância conectada");
+                    clearInterval(intervalo);
+                    $("#modal-scan").modal("hide");
+                    listar();
+                }
+            })
+            /*Verificando a conexão*/
+            
+          },1000);
+      }else{
+        error("Ocorreu um erro");
+      }
+  })
+
+}
+/*Abrindo o scan*/
+
+/*Gerando o qrcode*/
+$("#gerarqr").click(()=>{
+  hash = $("#id-instance").val();
+  scan(hash);
+})
+
+
+/*Listando instancias*/
+listar();
+function listar(){
+ user = 'user='+localStorage.getItem('usermail'); 
+ $.post("whats/whats/listar.php", user, (t)=>{
+  if(t != 0){
+
+    t = JSON.parse(t);
+    list = '';
+    t.forEach((r)=>{
+       
+       btns = '';
+       planosBtn = '';
+
+    
+      if(r.status == 1){
+        init = `<i class="fas fa-square text-success"></i>`;
+        status = `<span class="badge badge-success">ATIVA</span>`;
+
+         btns += `<button class="btn btn-sm btn-danger" onclick="deletar(${r.id})">
+                 <b>DELETAR </b>
+                  <i class="fas fa-trash ml-2"></i>
+                 </button>`;
+
+      }else if(r.status == 0){
+        init = `<i class="fas fa-square text-danger"></i>`;
+        status = `<span class="badge badge-danger">DESCONECTADA</span>`;
+
+        btns += `<button class="btn btn-sm btn-success" onclick="scan('${r.hash}')">
+                  <b>CONECTAR <b> <i class="fas fa-qrcode ml-2"></i>
+                 </button>
+                 <button class="btn btn-sm btn-danger" onclick="deletar(${r.id})">
+                 <b>DELETAR </b>
+                  <i class="fas fa-trash ml-2"></i>
+                 </button>`; 
+      }else if(r.status == 2){
+        init = `<i class="fas fa-square text-warning"></i>`;
+        status = `<span class="badge badge-warning">BLOQUEADA</span>`;
+      }
+
+
+        if(r.planos == false){
+          planosBtn += ` <button class="btn btn-sm btn-info" onclick="edit(${r.id})"><b>EDITAR PLANO</b></button>`;
+        }else if(r.planos == true){
+          planosBtn += ` <button class="btn btn-sm btn-info" onclick="edit(${r.id})"><b>EDITAR PLANO</b></button>`;
+        }
+
+
+      list += `<tr style="white-space: nowrap;">
+                  <td>${init}</td>
+                  <td>${r.nome}</td>
+                  <td><b class="text-primary copyHash" id="${r.hash}">${r.hash}</b></td>
+                  <td>${status}</td>
+                  <td>${btns}</td>
+                  <td>${planosBtn}</td>
+                </tr>`; 
+    })
+  }else{
+    list = `<tr style="white-space: nowrap;">
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                </tr>`;
+  }
+
+  $("tbody").html(list);
+ })
+}
+/*Listando instancias*/
+
+/*Copiando a hash*/
+$("tbody").on('click', '.copyHash', function(){
+  hash = $(this).attr("id");
+  navigator.clipboard.writeText(hash);
+
+  success("Instância Copiada!");
+})
+/*Copiando a hash*/
+
+
+/*Deletando a instancia*/
+function deletar(id){
+  $.confirm({
+    theme: 'dark',
+    title: 'Atenção',
+    content: 'Deseja deletar esta instância permanentemente ?',
+    buttons:{
+      SIM: function(){
+         $.post("whats/whats/deletar.php", 'id='+id, (t)=>{
+            if(t == 1){
+              error("Instância Deletada com sucesso");
+              listar();
+            }
+         })
+      },
+      NÃO:{
+
+      }
+    }
+  })
+ 
+}
+/*Deletando a instancia*/
+
+
+
+
+/*Editando*/
+function edit(id){
+  $("#edit-instance-id").val(id);
+  $(".pross").css("display", "none");
+  $(".edit").css("display", "block");
+  $("#totaltext").css("display", "block");
+  $("#total").html("");
+  $("#valor-total").val("");
+
+   /*Listando itens*/
+    $.post("whats/functions/list.php", (r)=>{
+      r = JSON.parse(r);
+      itens = '';
+      r.forEach((t)=>{
+        if(t.status == 1){
+        itens += ` <div class="col-12 mb-3 itens-i">
+                    <input type="hidden" id="valor-item" value="${t.valor}">
+                    <input type="hidden" id="item-id" value="${t.id_item}">
+                    <label>
+                      ${t.nome} <sup><small>R$ ${t.valor}</small></sup>
+                    </label>
+
+                    <button class="btn btn-sm btn-toggle  select-item" type="button" id="${t.id_item}" data-toggle="button" aria-pressed="false" autocomplete="off" style="position: absolute;right: 10px;">
+                        <div class="handle"></div>
+                      </button>
+
+
+                  </div>`;
+        
+              }
+        
+      })
+      itens += `<small>Envio de Texto ja incluso na Instância (Envios Ilimitado)</small>`;
+      $(".listar-itens").html(itens);
+
+
+    })
+    /*Listando itens*/
+
+  $.post("whats/whats/get.php", 'id='+id,(t)=>{
+    t = JSON.parse(t);
+    $("#nome-identificador").val(t.nome);
+    if(t.status != 0){
+      t.itens.forEach((r)=>{
+        $(`button[id='${r.item}']`).click();
+      })
+      
+    }
+
+    $("#total").html(t.total);
+    $("#valor-total").val(t.total);
+    
+  })
+
+  $("#addnum").modal("show");
+}
+
+
+function editar(){
+
+  dados = new Object();
+  
+  dados.id = $("#edit-instance-id").val();
+  dados.nome = $("#nome-identificador").val();
+  dados.itens = $(".itens-i").map(function(){
+    
+      return {
+        item: $(this).find("#item-id").val(),
+        status: $(this).find(".select-item").attr("aria-pressed") 
+      }
+  }).get();
+
+  dados = JSON.stringify(dados);
+  $.post("whats/whats/edit.php", dados, (r)=>{
+    if(r == 1){
+      success("Plano Alterado");
+      $("#addnum").modal("hide");
+      listar();
+    }
+  })
+}
+/*Editando*/
+
+/*Selecionando e somando*/
+$(".listar-itens").on('click', '.select-item', function(){
+  
+  setTimeout(()=>{
+
+    if($(this).attr("aria-pressed") == 'true'){
+      valor = $(this).closest("div").find("#valor-item").val();
+      total = $("#valor-total").val();
+
+      calcula = (parseFloat(total)+parseFloat(valor)).toFixed(2);
+
+
+      $("#total").html(calcula);
+      $("#valor-total").val(calcula);
+    }else{
+      valor = $(this).closest("div").find("#valor-item").val();
+      total = $("#valor-total").val();
+
+      calcula = (parseFloat(total)-parseFloat(valor)).toFixed(2);
+
+
+      $("#total").html(calcula);
+      $("#valor-total").val(calcula);
+    }
+
+  },700);
+})  
+/*Selecionando e somando*/
+
+
+
+/*Fechando modais*/
+$(".fechar").click(()=>{
+  $(".modal.fade.show").modal("hide");
+  clearInterval(intervalo);
+})
+/*Fechando modais*/
+
+
+
+</script>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal-scan" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+            <h5 class="text-center">Mantenha a Câmera de Scan, até a conexão</h5>
+            <hr>
+            <input type="hidden" id="id-instance">
+            <div class="container text-center" id="qr">
+             
+            </div>
+            <p><small>Caso ocorra um erro, aguarde <b id="seconds">13</b> segundos.</small></p>
+
+            <div class="container mt-3">
+              <button class="btn btn-sm btn-success btn-block bmt" id="gerarqr" disabled>
+                  GERAR QRCODE  <i class="fas fa-undo-alt ml-2"></i>
+              </button>
+
+              <button class="btn btn-sm btn-danger btn-block bmt fechar">
+                  FECHAR
+              </button>
+             
+            </div>
+          
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="addnum" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" style="max-width: 400px;" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <input type="hidden" id="edit-instance-id">
+
+        <!--Nome identificador-->
+        <div class="form-group">
+          <label>Nome Identificador</label>
+          <input class="form-control" id="nome-identificador">
+        </div>
+        <!--Nome identificador-->
+
+        <!--Itens-->
+        <div class="form-group listar-itens">
+          
+
+        </div>
+        <!--Itens-->
+
+        <!--Total-->
+        <input type="hidden" id="valor-total" value="0.00">
+        <h6 id="totaltext" style="display:none;" class="text-right mb-1"><b>Total: <span id="total">R$ 0.00</span></b></h6>
+        <!--Total-->
+      </div>
+
+        <!--Prosseguir-->
+        <div class="card-footer">
+          <button class="btn btn-sm btn-primary btn-block pross" style="text-transform:uppercase;font-weight: 700;" onclick="criar()">
+            Prosseguir
+          </button>
+
+          <button class="btn btn-sm btn-success btn-block edit" style="text-transform:uppercase;font-weight: 700;display: none;" onclick="editar()">
+            Concluir
+          </button>
+
+        </div>
+        <!--Prosseguir-->
+
+
+          
+      </div>
+    </div>
+  </div>
+</div>

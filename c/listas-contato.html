@@ -1,0 +1,564 @@
+<style>
+  .dropdown-menu.show{
+    background-color: #293442;
+  }
+  .dropdown-item:hover{
+    background: #eceeee8a;
+    cursor: pointer;
+  }
+  .dropdown-item{ 
+    color: white;
+  }
+</style>
+  <div class="content-wrapper">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Listas de contato</h1>
+          </div>
+          <div class="col-auto">
+              <button class="btn btn-sm bmt" id="new-list">
+                Nova lista
+              </button>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section style="padding: 18px;position: relative;top: -70px;">
+  <div class="card">
+    <div class="card-body">
+        
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Nome</th>
+              <th scope="col">Contatos</th>
+              <th scope="col">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+          </tbody>
+        </table>
+
+    </div>
+  </div>
+
+</section>
+
+
+<script>
+  /*Criando uma nova lista*/
+  $("#new-list").click(()=>{
+    $("#addnew").modal("show");
+  })
+  /*Criando uma nova lista*/
+
+
+  /*Adicionando nova lista*/
+  function novalista(){
+    nome = $("#nome-da-lista").val();
+    user = localStorage.getItem('usermail');
+
+    dados = `user=${user}&nome=${nome}`;
+    $.post("whats/contatos/add.php", dados, (t)=>{
+      if(t == 1){
+        success("Lista criada");
+        listar();
+        $(".modal.fade.show").modal("hide");
+        $("#nome-da-lista").val("");
+      }
+    })
+  }
+  /*Adicionando nova lista*/
+
+
+  /*Integrando uma nova lista*/
+  function integrar(id){
+    $("#id-da-lista").val(id);
+    user = 'user='+localStorage.getItem('usermail');
+    $.post("whats/whats/listar-conectadas.php", user, (t)=>{
+      
+      inst = '';
+      if(t != 0){
+        t = JSON.parse(t);
+        t.forEach((r)=>{
+            inst += `<option value='${r.num}'>${r.nome}</option>`;
+     
+        })
+
+        $("#listar-minhas-instancias").html(inst);
+      }else{
+        $("#listar-minhas-instancias").html(`<option value='0'>Nenhuma instancia encontrada</option>`);
+      }
+
+    })
+    $("#modal-integrar").modal("show");
+
+
+  }
+
+
+  function integration(){
+    instancia = $("#listar-minhas-instancias").val();
+    if(instancia != 0){
+      id = $("#id-da-lista").val();
+      mensagem = $("#mensagem-integracao").val().trim();
+
+      dados = `lista=${id}&instance=${instancia}&mensagem=${mensagem}`;
+      $.post("whats/contatos/integrar.php", dados, (t)=>{
+        if(t == 1){
+          success("Sistema Integrado");
+          listar();
+          $(".modal.fade.show").modal("hide");
+        }
+      })
+    }else{
+      error("Conecte uma instancia");
+    }
+  }
+  /*Integrando uma nova lista*/
+
+  /*Copiando*/
+  function copyIntegration(url){
+     navigator.clipboard.writeText("http://localhost/wzap/:"+url);
+
+      success("Link da integração copiado");
+
+  }
+  /*Copiando*/
+
+  /*Importando contatos*/
+  function importContatos(id){
+    $("#id-da-lista").val(id);
+    $("#importar-contatos").modal("show");
+  }
+
+  $("#tipo-import").click(function(){
+    $(".importation").css("display", "none");
+    $("#"+$(this).val()).css("display", "block");
+  })
+   
+  
+  function importarContatos(){
+    tipo  = $("#tipo-import").val();
+    if(tipo == 'file'){
+      
+      var data = new FormData();
+      data.append('file', $("#importar-via-arquivo")[0].files[0]);
+      data.append('lista', $("#id-da-lista").val());
+
+      importar = $("#tipos-coluna").val();
+      if(importar == '01'){
+        data.append('phone_column', $("#c-contatos").val());
+      }else if(importar == '02'){
+        data.append('name_column', $("#coluna-nomes").val());
+        data.append('phone_column', $("#coluna-contatos").val());
+      }
+      
+       $.ajax({
+          url: `whats/contatos/inserir-contatos.php`,
+          data: data,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function(t){
+            //console.log(t);
+            if(t == 1){
+              $(".modal.fade.show").modal("hide");
+              success("Contatos importados com sucesso");
+              listar();
+            }
+          }
+    });
+
+
+
+
+    }else if(tipo == 'manual'){
+      dados = new Object();
+      dados.user = localStorage.getItem('usermail');
+
+      contatos = $("#contatos-a-importar").val().trim().split("\n");  
+      contatos = contatos.map(str => str.trim());
+
+      dados.contatos = contatos;
+      dados.lista = $("#id-da-lista").val();
+      dados = JSON.stringify(dados);
+
+      $.post("whats/contatos/inserir-contatos-manual.php", dados, (t)=>{
+        if(t == 1){
+          success("Contatos inseridos com sucesso");
+          $(".modal.fade.show").modal("hide");
+          listar();
+        }
+      })
+
+    }
+   }
+  
+  /*Importando contatos*/
+
+  /*Deletando uma lista*/
+  function deleta(id){
+    $.confirm({
+      theme: 'dark',
+      title: 'Atenção',
+      content: 'Deseja realmente deletar esta lista, com todos os contatos ?',
+      buttons: {
+        SIM: function(){
+          $.post("whats/contatos/deletar.php", 'id='+id, (t)=>{
+            if(t == 1){
+              error("Lista deletada");
+              listar();
+            }
+          })
+        }
+      }
+    })
+  }
+  /*Deletando uma lista*/
+
+  /*Duplicando lista*/
+  function dupli(id){
+
+  }
+  /*Duplicando lista*/
+
+  /*Editando lista*/
+  function edit(id){
+    $("#id-da-lista-edit").val(id);
+     user = 'user='+localStorage.getItem('usermail');
+    $.post("whats/whats/listar-conectadas.php", user, (t)=>{
+      
+      inst = '';
+      if(t != 0){
+        t = JSON.parse(t);
+        t.forEach((r)=>{
+            inst += `<option value='${r.num}'>${r.nome}</option>`;
+     
+        })
+
+        $("#listar-minhas-instancias-edit").html(inst);
+      }else{
+        $("#listar-minhas-instancias-edit").html(`<option value='0'>Nenhuma instancia encontrada</option>`);
+      }
+
+    })
+
+    $.post("whats/contatos/buscar.php", 'id='+id, (t)=>{
+      t = JSON.parse(t);
+      $("#listar-minhas-instancias-edit").val(t.instance);
+      $("#mensagem-integracao-edit").val(t.mensagem);
+    })
+    $("#modal-edit").modal("show");
+  }
+
+
+  $("#finaliza-edit").click(()=>{
+     id = $("#id-da-lista-edit").val();
+     instancia = $("#listar-minhas-instancias-edit").val();
+     mensagem  = $("#mensagem-integracao-edit").val();
+     dados = `id=${id}&instance=${instancia}&mensagem=${mensagem}`;
+
+     $.post("whats/contatos/editar.php", dados, (r)=>{
+      if(r == 1){
+        success("Editado com sucesso");
+        $(".modal.fade.show").modal("hide");
+      }
+     })
+  })
+  /*Editando lista*/
+
+
+  /*Listando todas as listas*/
+  listar();
+
+  function listar(){
+    user  = 'user='+localStorage.getItem('usermail');
+    $.post("whats/contatos/listar.php", user, (t)=>{
+     
+      all_contatos = '';
+      if(t != 0){
+
+        t = JSON.parse(t);
+        all_contatos = '';
+        t.forEach((r)=>{
+
+          if(r.url != ''){
+            url_integra = ` <button class="btn btn-sm btn-primary" onclick="edit(${r.id})">
+                  <i class="fas fa-th"></i>
+                  <b> EDITAR</b>
+                </button>
+
+            <button class="btn btn-sm btn-warning" onclick="copyIntegration('${r.url}')">
+                  <i class="fas fa-link"></i>
+                  <b> Copiar URL</b>
+                </button>`;
+            button_integra = '';
+          }else{
+            url_integra = '';
+            button_integra = ` <button class="btn btn-sm btn-success" onclick="integrar(${r.id})">
+                 <i class="fab fa-wordpress-simple"></i>
+                  <b> INTEGRAR</b>
+                </button>`;
+          }
+          all_contatos += `<tr>
+              <td>${r.nome}</td>
+              <td><span class="badge badge-danger">${r.contatos} contatos</span></td>
+              <td>
+
+                <button class="btn btn-sm btn-info" onclick="importContatos(${r.id})">
+                  <i class="fas fa-user-plus"></i>
+                  <b> CONTATOS</b>
+                </button>
+
+               
+               ${button_integra}
+                <button class="btn btn-sm btn-danger" onclick="deleta(${r.id})">
+                  <i class="fas fa-trash-alt"></i>
+                  <b> DELETAR</b>
+                </button>
+                ${url_integra}
+              </td>
+            </tr>`;
+        })
+
+
+
+
+      }else{
+
+         all_contatos += `<tr>
+              <td>----</td>
+              <td>----</td>
+              <td>----</td>
+            </tr>`;
+
+      }
+
+      $("tbody").html(all_contatos);
+    })
+  }
+  /*Listando todas as listas*/
+
+  /*Fechamento de modais*/
+  $(".cancel").click(()=>{
+    $(".modal.fade.show").modal("hide");
+  })
+  /*Fechamento de modais*/
+
+
+  /*Mudando os inputs de colunas*/
+  $("#tipos-coluna").on('change', function(){
+    $(".escolha-import").css("display", "none");
+    tipo = $(this).val();
+    if(tipo == '01'){
+      $('#apenas-contato').css("display", "block");
+    }else if(tipo == '02'){
+      $('#nome-contato').css("display", "block");
+    }
+  })
+  /*Mudando os inputs de colunas*/
+</script>
+
+
+<!-- Modal editar -->
+<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        
+        <input type="hidden" id="id-da-lista-edit">
+        <div class= "form-group">
+          <label>Instancia</label>
+          
+          <select class="form-control" id="listar-minhas-instancias-edit">
+            
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Mensagem</label>
+          <textarea class="form-control" id="mensagem-integracao-edit" style="min-height:160px;">
+            
+          </textarea>
+        </div>
+
+        <hr>
+        <div class="mt-2" style="text-align:end;">
+          <button class="btn btn-sm btn-danger cancel">
+            Cancelar
+          </button>
+          <button class="btn btn-sm btn-warning" id="finaliza-edit">
+            Editar
+          </button>
+        </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+<!-- Modal editar -->
+
+
+
+
+<!-- Modal adicionar contatos -->
+<div class="modal fade" id="importar-contatos" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        
+        <input type="hidden" id="id-da-lista">
+        <div class= "form-group">
+          <label>Tipo de Importação</label>
+         
+          <select class="form-control" id="tipo-import">
+            <option value="file">Importar arquivo</option>
+            <option value="manual">Manual</option>
+          </select>
+        </div>
+
+        <div class="importation" id="file">
+          <div class="form-group">
+            <label>Importe o arquivo</label>
+            <input type="file" class="form-control" id="importar-via-arquivo">
+          </div>
+
+          <div class="form-group">
+            <label>Tipos de dados a coletar</label>
+            <select class="form-control" id="tipos-coluna">
+              <option value="01">Apenas Contatos</option>
+              <option value="02">Nomes e Contatos</option>
+              
+            </select>
+          </div>
+
+          <div class="form-group escolha-import" id="apenas-contato">
+            <label>Coluna de contatos</label>
+            <input class="form-control" placeholder="Ex: A" id="c-contatos">
+          </div>
+          <div class="form-group escolha-import" id="nome-contato" style="display:none;">
+              
+            <div class="row">
+              <div class="col-6">
+                <label>Coluna de nomes</label>
+                <input class="form-control" id="coluna-nomes" placeholder="Ex: A">
+              </div>
+              <div class="col-6">
+                <label>Coluna de Contatos</label>
+                <input class="form-control" id="coluna-contatos" placeholder="Ex: B">
+              </div>
+            </div>
+
+          </div>
+
+          
+
+        </div>
+        <div class="form-group importation" style="display:none;" id="manual">
+          <label>Insira os contatos, separando-os por quebra de linhas</label>
+          <textarea class="form-control" id="contatos-a-importar" style="min-height: 160px;">
+            Exemplo de inserção:
+
+            Gustavo 5519555555555 gustavo@gmail.com
+            Osmar 5519555555555 osmar@gmail.com
+
+          </textarea>
+        </div>
+
+        <hr>
+        <div class="mt-2" style="text-align:end;">
+          <button class="btn btn-sm btn-danger cancel">
+            Cancelar
+          </button>
+          <button class="btn btn-sm btn-success" onclick="importarContatos()">
+            Importar
+          </button>
+        </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+<!-- Modal adicionar contatos -->
+
+
+
+
+<!-- Modal integração -->
+<div class="modal fade" id="modal-integrar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        
+        <input type="hidden" id="id-da-lista">
+        <div class= "form-group">
+          <label>Instancia</label>
+         
+          <select class="form-control" id="listar-minhas-instancias">
+            
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Mensagem</label>
+          <textarea class="form-control" id="mensagem-integracao" style="min-height:160px;">
+            Para que o cliente receba com o nome, exemplo:
+            Olá, Fulano! tudo bem com você ? 
+
+            Adicione da seguinte forma a mensagem nesta área:
+            Olá, {nome}! tudo bem com você ?
+
+          </textarea>
+        </div>
+
+        <hr>
+        <div class="mt-2" style="text-align:end;">
+          <button class="btn btn-sm btn-danger cancel">
+            Cancelar
+          </button>
+          <button class="btn btn-sm btn-success" onclick="integration()">
+            Criar Integração
+          </button>
+        </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+<!-- Modal integração -->
+
+
+
+
+<!-- Modal adicionar nova lista -->
+<div class="modal fade" id="addnew" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content modal-sm">
+      <div class="modal-body">
+        
+        <div class="form-group">
+          <label>Nome da lista</label>
+          <input class="form-control" id="nome-da-lista">
+        </div>
+        <hr>
+        <div class="mt-2" style="text-align:end;">
+          <button class="btn btn-sm btn-danger cancel">
+            Cancelar
+          </button>
+          <button class="btn btn-sm btn-success" onclick="novalista()">
+            Adicionar
+          </button>
+        </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+<!-- Modal adicionar nova lista -->

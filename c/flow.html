@@ -1,0 +1,238 @@
+  <style>
+
+    .linechat::before {
+      border-radius: 0.25rem;
+      background-color: white!important;;
+      bottom: 0;
+      content: "";
+      left: 31px;
+      margin: 0;
+      position: absolute;
+      top: 0;
+      width: 2px;
+    }
+
+.droppable-list {
+  min-height: 350px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 3px;
+}
+
+li {
+  list-style: none;
+}
+
+ul {
+  padding: 15px;
+}
+
+.card-email{
+  border-left: 3px solid #ff0000;
+}
+.card-whatsapp{
+  border-left: 3px solid #00bc8c;
+}
+.card-agendar{
+  border-left: 3px solid #17a2b8;
+}
+
+.btn-xs {
+  width: 24px!important;
+}
+
+  </style>
+
+  <div class="content-wrapper">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Chatbot</h1>
+          </div>
+          <div class="col-auto">
+
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section style="padding: 18px;position: relative;top: -70px;">
+  <div class="card">
+    <div class="card-header">
+      Meus Fluxos
+
+      <div  class="card-tools">
+        <button class="btn btn-sm btn-success" onclick="salvar()">
+          Salvar Alterações
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      
+     <div class="container-fluid">
+  <div class="row">
+    <div class="col-8">
+      <ul class="droppable-list">
+      </ul>
+    </div>
+    <div class="col-4">
+      <h5 class="text-center">Funcionalidades</h5>
+      <hr>
+      <ul class="sortable-list">
+
+
+        <li class="item">
+          <div class="card card-agendar">
+            <div class="card-header">
+              <h5 class="card-title">
+                Isso é um teste 
+              </h5>
+              <div class="card-tools" style="display:none;">
+                <button class="btn btn-info btn-xs">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-success btn-xs clique">
+                  <i class="fas fa-sort-down"></i>
+                </button>
+                <button class="btn btn-danger btn-xs remove-button">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            
+            </div>
+            <div class="card-body" style="display:none;">
+              Item 01
+            </div>
+          </div>
+        </li>
+
+
+
+          <li class="item">
+          <div class="card card-whatsapp">
+            <div class="card-header">
+              <h5 class="card-title">
+                Isso é um teste 
+              </h5>
+              <div class="card-tools" style="display:none;">
+                <button class="btn btn-info btn-xs">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-success btn-xs clique">
+                  <i class="fas fa-sort-down"></i>
+                </button>
+                <button class="btn btn-danger btn-xs remove-button">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            
+            </div>
+            <div class="card-body" style="display:none;">
+              Item 01
+            </div>
+          </div>
+        </li>
+
+
+          <li class="item">
+          <div class="card card-email">
+            <div class="card-header">
+              <h5 class="card-title">
+                Isso é um teste 
+              </h5>
+              <div class="card-tools" style="display:none;">
+                <button class="btn btn-info btn-xs">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-success btn-xs clique">
+                  <i class="fas fa-sort-down"></i>
+                </button>
+                <button class="btn btn-danger btn-xs remove-button">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            
+            </div>
+            <div class="card-body" style="display:none;">
+              Item 01
+            </div>
+          </div>
+        </li>
+
+
+
+        
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+    
+    </div>
+  </div>
+
+</section>
+
+
+
+<script>
+
+  $(".droppable-list").on('click', '.clique',function(){
+    $(this).closest(".card").find(".card-body").slideToggle('down');
+  })
+
+
+  $(function() {
+  // tornar os elementos da lista de itens arrastáveis arrastáveis
+  $(".sortable-list .item").draggable({
+    revert: "invalid",
+    containment: "document",
+    helper: "clone",
+    stop: function(event, ui) {
+     if($(ui.helper).hasClass("dropped-in-list") == false){
+        const originalIndex = $(this).index();
+         // Remove o item da lista original pelo índice
+        $(".sortable-list .item").eq(originalIndex).remove();
+     }else{
+
+     }
+
+    }
+
+  });
+
+  // tornar a lista droppable
+  $(".droppable-list").droppable({
+    accept: ".sortable-list .item",
+    drop: function(event, ui) {
+      // criar um novo elemento a partir do elemento arrastado
+      var newItem = ui.draggable.clone();
+      newItem.css("width", "60%");
+      newItem.addClass("dropped-in-list");
+      newItem.find(".card-tools").css("display", "block");
+      $(this).append(newItem);
+      
+      // adicionar função para remover o item quando o botão "Remover" for clicado
+      $(".remove-button").click(function() {
+        
+        $(this).closest(".item").remove();
+        console.log("removendo");
+      });
+
+
+       $(this).sortable({
+        axis: "y", // permitir movimento vertical
+        update: function(event, ui) {
+          // atualizar a posição dos elementos na lista
+        }
+      });
+
+
+    }
+  });
+});
+
+</script>

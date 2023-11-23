@@ -1,0 +1,243 @@
+ <link rel="stylesheet" href="plugins/summernote/summernote-bs4.min.css">
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Mensagens programadas</h1>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-info btn-sm bmt" id="programar-envio">
+              Agendar disparo
+            </button>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+
+<section class="content" style="padding: 30px;position: relative;top: -70px;">
+  <div class="card">
+         <div class="card-header">
+              <h3 class="card-title">Meu agendamentos</h3>
+              <div class="card-tools">
+
+               
+              </div>
+              
+          </div>
+
+
+    <div class="card-body table-responsive p-0">
+       <table class="table">
+            <thead>
+              <tr>
+                <th class="no-border">Lista</th>
+                 <th class="no-border">Lista de Contatos</th>
+                <th class="no-border">Status</th>
+                <th class="no-border">Data</th>
+                <th class="no-border">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+                    
+            </tbody>
+      </table>
+
+    </div>
+</div>
+</section>
+</div>
+
+<script>
+agendamentos();
+
+function agendamentos(){
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/agendar/listar.php", user, (t)=>{
+      t = JSON.parse(t);
+      l = '';
+      if(t != 0){
+        t.forEach((a)=>{
+          d = a.data.split(" ");
+          d1 = d[0].split("-").reverse().join("/");
+          data = d1+" "+d[1];
+
+          if(a.status == '0'){
+            status = `<span class="badge badge-warning">AGUARDANDO</span>`; 
+          }else if(a.status == '1'){
+            status = `<span class="badge badge-success">CONCLUÍDO</span>`; 
+          }
+          l += `<tr style="white-space: nowrap;">
+                  <td>${a.lista}</td>
+                  <td>${a.lista_contatos}</td>
+                  <td>${status}</td>
+                  <td>${data}</td>
+                  <td>
+                    <button class="btn btn-sm btn-danger bmt" onclick="cancel(${a.id})">
+                        Deletar
+                    </button>
+                  </td>
+                </tr>`;
+        })
+        
+      }else{
+        l += `<tr style="white-space: nowrap;">
+                  <td>------</td>
+                  <td>------</td>
+                  <td>------</td>
+                  <td>------</td>
+                </tr>`;
+      }
+
+      $("tbody").html(l);
+  })
+}
+
+
+$("#programar-envio").click(()=>{
+  console.log("clicado");
+  user = 'user='+localStorage.getItem('usermail');
+
+  $.post("whats/listas/list-lista.php", user, (t)=>{
+    t = JSON.parse(t);
+    if(t != 0){
+      lt = '';
+      t.forEach((l)=>{
+        lt += `<option value="${l.id}">${l.nome}</option>`;
+      })  
+
+      $("#m-listas").html(lt);
+     
+    }else{
+      error("Nenhuma lista encontrada");
+    }
+  })
+
+   $.post("whats/contatos/listar.php", user, (t)=>{
+    t = JSON.parse(t);
+    if(t != 0){
+      lt = '';
+      t.forEach((l)=>{
+        lt += `<option value="${l.id}">${l.nome}</option>`;
+      })  
+
+      $("#m-listas-contatos").html(lt);
+     
+    }else{
+      error("Nenhuma lista encontrada");
+    }
+  })
+
+
+  $.post("whats/user/numeros.php", user, (t)=>{
+    t = JSON.parse(t);
+    if(t != 0){
+      lt = '';
+      t.forEach((l)=>{
+        lt += `<option value="${l.num}">${l.nome}</option>`;
+      })  
+
+      $("#m-nums").html(lt);
+     
+     
+    }else{
+      error("Você não possui números");
+    }
+  })
+
+   $("#modal-envia").modal("show");
+   
+})
+
+
+$("#enviar").click(()=>{
+    lista = $("#m-listas").val();
+    lc = $("#m-listas-contatos").val();
+    data = $("#data").val()+" "+$("#hora").val();
+    num = $("#m-nums").val();
+
+    dados = `lista=${lista}&data=${data}&num=${num}&contatos=${lc}`;
+    $.post("whats/agendar/agendar.php", dados, (t)=>{
+      if(t == 1){
+        success(`Envio programado para ${data}`);
+        $("#modal-envia").modal("hide");
+        agendamentos();
+      }
+    })
+})
+
+$("#hora").mask("00:00:00");
+
+$(".fechar").click(()=>{
+  $(".modal.fade.show").modal("hide");
+})
+
+function cancel(id){
+  $.post("whats/agendar/cancel.php", 'id='+id, (t)=>{
+    if(t == 1){
+      error("Agendamento cancelado e deletado");
+      agendamentos();
+    }
+  })
+}
+</script>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal-envia" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <input type="hidden" id="id-lista">
+      <input type="hidden" id="tipo-lista">
+      <div class="modal-body">
+          <h6 class="text-center">Programar Envio</h6>
+          <div class="form-group">
+            <label>Lista de envio</label>
+            <select class="form-control" id="m-listas"></select>
+          </div>
+
+           <div class="form-group">
+            <label>Lista de Contato</label>
+            <select class="form-control" id="m-listas-contatos"></select>
+          </div>
+
+           <div class="form-group">
+            <label>Número</label>
+            <select class="form-control" id="m-nums"></select>
+          </div>
+
+          <div class="mt-3">
+              <div class="form-group">
+                <label>Data</label>
+                <input type="date" class="form-control" id="data">
+              </div>
+
+              <div class="form-group">
+                <label>Hora</label>
+                <input class="form-control" id="hora" placeholder="00:00:00">
+              </div>
+
+              
+          </div>
+
+            <button class="btn btn-sm btn-success btn-block bmt" id="enviar">
+              Agendar
+            </button>
+            <button class="btn btn-sm btn-danger btn-block bmt fechar">
+              Cancelar
+            </button>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+
+
+

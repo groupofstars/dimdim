@@ -1,0 +1,16 @@
+{
+  "name": "cobranca",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "Lincoln Paulo",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.1.2",
+    "mysql2": "^2.3.3",
+    "node-cron": "^3.0.2"
+  }
+}

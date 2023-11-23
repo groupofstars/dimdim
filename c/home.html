@@ -1,0 +1,242 @@
+<style>
+  .d-block.w-100 {
+    max-height: 300px!important;
+  }
+</style>
+
+ <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    
+       <!-- Content Header (Page header) -->
+   <div class="content-header">
+  
+ 
+      <div class="container-fluid">
+<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+  <ol class="carousel-indicators"></ol>
+
+  <div class="carousel-inner"></div>
+
+
+
+  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div>       
+</div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content mt-3">
+      <div class="container-fluid">
+        <!-- Info boxes -->
+        <div class="row">
+          <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box">
+              <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-users"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Leads</span>
+                <span class="info-box-number" id="leads">
+                  0
+                  
+                </span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+              <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-headset"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Listas</span>
+                <span class="info-box-number" id="listasc">0</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+
+          <!-- fix for small devices only -->
+          <div class="clearfix hidden-md-up"></div>
+
+          <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+              <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-paper-plane"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Envios</span>
+                <span class="info-box-number" id="envios">0</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+              <span class="info-box-icon bg-danger elevation-1">
+                <i class="fas fa-comment-dollar"></i>
+              </span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Instâncias</span>
+                <span class="info-box-number" id="creditos">0</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title">Seus Envios</h5>
+
+                
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <div class="row">
+                  
+                  <div class="col-12 col-lg-12">
+                   <div class="chart-container">
+                    <canvas id="lineChart" height="270"></canvas>
+                  </div>
+                 
+                    <!-- /.chart-responsive -->
+                  </div>
+                  <!-- /.col -->
+                  
+                </div>
+                <!-- /.row -->
+              </div>
+              <!-- ./card-body -->
+             
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+
+
+      </div><!--/. container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+<!-- PAGE PLUGINS -->
+<!-- jQuery Mapael -->
+<script src="plugins/jquery-mousewheel/jquery.mousewheel.js"></script>
+<script src="plugins/raphael/raphael.min.js"></script>
+<script src="plugins/jquery-mapael/jquery.mapael.min.js"></script>
+<script src="plugins/jquery-mapael/maps/usa_states.min.js"></script>
+<!-- ChartJS -->
+<script src="plugins/chart.js/Chart.min.js"></script>
+
+<script type="text/javascript">
+
+  $(function(){
+
+  /*Carrossel*/
+    $.post("whats/admin/banners/listar.php", (t)=>{
+      itens = '';
+      ol = ''; 
+      t = JSON.parse(t);
+      t.forEach((r, index)=>{
+        if(index == 0){
+          active = 'active';
+        }else{
+          active = '';
+        }
+        ol += `<li data-target="#carouselExampleIndicators" data-slide-to="${index}" class=""></li>`;
+        itens += `<div class="carousel-item ${active}">
+                    <img class="d-block w-100" src="whats/admin/banners/img/${r.img}">
+                  </div>`; 
+
+      })
+
+      $(".carousel-indicators").html(ol);
+      $(".carousel-inner").html(itens);
+    })
+  /*Carrossel*/
+
+      user = 'user='+localStorage.getItem('usermail');
+    
+  $.post("api/infos-card.php", user, (l)=>{
+    l = JSON.parse(l);
+    console.log(l);
+    $("#leads").html(l.leads);
+    $("#listasc").html(l.listas);
+    $("#envios").html(l.envios);
+    $("#creditos").html(l.creditos);
+  })
+  
+  $.post("api/grafico.php", user, (t)=>{
+      dados = t.split(",");
+      console.log(dados);
+  var lineChart = document.getElementById('lineChart').getContext('2d');
+  var myLineChart = new Chart(lineChart, {
+      type: 'line',
+      data: {
+        labels: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+        datasets: [{
+          label: "Envios no mês",
+          borderColor: "#008cff",
+          pointBorderColor: "#FFF",
+          pointBackgroundColor: "#008cff",
+          pointBorderWidth: 2,
+          pointHoverRadius: 4,
+          pointHoverBorderWidth: 1,
+          pointRadius: 4,
+          backgroundColor: 'transparent',
+          fill: true,
+          borderWidth: 2,
+          data: dados
+        }]
+      },
+      options : {
+        responsive: true, 
+        maintainAspectRatio: false,
+        legend: {
+          position: 'bottom',
+          labels : {
+            padding: 10,
+            fontColor: '#FFF',
+          }
+        },
+        tooltips: {
+          bodySpacing: 4,
+          mode:"nearest",
+          intersect: 0,
+          position:"nearest",
+          xPadding:10,
+          yPadding:10,
+          caretPadding:10
+        },
+        layout:{
+          padding:{left:15,right:15,top:15,bottom:15}
+        }
+      }
+    });
+})
+})
+
+</script>

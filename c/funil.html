@@ -1,0 +1,103 @@
+<style>
+#droppable{
+  min-height:350px;
+  border: 1px solid white;
+  border-style: dashed;
+  background: rgba(0,0,0,0.3);
+}
+
+</style>
+
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/orgchart/dist/css/jquery.orgchart.min.css">
+  <div class="content-wrapper">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Funis de produtos</h1>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm bmt">
+              Novo produto
+            </button>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section style="padding: 18px;position: relative;top: -70px;">
+  
+<!--Meus produtos-->
+  <div class="card produtos">
+    <div class="card-header">
+      Meus Produtos
+    </div>
+    <div class="card-body">
+      
+      <div class="row">
+        <div class="col-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="text-center">
+                <img class="img-fluid" src="whats/images/whatsapp.png" width="50">
+              </div>
+              <h6 class="text-center mt-3">
+                <strong>Nome do Produto</strong>
+              </h6>
+              <hr>
+
+              <button class="btn btn-sm btn-block btn-success" onclick="vendas()">
+                Fluxo de Vendas
+              </button>
+              <button class="btn btn-sm btn-block btn-danger" onclick="cancelamento()">
+                Fluxo de Cancelamento
+              </button>
+            </div>
+
+          </div>
+        </div>    
+      </div>
+
+    
+    </div>
+  </div>
+<!--Meus produtos-->
+
+<!--Meus fluxos-->
+ <div class="card fluxos" style="display:none;">
+    <div class="card-header">
+      Meus Fluxos
+    </div>
+    <div class="card-body">
+      
+    
+    </div>
+  </div>
+<!--Meus fluxos-->
+</section>
+
+
+<script>
+/*Listando os produtos*/
+  //produtos();
+  function produtos(){
+    user = 'user='+localStorage.getItem('usermail');
+  }
+/*Listando os produtos*/
+
+/*Listando meus fluxos de venda*/
+  function vendas(){
+    $.post("whats/funil/")
+  }
+/*Listando meus fluxos de venda*/
+
+/*Listando meus fluxos de cancelamento*/
+  function cancelamento(){
+    
+  }
+/*Listando meus fluxos de cancelamento*/
+
+</script>

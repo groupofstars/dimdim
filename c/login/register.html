@@ -1,0 +1,185 @@
+<!--
+=========================================================
+Login Form Bootstrap 1
+=========================================================
+
+Product Page: https://uifresh.net
+Copyright 2021 UIFresh (https://uifresh.net)
+Coded by UIFresh
+
+=========================================================
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="./assets/img/logo-fb.png">
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css">
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="./assets/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/uf-style.css">
+    <title>Dim Dim</title>
+     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="../loader.css">
+  </head>
+
+  <body>
+    <div class="uf-form-signin">
+      <div class="text-center">
+        <a href="https://uifresh.net/"><img src="./assets/img/logo-fb.png" alt="" width="100" height="100"></a>
+      <h1 class="text-white mt-3 h3">Registrar-se</h1>
+      </div>
+      <div class="mt-4">
+        <div class="input-group uf-input-group input-group-lg mb-3">
+          <span class="input-group-text fa fa-user"></span>
+          <input type="text" id="nome" class="form-control" placeholder="Seu Nome">
+        </div>
+        <div class="input-group uf-input-group input-group-lg mb-3">
+          <span class="input-group-text fa fa-envelope"></span>
+          <input type="text" id="email" class="form-control" placeholder="Email">
+        </div>
+
+         <div class="input-group uf-input-group input-group-lg mb-3">
+          <span class="input-group-text fas fa-id-card"></span>
+          <input type="text" id="cpf" class="form-control" placeholder="Seu CPF">
+        </div>
+
+        <div class="input-group uf-input-group input-group-lg mb-3">
+          <span class="input-group-text fa fa-phone"></span>
+          <input type="text" id="celular" class="form-control" placeholder="Seu Celular">
+        </div>
+        <div class="input-group uf-input-group input-group-lg mb-3">
+          <span class="input-group-text fa fa-lock"></span>
+          <input type="password" id="senha" class="form-control" placeholder="Defina  uma senha">
+        </div>
+        <div class="input-group uf-input-group input-group-lg mb-3">
+          <span class="input-group-text fa fa-lock"></span>
+          <input type="password" id="reply-senha" class="form-control" placeholder="Repita a  Senha">
+        </div>
+     
+        
+        <div class="d-grid mb-4">
+          <button class="btn uf-btn-primary btn-lg" onclick="registrar()">Registrar-se</button>
+        </div>
+        <div class="mt-4 text-center">
+          <span class="text-white">Já possui uma conta?</span>
+          <a href="login.html">Fazer Login</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+
+    <!-- Separate Popper and Bootstrap JS -->
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+
+    <div class="loading" style="display:none;">Loading&#8230;</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.8/jquery.mask.min.js"></script>
+  </body>
+</html>
+
+<script>
+  function registrar(){
+    nome = $("#nome").val();
+    email = $("#email").val();
+    cpf = $("#cpf").val();
+    celular = $("#celular").val();
+
+    senha = $("#senha").val();
+    reply_senha = $("#reply-senha").val();
+
+    senha_check = true;
+    cpf_check = true;
+
+    if(senha != reply_senha){
+      senha_check = false;
+      error("As Senhas não Coincidem");
+    }
+
+    if(cpf.length < 14){
+      cpf_check = false;
+      error("CPF Inválido!");
+    }
+
+  
+
+    if(cpf_check == true && senha_check == true){
+      loader();
+      success("Registrado com sucesso");
+      $("input").val("");
+
+      dados = `nome=${nome}&email=${email}&senha=${senha}&cpf=${cpf}&celular=${celular}`;
+
+
+
+      $.post("../api/registrar.php", dados, (r)=>{
+        if(r == 1){
+          setTimeout(()=>{
+            location.href = "login.html?m="+email;
+            block_loader();
+          },1000);
+        }else{
+          error("Ocorreu um erro, verifique todos os campos!");
+        }
+      })
+      
+     
+    }
+  }
+
+$("#cpf").mask("000.000.000-00");
+$("#celular").mask("00 00000-0000");
+
+
+/*Loading*/
+function loader(){
+    $("nav").css("z-index", "0");
+    $("aside").css("z-index", "0");
+    $(".loading").css("display", "block");
+}
+
+function block_loader(){
+   $("nav").css("z-index", "1034");
+   $("aside").css("z-index", "1038");
+   $(".loading").css("display", "none");
+}
+/*Loading*/
+
+
+   /*Success*/
+function success(msg){
+    Toastify({
+        text: msg,
+        className: "success",
+        gravity: "bottom",
+        position: "center",
+        style: {
+        background: "#00b74a",
+      }
+        
+    }).showToast();
+}
+/*Success*/
+
+/*Error*/
+function error(msg){
+    Toastify({
+        text: msg,
+        className: "danger",
+        gravity: "bottom",
+        position: "center",
+        style: {
+        background: "#f93154",
+      }
+        
+    }).showToast();
+}
+
+/*Error*/
+</script>

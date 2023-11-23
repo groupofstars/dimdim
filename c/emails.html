@@ -1,0 +1,115 @@
+ 
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+       <h4 class="text-center">Contas de E-mail</h4>
+       <p class="text-center"><small><b>AVISO</b>, todas as contas deverão ser <b>Gmail</b> ou contas <b>Profissionais</b> para melhor desempenho, tendo o <b>Gmail</b> a capacidade de envio de <b>500</b>/dia</small></p>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section class="container">
+      <div class="card">
+         <div class="card-body">
+         	<div class="row">
+         		<div class="col text-center">
+         			  
+         		</div>
+         		<div class="col-auto">
+         			<button class="btn btn-success btn-sm" id="add">
+         				Adicionar Contas
+         			</button>
+         		</div>
+         	</div>
+
+
+         	<div class="row mt-4" id="listacc">
+         	</div>
+          
+         </div>
+      </div>
+    </section>
+
+</div>
+
+<script>
+
+    contas();
+    function contas(){
+      user = "user="+localStorage.getItem('usermail');
+      $.post("api/minhas-contas.php", user, (t)=>{
+        $("#listacc").html(t);
+      })
+    }
+    
+
+  $("#add").click(function(){
+   	$("#modaladd").modal("show");
+  })
+
+  $("#adicionar-contatos").click(()=>{
+    user = localStorage.getItem('usermail');
+    email = $("#email").val();
+    senha = $("#senha").val();
+    t = email.split("@");
+    type = t[1];
+    dados = 'email='+email+'&senha='+senha+'&tipo='+type+'&owner='+user;
+      
+      
+          $.post("api/add-contas.php", dados, (t)=>{
+            if(t == 1){
+              contas();
+            }
+          })
+  
+        $("#modaladd").modal("hide");
+        $("#email").val("");
+        $("#senha").val("");
+        
+})
+
+  $("#close").click(()=>{
+    $("#modaladd").modal("hide");
+  })
+
+
+function del(id){
+  id = 'id='+id;
+  console.log(id);
+  $.post('api/deleta-conta.php', id, (t)=>{
+    if(t == 1){
+      contas();
+    }
+  });
+}
+
+</script>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modaladd" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h5 class="modal-title" id="exampleModalLabel">Novas contas de Email</h5>
+      </div>
+      <div class="modal-body">
+          <div class="form-group">
+            <label>E-mail</label>
+            <input class="form-control" id="email">
+          </div>
+          <div class="form-group">
+            <label>Senha</label>
+            <input class="form-control" id="senha">
+          </div>
+      </div>
+     
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="close">Cancelar</button>
+        <button type="button" class="btn btn-success" id="adicionar-contatos">Adicionar</button>
+      </div>
+    </div>
+  </div>
+</div>

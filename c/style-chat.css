@@ -1,0 +1,162 @@
+
+
+
+/*Contatos*/
+
+.contatos ul{
+  list-style: none;
+  padding: 0px;
+}
+
+.contatos li {
+  margin-bottom: 7px;
+  padding: 10px 10px;
+  list-style: none;
+  border-radius: 5px;
+  background: rgba(0,0,0,0.1);
+  cursor: pointer;
+  border-left: 2px solid #5157ca;
+}
+
+.contatos li:hover{
+  background: rgba(0,0,0,0.2);
+}
+.about{
+  float: left;
+  padding-left: 8px;
+}
+.about.name{
+
+}
+.about.status{
+  color: #999;
+  font-size: 13px;
+}
+/*Contatos*/
+
+/*Chat*/
+.chat{
+  background: rgba(0,0,0,0.1);
+ /* width: 75%;
+  margin-left: 10px;*/
+  border-radius: 5px;
+}
+.chat-header{
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding: 5px 10px;
+  background: rgba(0,0,0,0.1);
+
+}
+
+.chat-header-buttons{
+  float: right;
+  padding: 15px;
+}
+.chat-header-buttons button{
+  height: 35px;
+}
+
+.chat-body{
+  padding: 15px;
+}
+
+.chat-type{
+  padding: 10px 18px;
+  background: rgba(0,0,0,0.1);
+  display: flex;
+}
+
+.area{
+  width: 100%;
+}
+.area textarea{
+  border:none;
+}
+
+/*Botoes*/
+.botoes{
+  text-align: center;
+  width: 10%;
+}
+.botoes.first{
+  display: flex;
+}
+
+/*Icone*/
+.icon-ballon-left{
+  font-size: 25px;
+  color: #5b61d3;
+  position: absolute;
+  margin-top: -18px;
+  margin-left: -35px;
+}
+
+
+.icon-ballon-right{
+  font-size: 25px;
+  color: #1c1d25;
+  position: absolute;
+  margin-top: -18px;
+  right: 27px;
+}
+/*Icone*/
+
+
+.send-button{
+  background: #5c62d3;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  height: 35px;
+  width: 35px;
+  padding: 9px;
+}
+
+.send-button.first{
+  font-size: 20px;
+  padding: 6px;
+  background: transparent;
+  border: 1px solid #5c62d3;
+  color: #5c62d3;
+}
+
+/*Botoes*/
+
+
+.mensagem {
+    padding: 18px 28px;
+    background: #5b61d3;
+    border-radius: 5px;
+    min-width: 50%;
+    max-width: 75%;
+    margin-bottom: 15px;
+}
+
+.mensagem.me{
+  background: rgba(0, 0, 0, 0.1);
+}
+
+
+/*Chat*/
+
+/*Imagem*/
+.clearfix img{
+  float: left;
+  border-radius: 50%;
+  background: linear-gradient(to right, rgb(78, 84, 200), rgb(143, 148, 251)) !important;
+}
+/*Imagem*/
+
+/*Status*/
+.status{
+  font-size: 13px;
+}
+
+.offline{
+  color: red;
+}
+.online{
+  color: green;
+}
+
+/*Status*/

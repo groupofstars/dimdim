@@ -1,0 +1,540 @@
+<link rel="stylesheet" href="switch.css">
+ <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Administração</h1>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm bmt" id="add-user">
+              Adicionar cliente
+            </button>
+          </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+   <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="card">
+        <div class="card-body">
+
+
+            <div class="row" style="position: relative;top: -35px;">
+              <div class="col-12 col-sm-9">
+                  <div class="card">
+                    <div class="card-header">
+              <h3 class="card-title">Clientes</h3>
+              <div class="card-tools">
+
+                <div class="row">
+                  <div class="col">
+                    <div class="input-group input-group-sm" style="width: 180px;">
+                      <input type="text" id="search" class="form-control float-right" placeholder="Buscar por Email">   
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+          </div>
+
+                    <div class="card-body table-responsive p-0">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th class="no-border">Nome</th>
+                            <th class="no-border">Email</th>
+                            <th class="no-border">Status</th>
+                            <th class="no-border">Ações</th>
+                            
+                          </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="card-footer">
+                        
+                        <div class="spinner-border text-light" role="status" style="position: absolute;left: 50%;width: 20px;height: 20px;display: none;" id="load-more">
+                          <span class="sr-only">Loading...</span>
+                        </div>
+
+                        <div class="text-right">
+                          <input type="hidden" id="morelist" value="10">
+                          <button class="btn btn-xs btn-primary" id="morelistbutton">
+                              MOSTRAR MAIS
+                          </button>
+                        </div>
+                    </div>
+                  </div>
+              </div>
+
+              <div class="col-12 col-sm-3">
+                  <div class="card card-outline card-tabs">
+                    <div class="card-body">
+
+                      <div class="form-group" style="text-align: initial;">
+                        <label>Dias Gratuitos de Teste</label>
+                          <input type="text" class="form-control" id="dias-free">
+                          <button class="btn btn-sm btn-block btn-primary mt-3" onclick="salvarDias()">
+                            Salvar Alteração
+                          </button>
+                      </div>
+
+
+                      <div class="row ips_block">
+                        
+                      </div>
+                    </div>
+                  </div>
+              </div>
+
+            </div>
+
+
+        </div>
+      </div>
+    </section>
+</div>
+
+
+<script>
+/*Somando*/
+  $("#morelistbutton").click(()=>{
+    soma = 10;
+    more = $("#morelist").val();
+    total = (Number(more)+Number(soma));
+    console.log("buscando "+total);
+    $("#morelist").val(total);
+    users('all', total);
+
+  })
+/*Somando*/
+
+/*Buscando por email*/
+  $("#search").on('keyup', function(){
+    busca = $(this).val();
+
+    users(busca, 10);
+  })
+/*Buscando por email*/
+
+/*Dias gratuitos*/
+  $(()=>{
+    $.post("whats/admin/free.php", (t)=>{
+      $("#dias-free").val(t);
+    })
+  })
+
+  function salvarDias(){
+    dias = 'dias='+$("#dias-free").val();
+    $.post("whats/admin/save-free.php", dias, (t)=>{
+      if(t == 1){
+        success("Dados Salvos");
+      }
+    })
+  }
+/*Dias gratuitos*/
+
+
+
+  users('all', 10);
+  function users(user, total){
+    user = 'user='+user+'&limite='+total;
+    $.post("whats/admin/users.php",user, (u)=>{
+      //console.log(u);
+        u = JSON.parse(u);
+        us = '';
+        u.forEach((t)=>{
+          if(t.status == 1){
+
+
+            status = ` <button class="btn btn-sm btn-toggle active blockuser" type="button" data-toggle="button" aria-pressed="true" autocomplete="off" id="${t.id}">
+                      <div class="handle"></div>
+                    </button>`;
+          }
+          else if(t.status == 2){
+            status = `<button class="btn btn-sm btn-toggle blockuser" type="button" data-toggle="button" aria-pressed="false" autocomplete="off" id="${t.id}">
+                      <div class="handle"></div>
+                    </button>`;
+          }
+
+
+          editarButton = `<button class="btn btn-sm btn-warning" onclick="editar(${t.id})">
+                          <b>EDITAR</b>
+                      </button>`;
+
+          deleteButton = ` <button class="btn btn-sm btn-danger" onclick="deletar(${t.id})">
+                          <b>EXCLUIR</b>
+                      </button>`;
+          if(t.vencido == 'vencido'){
+            bg = 'bg-danger';
+
+            deleteButton = ` <button class="btn btn-sm btn-danger" onclick="deletar(${t.id})" style="border-color:white;">
+                          <b>EXCLUIR</b>
+                      </button>`;
+          }else if(t.vencido == 'quase'){
+            bg = 'bg-warning';
+            editarButton = ` <button class="btn btn-sm btn-warning" onclick="editar(${t.id})" style="border:1px solid white;color:white;">
+                          <b>EDITAR</b>
+                      </button>`;
+
+
+          }else if(t.vencido == 'emdia'){
+            bg = 'bg-white';
+          }
+
+          us += `<tr style="white-space: nowrap;" class="${bg}">
+                    
+                    <td>${t.nome}</td>
+                    <td>${t.email}</td>
+                    <td>${status}</td>
+
+                    <td>
+                     ${editarButton}
+                     ${deleteButton}
+                    </td>
+                 </tr>`;
+        })
+
+        $("tbody").html(us);
+    })
+  }
+
+/*Bloqueando e desbloqueando usuario*/
+$("tbody").on('click', '.blockuser', function(){
+  id = 'id='+$(this).attr("id");
+  type = $(this).attr("aria-pressed");
+
+setTimeout(()=>{
+  if(type == 'false'){
+    $.post("whats/admin/active.php", id, (t)=>{
+      if(t == 1){
+         users('all', 10);
+         success("Usuário desbloqueado");
+      }
+    })
+  }else{
+    $.post("whats/admin/block.php", id, (t)=>{
+      if(t == 1){
+         users('all', 10);
+         error("Usuário Bloqueado");
+      }
+    })
+  }
+},600);
+  
+})
+/*Bloqueando e desbloqueando usuario*/
+
+/*Deletando usuario*/
+function deletar(id){
+  $.confirm({
+    title: 'Atenção',
+    content: 'Deseja deletar este usuário ?',
+    buttons: {
+      SIM: function(){
+        $.post("whats/admin/remove.php", 'user='+id, (t)=>{
+          if(t == 1){
+            error("Deletado com sucesso");
+            users('all', 10);
+          }
+        })
+      },
+      NÃO: {
+
+      }
+    }
+  })
+}
+/*Deletando usuario*/
+
+/*Abrindo modal*/
+  $("#add-user").click(()=>{
+    //modulos();
+     $("#salvando").css("display", "block");
+        $("#editar").css("display", "none");
+        $(".dadosuser").find("input").map(function(){
+          $(this).val("");
+        })
+
+    $("#modal-add-user").modal("show");
+  })
+/*Abrindo modal*/  
+
+/*Mascara CPF*/
+  $("#user-cpf").mask("000.000.000-00");
+/*Mascara CPF*/
+
+
+
+/*Cancelar*/
+  $(".cancel").click(()=>{
+    $(".modal.fade.show").modal("hide");
+  })
+/*Cancelar*/
+
+/*Salvando*/
+  $("#salvando").click(function(){
+    dados = new Object();
+    dados.nome = $("#user-nome").val();
+    dados.cpf = $("#user-cpf").val();
+    dados.email = $("#user-email").val();
+    dados.senha = $("#user-senha").val();
+    dados.instancia = $("#user-instancias").val();
+    dados.expira = $("#user-expire").val();
+
+    dados.mod = $("#modulos-total").find(".modulo-list").map(function(){
+
+      return {
+        modulo: $(this).find(".block").attr("id"),
+        on: $(this).find(".block").attr("aria-pressed")
+      }
+    }).get();
+
+    console.log(dados);
+    data = JSON.stringify(dados);
+
+    $.post("whats/admin/add.php", data, (t)=>{
+      if(t == 1){
+        success("Usuario Cadastrado");
+        $(".modal.fade.show").modal("hide");
+        $(".dadosuser").find("input").map(function(){
+          $(this).val("");
+        })
+        users('all', 10);
+      }
+    })
+
+  })
+/*Salvando*/
+
+/*Buscando pra editar*/
+  function editar(id){
+    $("#user-id").val(id);
+    $.post("whats/admin/get.php", 'user='+id, (t)=>{
+      t = JSON.parse(t);
+
+      $("#user-nome").val(t.nome);
+      $("#user-cpf").val(t.cpf);
+      $("#user-email").val(t.email);
+      $("#user-senha").val(t.senha);
+      $("#user-instancias").val(t.instancias);
+      $("#user-expire").val(t.expira);
+
+      $(".block").addClass("active");
+      $(".block").attr("aria-pressed", "true");
+
+      t.block.forEach((r)=>{
+        $("#modulos-total").find(`#${r}`).removeClass("active");
+        $("#modulos-total").find(`#${r}`).attr("aria-pressed", "false");
+      })
+    })
+
+    $("#salvando").css("display", "none");
+    $("#editar").css("display", "block");
+    $("#modal-add-user").modal("show");
+  }
+/*Buscando pra editar*/
+
+/*Editando*/
+  $("#editar").click(function(){
+    dados = new Object();
+    dados.id = $("#user-id").val();
+    dados.nome = $("#user-nome").val();
+    dados.cpf = $("#user-cpf").val();
+    dados.email = $("#user-email").val();
+    dados.senha = $("#user-senha").val();
+    dados.instancia = $("#user-instancias").val();
+    dados.expira = $("#user-expire").val();
+
+    dados.mod = $("#modulos-total").find(".modulo-list").map(function(){
+
+      return {
+        modulo: $(this).find(".block").attr("id"),
+        on: $(this).find(".block").attr("aria-pressed")
+      }
+    }).get();
+
+
+    data = JSON.stringify(dados);
+
+    $.post("whats/admin/edit.php", data, (t)=>{
+      if(t == 1){
+        success("Dados Editados");
+        $(".modal.fade.show").modal("hide");
+        $("#salvando").css("display", "block");
+        $("#editar").css("display", "none");
+        $(".dadosuser").find("input").map(function(){
+          $(this).val("");
+        })
+        users('all', 10);
+      }
+    })
+
+
+
+  })
+/*Editando*/
+</script>
+
+
+<!-- Modal -->
+<div class="modal fade bd-example-modal-lg" id="modal-add-user" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+     
+      <div class="modal-body">
+        <h5 class="text-center">
+          Novo Cliente
+        </h5>
+        <hr>
+
+        <input type="hidden" id="user-id">
+        <div class="form-group">
+          <div class="row">
+            
+          <!--Dados do usuario-->
+          <div class="col-12 col-lg-6 dadosuser">
+            <h6 class="text-center">Dados do Usuário</h6>
+            <div class="col-12">
+              <label>Nome</label>
+              <input class="form-control" id="user-nome">
+            </div>
+            <div class="col-12">
+              <label>CPF</label>
+              <input class="form-control" id="user-cpf">
+            </div>
+
+             <div class="col-12">
+              <label>Email</label>
+              <input class="form-control" id="user-email">
+            </div>
+             <div class="col-12">
+              <label>Senha</label>
+              <input class="form-control" id="user-senha">
+            </div>
+
+            <hr>
+            <div class="row"> 
+              <div class="col-12 col-lg-6">
+                <label>Instancias</label>
+                <input class="form-control" id="user-instancias">
+              </div>
+               <div class="col-12 col-lg-6">
+                <label>Expiração</label>
+                <input type="date" class="form-control" id="user-expire">
+              </div>
+            </div>
+
+
+          </div>
+           
+        
+          <!--Dados do usuario-->
+
+          <!--Modulos liberados-->
+          <div class="col-12 col-lg-6">
+            <h6 class="text-center">Módulos Liberados</h6>
+           <ul style="list-style: none;" id="modulos-total">
+              <li class="modulo-list" style="padding: 10px;border-bottom:1px solid rgba(0,0,0,0.1);">Instâncias
+                
+                <input id="ativado" value="true" type="hidden">
+                  <button class="btn btn-sm btn-toggle  block" type="button" id="whats" data-toggle="button" aria-pressed="false" autocomplete="off" class="btn btn-sm btn-toggle" style="position: absolute;right: 10px;">
+                      <div class="handle"></div>
+                    </button>
+              </li>
+
+                <li class="modulo-list" style="padding: 10px;border-bottom:1px solid rgba(0,0,0,0.1);">Encurtador
+                 <input id="ativado" value="true" type="hidden">
+                  <button class="btn btn-sm btn-toggle  block" type="button" id="encurtar" data-toggle="button" aria-pressed="false" autocomplete="off" class="btn btn-sm btn-toggle" style="position: absolute;right: 10px;">
+                      <div class="handle"></div>
+                    </button>
+              </li>
+
+               <li class="modulo-list" style="padding: 10px;border-bottom:1px solid rgba(0,0,0,0.1);">Listas de Envio
+                 <input id="ativado" value="true" type="hidden">
+                  <button class="btn btn-sm btn-toggle  block" type="button" id="whats-listas" data-toggle="button" aria-pressed="false" autocomplete="off" class="btn btn-sm btn-toggle" style="position: absolute;right: 10px;">
+                      <div class="handle"></div>
+                    </button>
+              </li>
+
+
+                <li class="modulo-list" style="padding: 10px;border-bottom:1px solid rgba(0,0,0,0.1);">Listas de Contato
+                 <input id="ativado" value="true" type="hidden">
+                  <button class="btn btn-sm btn-toggle  block" type="button" id="listas-contato" data-toggle="button" aria-pressed="false" autocomplete="off" class="btn btn-sm btn-toggle" style="position: absolute;right: 10px;">
+                      <div class="handle"></div>
+                    </button>
+              </li>
+
+
+               <li class="modulo-list" style="padding: 10px;border-bottom:1px solid rgba(0,0,0,0.1);">Campanhas Programadas
+                <input id="ativado" value="true" type="hidden">
+                  <button class="btn btn-sm btn-toggle  block" type="button" id="whats-campanhas" data-toggle="button" aria-pressed="false" autocomplete="off" class="btn btn-sm btn-toggle" style="position: absolute;right: 10px;">
+                      <div class="handle"></div>
+                    </button>
+              </li>
+
+
+
+               <li class="modulo-list" style="padding: 10px;border-bottom:1px solid rgba(0,0,0,0.1);">Gerenciamento de Grupos
+                 <input id="ativado" value="true" type="hidden">
+                  <button class="btn btn-sm btn-toggle  block" type="button" id="whats-grupos" data-toggle="button" aria-pressed="false" autocomplete="off" class="btn btn-sm btn-toggle" style="position: absolute;right: 10px;">
+                      <div class="handle"></div>
+                    </button>
+              </li>
+
+              <li class="modulo-list" style="padding: 10px;border-bottom:1px solid rgba(0,0,0,0.1);">Chatbot
+                <input id="ativado" value="true" type="hidden">
+                  <button class="btn btn-sm btn-toggle  block" type="button" id="wreply" data-toggle="button" aria-pressed="false" autocomplete="off" class="btn btn-sm btn-toggle" style="position: absolute;right: 10px;">
+                      <div class="handle"></div>
+                    </button>
+              </li>
+
+
+              <li  class="modulo-list" style="padding: 10px;border-bottom:1px solid rgba(0,0,0,0.1);">Agendamentos de Envio
+                <input id="ativado" value="true" type="hidden">
+                  <button class="btn btn-sm btn-toggle  block" type="button" id="agendar" data-toggle="button" aria-pressed="false" autocomplete="off" class="btn btn-sm btn-toggle" style="position: absolute;right: 10px;">
+                      <div class="handle"></div>
+                    </button>
+              </li>
+
+                <li class="modulo-list" style="padding: 10px;border-bottom:1px solid rgba(0,0,0,0.1);">Integração com API
+                 <input id="ativado" value="true" type="hidden">
+                  <button class="btn btn-sm btn-toggle  block" type="button" id="api" data-toggle="button" aria-pressed="false" autocomplete="off" class="btn btn-sm btn-toggle" style="position: absolute;right: 10px;">
+                      <div class="handle"></div>
+                    </button>
+              </li>
+
+
+
+
+
+            </ul>
+          </div>
+          <!--Modulos liberados-->
+          </div>
+
+
+
+        </div>
+      </div>
+      <div class="card-footer">
+          <button class="btn btn-outline-danger btn-sm cancel">
+            <b>CANCELAR</b>
+          </button>
+          <button  id="salvando" class="btn btn-sm btn-primary float-right">
+            <b>SALVAR NOVO USUÁRIO</b>
+          </button>
+
+           <button  id="editar" class="btn btn-sm btn-warning float-right" style="display:none;">
+            <b>EDITAR USUÁRIO</b>
+          </button>
+
+      </div>
+     
+    </div>
+  </div>
+</div>

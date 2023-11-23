@@ -1,0 +1,194 @@
+<!--
+=========================================================
+Login Form Bootstrap 1
+=========================================================
+
+Product Page: https://uifresh.net
+Copyright 2021 UIFresh (https://uifresh.net)
+Coded by UIFresh
+
+=========================================================
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. -->
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="./assets/img/logo-fb.png">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css">
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="./assets/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/uf-style.css">
+    <title>Dim Dim</title>
+     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="../loader.css">
+  </head>
+  <body>
+    <div class="uf-form-signin">
+      <div class="text-center">
+        <img src="./assets/img/logo-fb.png" alt="" width="100" height="100">
+      <h1 class="text-white mt-3 h3">Faça seu Login</h1>
+      </div>
+      <div class="mt-4">
+        <div class="input-group uf-input-group input-group-lg mb-3">
+          <span class="input-group-text fa fa-user"></span>
+          <input type="text" class="form-control" id="email" placeholder="Seu Email">
+        </div>
+        <div class="input-group uf-input-group input-group-lg mb-3">
+          <span class="input-group-text fa fa-lock"></span>
+          <input type="password" class="form-control"  id="senha" placeholder="Sua Senha">
+        </div>
+        <div class="d-flex mb-3 justify-content-between">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input uf-form-check-input" id="lembrarme">
+            <label class="form-check-label text-white" for="exampleCheck1">Lembrar Me</label>
+          </div>
+          <a href="#">Esqueceu a senha ?</a>
+        </div>
+        <div class="d-grid mb-4">
+          <button class="btn uf-btn-primary btn-lg" onclick="login()">
+            Entrar
+          </button>
+        </div>
+        <div class="d-flex mb-3">
+            <div class="dropdown-divider m-auto w-25"></div>
+            <small class="text-nowrap text-white">DIM DIM</small>
+            <div class="dropdown-divider m-auto w-25"></div>
+        </div>
+       <!-- <div class="uf-social-login d-flex justify-content-center">
+          <a href="#" class="uf-social-ic" title="Login with Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="uf-social-ic" title="Login with Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="uf-social-ic" title="Login with Google"><i class="fab fa-google"></i></a>
+        </div>-->
+        <div class="mt-4 text-center">
+          <span class="text-white">Não possui uma conta ?</span>
+          <a href="register.html">Registre-se</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+
+    <!-- Separate Popper and Bootstrap JS -->
+    <script src="./assets/js/popper.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+  </body>
+</html>
+
+<div class="loading" style="display:none;">Loading&#8230;</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<script>
+
+ 
+
+
+  /*Verificando conta ativa*/
+  $(()=>{
+    user = localStorage.getItem('usermail');
+    if(user != null){
+      $
+    }else{
+      console.log("Deslogado");
+    }
+
+
+      let urlParams = new URLSearchParams(window.location.search);
+
+      let myParam = urlParams.get('m');
+
+      if(myParam != null){
+         $("#email").val(myParam);
+      }
+
+  })
+  /*Verificando conta ativa*/
+
+  function login(){
+
+    $.get("https://ipinfo.io/json?token=fa19b55d565787", (t)=>{
+      ip = t.ip;
+
+    
+
+
+
+    email = $("#email").val();
+    senha = $("#senha").val();
+    lembrar = $("#lembrarme").is(":checked");
+
+    dados = `email=${email}&senha=${senha}&ip=${ip}`;
+    console.log(dados);
+    
+    $.post("../api/login.php", dados, (r)=>{
+      if(r > 0){
+        localStorage.setItem('usermail', email);
+        success("Logado com sucesso!");
+        loader();
+        setTimeout(()=>{
+          block_loader();
+          location.href = '../index.html';
+        },1000);
+      }else{
+        error("Email ou Senha estão incorretos!");
+      }
+    })
+
+    })
+
+  
+  }
+
+
+
+
+/*Loading*/
+function loader(){
+    $("nav").css("z-index", "0");
+    $("aside").css("z-index", "0");
+    $(".loading").css("display", "block");
+}
+
+function block_loader(){
+   $("nav").css("z-index", "1034");
+   $("aside").css("z-index", "1038");
+   $(".loading").css("display", "none");
+}
+/*Loading*/
+
+
+   /*Success*/
+function success(msg){
+    Toastify({
+        text: msg,
+        className: "success",
+        gravity: "bottom",
+        position: "center",
+        style: {
+        background: "#00b74a",
+      }
+        
+    }).showToast();
+}
+/*Success*/
+
+/*Error*/
+function error(msg){
+    Toastify({
+        text: msg,
+        className: "danger",
+        gravity: "bottom",
+        position: "center",
+        style: {
+        background: "#f93154",
+      }
+        
+    }).showToast();
+}
+
+/*Error*/
+</script>

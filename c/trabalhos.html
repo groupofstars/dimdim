@@ -1,0 +1,484 @@
+
+  <style>
+    .connectedSortable{
+      min-height: 300px;
+      width: 100%;
+    }
+    ul.sortable {
+      padding: 0px;
+    }
+
+    .ui-sortable-handle {
+      list-style: none;
+    }
+
+    .connectedSortable {
+      max-height: 400px;
+      overflow-x: scroll;
+    }
+    .row.itens-scroll{
+      overflow-y: scroll;
+      display: flex;
+      flex-wrap: nowrap;
+    }
+
+    .base-sortable {
+      background: rgba(0,0,0,0.3);
+    }
+
+
+    .ui-state-highlight {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid white;
+      border-style: dashed;
+      padding: 10px;
+    }
+
+     .ui-state-highlight::marker{
+      color: transparent;
+     }
+
+     .avatar-group {
+      display: flex;
+      align-items: center;
+      }
+      .avatar {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        position: relative;
+        z-index: 0;
+        margin-left: -5px;
+        cursor: pointer;
+      }
+
+      .avatar-group .avatar:hover {
+       z-index:3;
+       border: 1px solid white;
+        
+      }
+  </style>
+
+
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    
+
+  <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Tasks</h1>
+          </div>
+
+          <div class="col-auto">
+            <button class="btn btn-sm bmt add-fase">
+              ADICIONAR NOVA FASE
+            </button>
+          </div>
+        
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="container-fluid">
+          <div class="card">
+           
+          <div class="card-body">
+              <div class="text-right mb-2">
+               
+                  <span class="badge badge-success">
+                  <b>Baixa Prioridade</b>
+                  </span>
+                               
+                  <span class="badge badge-warning">
+                    <b>Média Prioridade</b>
+                  </span>
+
+                  <span class="badge badge-danger">
+                    <b>Alta Prioridade</b>
+                  </span>
+              </div>
+
+            <div class="row itens-scroll"></div>
+          </div>
+      </div>
+    </section>
+
+  </div>
+
+
+
+<!-- PAGE PLUGINS -->
+
+
+<script type="text/javascript">
+/*Etapas*/
+
+etapas_list();
+function etapas_list(){
+  
+  user = 'user='+localStorage.getItem('usermail');
+   $.post("whats/tasks/etapas/listar.php", user, (t)=>{
+    if(t != 0){
+      t = JSON.parse(t);
+      
+      etapas = '';
+
+      t.forEach((r)=>{
+        tasks = [];
+        if(r.tasks != 0){
+          
+          r.tasks.forEach((l)=>{
+
+            tasks.push(`<li id="item-${l.id}">
+                      <div class="card card-danger card-outline">
+                          <div class="card-header">
+                            <h5 class="card-title">${l.tarefa}</h5>
+                            <div class="card-tools">
+                              <div class="avatar-group">
+                                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Avatar 1" class="avatar" data-toggle="tooltip" title="Lucas Ribeiro">
+                                <img alt="Avatar 2" class="avatar" src="https://cdn-icons-png.flaticon.com/512/219/219983.png" data-toggle="tooltip" title="Daniel Cotrim">
+                                <img alt="Avatar 3" class="avatar" src="https://cdn-icons-png.flaticon.com/512/219/219969.png" data-toggle="tooltip" title="Joel Pietro">
+                              </div>
+                            </div>
+                          </div>  
+
+                          <div class="container mt-2 mb-2">
+                           <div class="progress progress-sm" style="height:6px;">
+                              <div class="progress-bar bg-white" role="progressbar" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100" style="width: 57%">
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col">
+                                <small>
+                                 (52% concluídos)
+                                </small>
+                              </div>
+                              <div class="col-auto">
+                                 <button class="btn btn-xs btn-warning text-white mt-2" onclick="report(${l.id})">
+                                 <i class="fas fa-exclamation-circle"></i>
+                                </button>
+
+                                <button class="btn btn-xs btn-danger mt-2" onclick="trash(${l.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                              </div>
+                            </div>
+                           
+                          </div>
+                      </div>
+                    </li>`);
+                  
+              })
+            }else{
+              tasks = [];
+            }
+        etapas += `<div class="col-sm-4">
+               <div class="card card-row card-dark card-outline">
+                <div class="card-header">
+                  ${r.nome}
+
+                  <div class="card-tools">
+                    <button class="btn btn-sm btn-info" onclick="edit_modulo(${r.id})">
+                      <i class="fas fa-wrench"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="remove_etapa(${r.id})">
+                     <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card-body base-sortable">
+                <ul class="sortable connectedSortable area-${r.id}">
+                  ${tasks.join('')}
+                </ul>
+              </div>
+              <div class="card-footer">
+                <button class="btn btn-sm bmt btn-block" onclick="addTask(${r.id})">
+                  ADICIONAR NOVA TASK
+                </button>
+              </div>
+            </div>
+            </div>`;
+      })
+    }else{
+      etapas = `<h5 class="text-center">Nenhuma Etapa encontrada</h5>`;
+    }
+
+    $(".itens-scroll").html(etapas);
+    dropp();
+    
+  })
+}
+/*Etapas*/
+
+/*Remove etapa*/
+function remove_etapa(id){
+  $.confirm({
+    theme: 'dark',
+    title: 'Atenção!',
+    content: 'Deseja deletar esta etapa e todos as tasks dela ?',
+    buttons: {
+      SIM: function(){
+        $.post("whats/tasks/etapas/deletar.php", 'id='+id, (t)=>{
+          if(t == 1){
+            error("Etapa Deletada");
+            etapas_list();
+          }
+        })
+      },
+      CANCELAR: {
+
+      }
+    }
+  })
+}
+/*Remove etapa*/
+
+function dropp(){
+  // define as áreas droppable
+  $('.connectedSortable').droppable({
+    accept: '.sortable li',
+    drop: function(event, ui) {
+      // move o item para a área droppable
+      $(this).find('ul').append(ui.draggable);
+    }
+  });
+
+  // define os itens como sortable
+  $('.sortable').sortable({
+    connectWith: '.connectedSortable',
+    placeholder: 'ui-state-highlight',
+    start: function(event, ui) {
+      // marca a área inicial do item
+      ui.item.data('startArea', ui.item.parent().attr('class'));
+    },
+    stop: function(event, ui) {
+      // verifica se o item foi movido para outra área
+      var startArea = ui.item.data('startArea');
+      var endArea = ui.item.parent().attr('class');
+      if (startArea !== endArea) {
+        // mostra o id da área e do item movido
+
+        item = ui.item.attr("id").split("-")[1];
+        area = endArea.split("-")[1].replaceAll("ui", "");
+        dados = `task=${item}&etapa=${area}`;
+        console.log(`Item: ${item} Etapa: ${area}`);
+
+        $.post("whats/tasks/task/mudar-task.php", dados);
+      }
+    }
+  });
+}
+
+
+
+$(".add-fase").click(()=>{
+  $("#modal-fase").modal("show");
+})
+
+$(".add-etapa").click(()=>{
+  user = localStorage.getItem('usermail');
+  nome = $("#nome-etapa").val();
+
+  dados = `user=${user}&nome=${nome}`;
+
+  $.post("whats/tasks/etapas/insere.php", dados, (t)=>{
+    if(t == 1){
+      $(".modal.fade.show").modal('hide');
+      etapas_list();
+    }
+  })
+})
+
+
+/*Report*/
+function report(id){
+
+}
+/*Report*/
+
+/*Trash*/
+function trash(id){
+  $.confirm({
+    theme: 'dark',
+    title: 'Atenção!',
+    content: 'Deseja deletar esta Task permanentemente ?',
+    buttons: {
+      SIM: function(){
+        $.post("whats/tasks/task/deletar.php", 'id='+id, (t)=>{
+          if(t == 1){
+            error("Task deletada com sucesso");
+            etapas_list();
+          }
+        })
+      },
+      CANCELAR: {
+
+      }
+    }
+  })
+}
+/*Trash*/
+
+/*Add task*/
+function addTask(id){
+  $("#id-modal-add-task").val(id);
+  $("#modal-add-task").modal('show');
+}
+/*Add task*/
+
+/*Edit modulo*/
+function edit_modulo(id){
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/tasks/etapas/instancias.php", user, (r)=>{
+    if(r != 0){
+      instancias = '';
+      r.forEach((t)=>{
+        instancias += `<option value="${t.num}">${t.nome}</option>`;
+      })
+
+      $("#instancias-envio").html(instancias);
+    }else{
+      $("#instancia-envio").html('<option value="0">Nenhuma Conectada</option>');
+    }
+  })
+  $("#edit-modulo").modal('show');
+}
+/*Edit modulo*/
+
+$("#num-envio").mask('(00) 00000-0000');
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="modal-add-task" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+     
+      <div class="modal-body">
+        <input type="hidden" id="id-modal-add-task">
+        <h6 class="text-center">Nova Tarefa</h6>
+       
+        <hr>
+
+        <div class="form-group">
+          <label>Tarefa</label>
+          <input class="form-control" id="nome-tarefa">
+        </div>
+
+        <div class="form-group">
+          <label>Descrição</label>
+          <input class="form-control" id="descricao-tarefa">
+        </div>
+
+        <div class="form-group">
+          <label>Anexos</label>
+          <input type="file" class="form-control" id="file-tarefa">
+        </div>
+
+
+
+        <button class="btn btn-sm btn-block bmt mt-2 add-etapa">
+          Adicionar
+        </button>
+      </div>
+    
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="edit-modulo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+       
+        <h5 class="text-center">Configurações da Etapa</h5>
+        <hr>
+
+        <div class="form-group">
+          <label>Nome da Etapa</label>
+          <input class="form-control" id="nome-da-etapa">
+        </div>
+       
+        <div class="row">
+          <div class="col">
+              <div class="form-group">
+                <label>Habilitar Aviso</label>
+                <select class="form-control" id="habilitar-envio">
+                  <option value="true">Habilitar</option>
+                  <option value="false">Desabilitar</option>
+                </select>
+              </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label>Mudança de Status</label>
+              <select class="form-control" id="mudar-status">
+                <option value="no">Nenhuma alteração</option>
+                <option value="concluido">Concluído</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label>Instância</label>
+            <select class="form-control" id="instancia-envio"></select>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label>Número para receber avisos</label>
+              <input class="form-control" id="num-envio" placeholder="(00) 00000-0000">
+            </div>
+          </div>
+        </div>
+
+       
+
+        <div class="text-right">
+          <button class="btn btn-sm btn-danger">
+            Cancelar
+          </button>
+          <button class="btn btn-sm btn-success">
+            Adicionar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal-fase" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+     
+      <div class="modal-body">
+        <h6 class="text-center">Nova Etapa</h6>
+        <hr>
+
+        <div class="form-group">
+          <label>Nome Etapa</label>
+          <input class="form-control" id="nome-etapa">
+        </div>
+
+        <button class="btn btn-sm btn-block bmt mt-2 add-etapa">
+          Adicionar
+        </button>
+      </div>
+    
+    </div>
+  </div>
+</div>
+

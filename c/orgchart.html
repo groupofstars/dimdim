@@ -1,0 +1,78 @@
+
+<style>
+
+
+</style>
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    
+
+  <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Orgchart testes</h1>
+          </div> 
+        
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="container">
+    <ul class="list-group">
+      <li class="list-group-item">
+        <span class="expander"></span>
+        <span class="name">Pai</span>
+        <button class="add-child btn btn-primary btn-sm">Adicionar Filho</button>
+        <ul class="list-group">
+          <li class="list-group-item">
+            <span class="expander"></span>
+            <span class="name">Filho 1</span>
+            <button class="add-child btn btn-primary btn-sm">Adicionar Filho</button>
+            <ul class="list-group">
+              <li class="list-group-item">
+                <span class="expander"></span>
+                <span class="name">Neto 1</span>
+                <button class="add-child btn btn-primary btn-sm">Adicionar Filho</button>
+              </li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <span class="expander"></span>
+            <span class="name">Filho 2</span>
+            <button class="add-child btn btn-primary btn-sm">Adicionar Filho</button>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+    </section>
+
+  </div>
+
+
+
+<!-- PAGE PLUGINS -->
+
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+      // esconder todos os filhos por padrão
+      $('ul ul').hide();
+
+      // evento de clique no expander para expandir/recolher o filho
+      $('.expander').click(function() {
+        $(this).toggleClass('fa-plus fa-minus');
+        $(this).parent().children('ul').toggle();
+      });
+
+      // evento de clique em "Adicionar Filho" para adicionar um novo filho
+      $('.add-child').click(function() {
+        var newChild = $('<li class="list-group-item"><span class="expander"></span><span class="name">Filho Novo</span><button class="add-child btn btn-primary btn-sm">Adicionar Filho</button></li>');
+        $(this).parent().children('ul').append(newChild);
+      });
+    });
+</script>

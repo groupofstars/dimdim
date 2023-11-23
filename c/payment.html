@@ -1,0 +1,182 @@
+ <style>
+   .badge.badge-danger-default {
+  background: #b2042e;
+  border: 1px solid #b2042e;
+  color: white;
+  padding: 7px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+h6.uppercase {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.btn-outline-purple {
+  color: white;
+  background:linear-gradient(135deg, #05C708 0%,#045504 100%);
+  border: 0px;
+}
+
+.btn-outline-purple:hover {
+  color: white;
+  background:linear-gradient(135deg, #05C708 0%,#045504 100%);
+}
+
+ul.itens {
+  height: 260px!important;
+}
+ul.itens li {
+  font-size: 15px;
+  font-weight: 600;
+  list-style: disclosure-closed;
+  padding: 5px;
+}
+ </style>
+
+ <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Planos</h1>
+          </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section class="container text-center" style="position: relative;top: -30px;">
+      <div class="card">
+        <div class="card-body">
+         
+
+          <!--ASSINATURAS-->
+          <div class="row" id="planos-list">
+
+           
+
+
+          </div>
+           <!--ASSINATURAS-->
+
+      
+
+
+
+        </div>
+      </div>
+    </section>
+
+</div>
+
+
+
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+<script>
+
+planos();
+function planos(){
+  user = 'user='+localStorage.getItem('usermail');
+ $.post("whats/admin/planos/user.php", user, (r)=>{
+    r = JSON.parse(r);
+
+  if(r.tipo == 'planos'){
+    list = '';
+    const moduloNomes = {
+        'encurtar': 'Encurtador',
+        'whats-listas': 'Envios Diretos',
+        'listas-contato': 'Armazenar Contatos',
+        'whats-campanhas': 'Campanhas Programadas',
+        'whats-grupos': 'Controle de Grupos',
+        'wreply': 'Chatbot',
+        'agendar':'Agendamento de Listas',
+        'api': 'Integração com API'
+    };
+    r.dados.forEach((t)=>{
+        modulos = '';
+        t.modulos.forEach((r)=>{
+            const nomeCompleto = moduloNomes[r];
+            if (nomeCompleto) {
+                modulos += `<li>${nomeCompleto}</li>`;
+            }
+        });
+        valor = t.valor.split(".");
+        list += `<div class="col-md-4 col-12 mb-5">
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <strong style="text-transform:uppercase;">${t.nome}</strong>
+                        </div>
+                        <div class="card-body" style="text-align:initial;">
+                            <strong style="position: absolute;right: 45px;font-size: 27px;">R$ ${valor[0]}.<sup>${valor[1]}</sup>
+                            </strong>
+                            <ul class="itens">
+                                ${modulos}
+                            </ul>
+                            <div class="mt-3">
+                                <button class="btn btn-block bg-primary" onclick="pay(${t.id})">
+                                    ASSINAR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+    });
+  }else if(r.tipo == 'faturas'){
+    list = 'Faturas';
+  }
+
+
+    $("#planos-list").html(list);
+});
+
+}
+function botao(pid){
+  $.post("whats/admin/planos/credenciais.php", (r)=>{
+
+    r = JSON.parse(r);
+  const mp = new MercadoPago(r.pubkey, {
+    locale: 'pt-BR'
+  });
+
+  mp.checkout({
+    preference: {
+      id: pid 
+    },
+    autoOpen:true,
+
+  });
+
+  }) 
+}
+
+
+function pay(n){
+  loader();
+  dados = 'user='+localStorage.getItem('usermail')+"&plano="+n;
+
+
+  $.post("mp/index2.php", dados, (t)=>{
+    if(t){
+      block_loader();
+    }
+
+    console.log("pid: "+t);
+    botao(t);
+  })
+
+  
+}
+//list();
+function list(){
+
+}
+
+
+
+
+
+</script>

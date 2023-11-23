@@ -1,0 +1,6 @@
+{
+    "require": {
+        "phpoffice/phpexcel": "*",
+        "phpoffice/phpspreadsheet": "^1.28"
+    }
+}

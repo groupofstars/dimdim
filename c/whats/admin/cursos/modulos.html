@@ -1,0 +1,420 @@
+<style>
+  .callout{
+    margin-bottom: 3px!important;
+  }
+</style>
+  <div class="card modulos-list">
+                  <div class="card-header">
+                    Modulos
+
+                    <div class="card-tools">
+                      <button class="btn btn-sm btn-danger" onclick="back_cursos()">
+                        <b>VOLTAR</b>
+                      </button>
+                      <button class="btn btn-sm bmt" onclick="addmodulo()">
+                        Adicionar modulo
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                      <div class="row modulos-listar">
+                        
+                      </div>
+                  </div>
+
+
+<!--Modal aula-->
+<div class="card" style="width: 30%;position: fixed;left: 45%;top: 10%;display: none;" id="modal-aula">
+  <div class="card-header">
+    <h6 class="text-center" id="title-aula">Adicionar Aulas</h6>
+  </div>
+  <div class="card-body" style="max-height: 450px;overflow-y: scroll;">
+    <div class="text-right" id="add-aula-button">
+      <button class="btn btn-sm bmt" onclick="add()">
+       Mais Aulas <i class="fas fa-plus"></i>
+      </button>
+    </div>
+    
+    <input id="id-edit-aula" type="hidden">
+    <input id="aula-modulo-id" type="hidden">
+    <div class="input-aulas">
+     <div class="form-group input-aula">
+                  <label>Nome da Aula</label>
+                  <input class="form-control" id="nome">
+                  <label>Id do Vídeo</label>
+                  <input class="form-control" id="link" placeholder="ex: sn19xvfoXvk">
+                </div>
+      <hr>
+    </div>
+  </div>
+
+  <div class="card-footer text-right">
+      <button class="btn btn-sm btn-danger" onclick="fechando()">
+        <b>CANCELAR</b>
+      </button>
+      <button class="btn btn-sm btn-success" id="add-aula-btn" onclick="addaula()">
+        <b>ADICIONAR</b>
+      </button>
+
+      <button class="btn btn-sm btn-success"  id="edit-aula" style="display: none;">
+        <b>EDITAR</b>
+      </button>
+
+  </div>
+</div>
+<!--Modal aula-->
+
+
+</div>
+
+
+
+
+
+<!-- Modal modulo -->
+<div class="modal fade" id="add-modulo-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h5 class="text-center">Novo modulo</h5>
+        <hr>
+        <div class="form-group">
+          <label>Nome do Modulo</label>
+          <input class="form-control" id="nome-modulo">
+        </div>
+
+        <hr>
+        <input type="hidden" id="id-modulo-edit">
+        <button class="btn btn-sm bmt btn-block mt-3" id="add-modulo">
+          Adicionar
+        </button>
+         <button class="btn btn-sm bmt btn-block mt-3" id="edit-modulo" style="display:none;">
+          Editar
+        </button>
+
+        <button class="btn btn-sm  btn-danger btn-block fechar">
+           <b>CANCELAR</b>
+        </button>
+
+      </div>
+  </div>
+</div>
+<!--Modal modulo-->
+
+
+<script>
+
+
+
+/*Adicionando modulo*/
+function addmodulo(){
+  $("#add-modulo-modal").modal('show');
+}
+
+$("#add-modulo").click(()=>{
+  id = $("#curso-id").val();
+  nome = $("#nome-modulo").val();
+
+  dados = `id=${id}&nome=${nome}`;
+  $.post("whats/admin/cursos/modulos/add.php", dados, (t)=>{
+    if(t == 1){
+      $(".modal.fade.show").modal("hide");
+      success("Modulo adicionado");
+      modulos(id);
+    }
+  })
+})
+/*Adicionando modulo*/
+
+
+
+/*Editando modulo*/
+function editmodulo(modulo){
+  $("#id-modulo-edit").val(modulo);
+  $.post("whats/admin/cursos/modulos/get.php", 'id='+modulo, (t)=>{
+    $("#nome-modulo").val(t);
+    $("#add-modulo").css("display", "none");
+    $("#edit-modulo").css("display", "inline");
+    $("#add-modulo-modal").modal('show');
+  })
+}
+
+$("#edit-modulo").click(()=>{
+  id = $("#id-modulo-edit").val();
+  nome = $("#nome-modulo").val();
+
+  dados = `id=${id}&nome=${nome}`;
+
+  $.post("whats/admin/cursos/modulos/edit.php", dados, (t)=>{
+      success("Modulo Editado");
+      $(".modal.fade.show").modal("hide");
+      $("#nome-modulo").val("");
+      $("#add-modulo").css("display", "inline");
+      $("#edit-modulo").css("display", "none");
+      modulos(t);
+  })
+})
+/*Editando modulo*/
+
+/*Deletando modulo*/
+function delmodulo(modulo){
+  id = $("#curso-id").val();
+  $.confirm({
+    theme: 'dark',
+    title: 'Atenção',
+    content: 'Deseja deletar este modulo com todas as aulas ?',
+    buttons: {
+      SIM: function(){
+        $.post("whats/admin/cursos/modulos/del.php", 'id='+modulo, (t)=>{
+          if(t == 1){
+            modulos(id);
+          }
+        })
+      },
+      CANCELAR: {
+
+      }
+    }
+  })
+}
+/*Deletando modulo*/
+
+/*Listando aulas*/
+function listaulas(modulo){
+  $(`.aulas-list-${modulo}`).html(` <div class="text-center">
+                                  <div class="spinner-border text-light" role="status">
+                                      <span class="sr-only">Loading...</span>
+                                  </div>
+                                  </div>`);
+
+  $.post("whats/admin/cursos/aulas/list.php", 'id='+modulo, (t)=>{
+     /*Dados das aulas*/
+      if(t != 0){
+        t = JSON.parse(t);
+      daulas = '';
+      t.forEach((t)=>{
+        daulas += ` <div class="callout callout-white" style="display:flex;">
+                  <strong>${t.aula}</strong>
+                    <div class="ml-auto">
+                      <button class="btn btn-xs btn-success" onclick="editaula(${t.id})">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-xs btn-danger" onclick="delaula(${t.id})">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                </div>`;
+
+      })
+    }else{
+      daulas = '<h6 class="text-center"><strong>Sem Aulas</strong></h6>';
+    }
+      /*Dados das aulas*/
+
+      
+      setTimeout(()=>{
+        $(`.aulas-list-${modulo}`).html(daulas);
+      },1200);
+  })
+}
+/*Listando aulas*/
+
+
+/*Adicionando mais input aulas*/
+function add(){
+  ipt_aulas = $(".input-aulas").html();
+
+  ipt_aulas += `<div class="form-group input-aula">
+                  <label>Nome da Aula</label>
+                  <input class="form-control" id="nome">
+                  <label>Link da Aula</label>
+                  <input class="form-control" id="link" placeholder="https://youtube.com/">
+                </div>
+                <hr>`;
+
+  $(".input-aulas").html(ipt_aulas);
+}
+/*Adicionando mais input aulas*/
+
+/*Adicionando aulas ao modulo*/
+function add_aulas(modulo){
+  clear_aula();
+  $("#aula-modulo-id").val(modulo);
+  $("#modal-aula").toggle("down");
+}
+
+function addaula(){
+  dados = new Object();
+  dados.modulo = $("#aula-modulo-id").val();
+  dados.aulas = $(".input-aula").map(function(){
+      return {
+        nome: $(this).find("input[id='nome']").val(),
+        link: $(this).find("input[id='link']").val()
+      }
+  }).get();
+
+dados = JSON.stringify(dados);
+  $.post("whats/admin/cursos/aulas/add.php", dados, (t)=>{
+    if(t == 1){
+      success("Aulas adicionadas com sucesso");
+      modulo = $("#aula-modulo-id").val();
+      listaulas(modulo);
+      reset();
+      fechando();
+    }
+    
+  })
+}
+
+function reset(){
+  ipt_aulas = `<div class="form-group input-aula">
+                  <label>Nome da Aula</label>
+                  <input class="form-control" id="nome">
+                  <label>Link da Aula</label>
+                  <input class="form-control" id="link" placeholder="https://youtube.com/">
+                </div>
+                <hr>`;
+
+  $(".input-aulas").html(ipt_aulas);
+}
+/*Adicionando aulas as modulo*/
+
+/*Editando aula do modulo*/
+function editaula(id){
+  $("#title-aula").html("Editar Aula");
+  $("#id-edit-aula").val(id);
+  $.post("whats/admin/cursos/aulas/get.php", 'id='+id, (t)=>{
+    t = JSON.parse(t);
+    $(".input-aula").find("#nome").val(t.nome);
+    $(".input-aula").find("#link").val(t.link);
+
+    $("#add-aula-button").css("display", "none");
+    $("#add-aula-btn").css("display", "none");
+    $("#edit-aula").css("display", "inline");
+    $("#modal-aula").toggle("down");
+  })
+}
+
+$("#edit-aula").click(function(){
+  id = $("#id-edit-aula").val();
+  nome = $(".input-aula").find("#nome").val();
+  link = $(".input-aula").find("#link").val();
+
+  dados = `id=${id}&nome=${nome}&link=${link}`;
+
+  $.post("whats/admin/cursos/aulas/edit.php", dados, (t)=>{
+    if(t > 0){
+
+      success("Aula editada");
+      listaulas(t);
+      clear_aula();
+    }
+  })
+});
+/*Editando aula do modulo*/
+
+
+
+/*Deletando aulas dos modulos*/
+function delaula(id){
+  $.confirm({
+    theme: 'dark',
+    title: 'Atenção',
+    content: 'Deseja realmente deletar esta aula ?',
+    buttons:{
+      SIM: function(){
+        $.post("whats/admin/cursos/aulas/del.php", 'id='+id, (t)=>{
+          if(t > 0){
+            listaulas(t);
+            error("Aula deletada");
+          }
+        })
+      },
+      NÃO:{
+
+      }
+    }
+  })
+}
+
+function clear_aula(){
+  $("#title-aula").html("Adicionar Aulas");
+  $(".input-aula").find("#nome").val("");
+  $(".input-aula").find("#link").val("");
+  $("#add-aula-button").css("display", "block")
+  $("#add-aula-btn").css("display", "inline");
+  $("#edit-aula").css("display", "none");
+  $("#modal-aula").css("display", "none");
+
+}
+/*Deletando aulas dos modulos*/
+
+
+
+
+/*Fechar modais*/
+$(".fechar").click(()=>{
+  $(".modal.fade.show").modal('hide');
+})
+function fechando(){
+  console.log("fechando");
+  $("#modal-aula").css("display", "none");
+}
+/*Fechar modais*/
+
+
+/*Moving cards*/
+move();
+function move(){
+  Dragable(document.querySelector("#modal-aula"));
+   
+    
+
+//Adiciona eventos pra navegadores modernos e antigos
+function addEvent(el, type, callback)
+{
+    if (el.addEventListener) {
+       el.addEventListener(type, callback);
+    } else if (el.attachEvent) {
+       el.attachEvent("on" + type, callback);
+    }
+}
+
+function Dragable(el)
+{
+    var isMove = false, //Verifica se esta se movendo
+        x = 0, y = 0, //Pega as coordenadas do mouse
+        xel = 0, yel = 0; // ultima posição do elemento
+
+    addEvent(el, "mousedown", function (e) {
+        isMove = true;
+
+        el.className += " isMoving";
+
+        x = window.event ? window.event.clientX : e.pageX;
+        y = window.event ? window.event.clientY : e.pageY;
+
+        xel = x - el.offsetLeft;
+        yel = y - el.offsetTop;
+    });
+
+    addEvent(document, "mousemove", function (e) {
+        if (isMove) {
+            e.preventDefault();
+
+            x = window.event ? window.event.clientX : e.pageX;
+            y = window.event ? window.event.clientY : e.pageY;
+
+            el.style.left = (x - xel) + 'px';
+            el.style.top  = (y - yel) + 'px';
+        }
+    });
+
+    addEvent(document, "mouseup", function () {
+        el.className = String(el.className).replace(/(^|\s)isMoving(\s|$)/g, " ");
+        isMove = false;
+    });
+};
+}
+/*Moving cards*/
+</script>

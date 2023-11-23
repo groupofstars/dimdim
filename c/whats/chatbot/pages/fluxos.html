@@ -1,0 +1,754 @@
+  <style>
+
+.droppable-list {
+  min-height: 350px;
+  background: rgba(4, 4, 4, 0.04);
+  border-radius: 3px;
+}
+
+li {
+  list-style: none;
+}
+
+ul {
+  padding: 15px;
+}
+
+li.item {
+  margin-left: 25px;
+}
+
+
+
+.btn-xs {
+  width: 24px!important;
+  padding: 5;
+}
+
+.bot-img {
+  box-shadow: 1px 2px 2px 1px rgba(0,0,0,0.2);
+  border-radius: 5px;
+  text-align: center;
+  width: 100%;
+  height: 90px;
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+
+}
+
+.bot-img b{
+  display: block;
+}
+
+.bot-img:hover{
+	border:1px solid white;
+}
+
+.botspan{
+  padding: 10px;
+  min-width: 100px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  max-width: 130px;
+  box-shadow: 1px 2px 2px 1px rgba(0,0,0,0.1);
+}
+
+.icone-span {
+  position: absolute;
+  left: 15px;
+  margin-top: 15px;
+  width: 25px;
+  height: 25px;
+  font-size: 18px;
+  padding: 3px;
+}
+
+  </style>
+
+ <div class="col-12 col-md-8">
+     <ul class="droppable-list"></ul>
+ </div>
+
+  <div class="col-12 col-md-4">
+     <h6 id="palavra-html"></h6>
+     <h6 id="instancia-html"></h6>
+     <input type="hidden" id="id-for-fluxo">
+      <hr>
+
+      <div class="row sortable-list">
+      	<div class="col-6 col-md-4 item">
+      		<div class="bot-img" id="texto">
+      			<img class="img-fluid" src="https://cdn-icons-png.flaticon.com/512/969/969303.png" width="50">
+      		
+      		<b>TEXTO</b>
+      		</div>
+      	</div>
+
+      	<div class="col-6 col-md-4 item">
+      		<div class="bot-img" id="midia">
+      			<img class="img-fluid" src="https://cdn-icons-png.flaticon.com/512/136/136523.png " width="50">
+      			<b>MIDIA</b>
+      		</div>
+      	</div>
+
+      	<div class="col-6 col-md-4 item">
+      		<div class="bot-img" id="audio">
+      			<img class="img-fluid" src="https://cdn-icons-png.flaticon.com/512/1626/1626396.png " width="50">
+      			<b>AUDIO</b>
+      		</div>
+      	</div>
+
+      	<div class="col-6 col-md-4 item">
+      		<div class="bot-img" id="pdf">
+      			<img class="img-fluid" src="https://cdn-icons-png.flaticon.com/512/136/136522.png" width="50">
+      		<b>PDF</b>
+      		</div>
+      	</div>
+
+        <div class="col-6 col-md-4 item">
+          <div class="bot-img" id="espera">
+            <img class="img-fluid" src="https://i.pinimg.com/originals/7a/05/1f/7a051f327179adcd3d5d1c19644aa7f2.png" width="50">
+          <b>ESPERA</b>
+          </div>
+        </div>
+
+         <div class="col-6 col-md-4 item">
+          <div class="bot-img" id="action">
+            <img class="img-fluid" src="https://cdn-icons-png.flaticon.com/512/4321/4321131.png" width="50">
+          <b>AÇÃO</b>
+          </div>
+        </div>
+
+
+
+         <div class="col-6 col-md-6 item">
+          <div class="bot-img" id="gravando">
+            <img class="img-fluid" src="https://cdn-icons-png.flaticon.com/512/3687/3687408.png " width="50">
+          <b>GRAVANDO</b>
+          </div>
+        </div>
+
+
+         <div class="col-6 col-md-6 item">
+          <div class="bot-img" id="escrevendo">
+            <img class="img-fluid" src="https://cdn-icons-png.flaticon.com/128/6742/6742660.png" width="50">
+          <b>ESCREVENDO</b>
+          </div>
+        </div>
+
+
+
+      </div>
+         
+    </div>
+
+
+
+<script>
+	  $(".droppable-list").on('click', '.clique',function(){
+    $(this).closest(".card").find(".card-body").slideToggle('down');
+  })
+
+function listar_fluxos(id){
+  $.post("whats/chatbot/fluxo/listar.php", 'id='+id, (t)=>{
+    t = JSON.parse(t);
+    $(".card-title.name").html(`Fluxos do chatbot`);
+    perguntas = t.pergunta.split(",");
+    perguntas = `<span class="badge badge-default ml-2" style="padding:8px;">${perguntas.join('</span><span class="badge badge-default ml-2" style="padding:8px;">')}</span>`;
+    $("#palavra-html").html(`Palavras Chave: ${perguntas}`);
+    $("#instancia-html").html(`Instancia: ${t.instancia}`);
+    $("#id-for-fluxo").val(id);
+    
+    if(t.bots != 0){
+      bots = '';
+      t.bots.forEach((r)=>{
+
+        if(r.tipo == 'texto'){
+            
+            icone = `<i class="fas fa-quote-left"></i>`;
+            color= '#fa5d0f';
+            head = `<h5 class="card-title">
+                    <span class="badge  botspan" style="border-left: 2px solid ${color};">
+                      <b style="color:${color}!important;">${r.tipo}</b>
+                    </span>
+                        </h5>`;
+
+        }else if(r.tipo == 'midia'){
+            
+            icone = `<i class="fas fa-image"></i>`;
+            color= '#88c057';
+            head = `<h5 class="card-title">
+              <span class="badge  botspan" style="border-left: 2px solid ${color};">
+                <b style="color:${color}!important;">${r.tipo}</b>
+              </span>
+                  </h5>`;
+
+        }else if(r.tipo == 'audio'){
+          
+          icone = `<i class="fas fa-microphone"></i>`;
+          color= '#e66d53';
+          head = `<h5 class="card-title">
+              <span class="badge  botspan" style="border-left: 2px solid ${color};">
+                 <b style="color:${color}!important;">${r.tipo}</b>
+              </span>
+                  </h5>`;
+
+        }else if(r.tipo == 'pdf'){
+            
+            icone = `<i class="fas fa-file-pdf"></i>`;
+            color= '#ca4345';
+            head = `<h5 class="card-title">
+              <span class="badge  botspan" style="border-left: 2px solid ${color};">
+                 <b style="color:${color}!important;">${r.tipo}</b>
+              </span>
+                  </h5>`;
+
+        }else if(r.tipo == 'espera'){
+            
+            icone = `<i class="fas fa-stopwatch-20"></i>`;  
+            color= '#1d607c';
+            head = `<h5 class="card-title">
+                <span class="badge  botspan" style="border-left: 2px solid ${color};">
+                   <b style="color:${color}!important;">${r.tipo}</b>
+                </span>
+                    </h5>`;
+
+        }else if(r.tipo == 'action'){
+            icone = `<i class="fas fa-flux-capacitor"></i>`;  
+            color= '#17a2b8';
+            head = `<h5 class="card-title">
+                <span class="badge  botspan" style="border-left: 2px solid ${color};">
+                   <b style="color:${color}!important;">${r.tipo}</b>
+                </span>
+                    </h5>`;
+        }else if(r.tipo == 'escrevendo'){
+            icone = `<i class="fas fa-comment-dots"></i>`;  
+            color= '#555acd';
+            head = `<h5 class="card-title">
+                <span class="badge  botspan" style="border-left: 2px solid ${color};">
+                   <b style="color:${color}!important;">${r.tipo}</b>
+                </span>
+                    </h5>`;
+
+        }else if(r.tipo == 'gravando'){
+           icone = `<i class="fas fa-microphone-alt"></i>`;  
+            color= '#ffc107';
+            head = `<h5 class="card-title">
+                <span class="badge  botspan" style="border-left: 2px solid ${color};">
+                   <b style="color:${color}!important;">${r.tipo}</b>
+                </span>
+                    </h5>`;
+        }
+
+
+        bots += `<li class="item" style="width:60%;" id="${r.id}">
+
+          <span class="badge badge-default icone-span" style="background: ${color} !important;">
+            ${icone}
+          </span>
+
+          <div class="card" style="border-top: 3px solid ${color};">
+            <div class="card-header">
+              ${head}
+              <div class="card-tools">
+              
+                <button class="btn btn-xs clique" style="background-color:transparent!important;border-color:${color}!important;box-shadow: none;color:${color};" onmouseover="this.style.backgroundColor = '${color}';this.style.color =  'white';" 
+                  onmouseout="this.style.backgroundColor = 'transparent';this.style.color='${color}';">
+                  
+                  <i class="fas fa-sort-down"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-xs remove-button">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            
+            </div>
+            <div class="card-body" style="display:none;">
+              Item 01
+
+              <button class="btn btn-sm btn-block atualizar" id="${r.tipo}" style="background:${color};color:white;">
+                <b>ATUALIZAR</b>
+              </button>
+            </div>
+          </div>
+        </li>`;
+      })
+
+      $(".droppable-list").html(bots);
+      
+    }else{
+     
+      $(".droppable-list").html("<h5>Nenhum Fluxo encontrado</h5>");
+    }
+
+
+  })
+  
+}
+
+/*Atualizando item*/
+$(".droppable-list").on('click', '.atualizar', function(){
+  id = $(this).closest("li").attr("id");
+  tipo = $(this).attr("id");
+
+  console.log(`id: ${id} tipo: ${tipo}`);
+})
+/*Atualizando item*/
+
+/*Removendo item*/
+$(".droppable-list").on('click', '.remove-button',function() {
+    fluxo = $("#id-for-fluxo").val();
+    id = $(this).closest(".item").attr("id");
+    //console.log("remove: "+id);
+    
+    $.confirm({
+      theme:'dark',
+      title: 'Atenção',
+      content:'Deseja deletar esse item do fluxo ?',
+      buttons:{
+        SIM: function(){
+          $.post("whats/chatbot/fluxo/del.php", 'id='+id, (t)=>{
+            if(t == 1){
+              error("Deletado com sucesso");
+              listar_fluxos(fluxo);
+            }
+          })
+        },
+        NÃO:{
+
+        }
+      }
+    
+  })
+
+});
+/*Removendo item*/
+
+$(".droppable-list").sortable({
+    connectWith: ".droppable-list",
+    axis: "y", // permitir movimento vertical
+        update: function(event, ui) {
+           var order = $(this).sortable('toArray', {attribute: 'id'}); // obtém uma matriz de IDs na nova ordem
+          $.each(order, function(index, value){
+            var id = value; // obtém o ID da col-12
+            var posicao = index+1; // obtém a nova posição da imagem
+            var bot = $("#id-for-fluxo").val();
+
+            //console.log(`id: ${id} posição: ${posicao}`);
+
+            
+            $.ajax({
+              url: 'whats/chatbot/fluxo/update.php',
+              method: 'POST',
+              data: {bot: bot,id: id, posicao: posicao},
+              success: function(response){
+                listar_fluxos(bot);
+              }
+            });
+          });
+
+        }
+  }).disableSelection();
+
+ $(()=>{
+  // tornar os elementos da lista de itens arrastáveis arrastáveis
+  $(".sortable-list .item").draggable({
+    revert: "invalid",
+    containment: "document",
+    helper: "clone",
+    /*stop: function(event, ui){
+         // Verifica se o item foi solto em uma lista
+          if ($(ui.helper).hasClass("dropped-in-list")) {
+            // Remove o item que foi arrastado
+            $(ui.helper).remove();
+          }
+    }*/
+  });
+
+
+  // tornar a lista droppable
+  $(".droppable-list").droppable({
+    accept: ".sortable-list .item",
+    drop: function(event, ui) {
+      // criar um novo elemento a partir do elemento arrastado
+      //var newItem = ui.draggable.clone();
+     /* var newItem = 
+
+      $(this).append(newItem);*/
+
+      let id_item = $(ui.helper).find(".bot-img").attr("id");
+      console.log(id_item);
+      $(`#add-${id_item}`).modal("show");
+      
+      // adicionar função para remover o item quando o botão "Remover" for clicado
+    
+
+
+
+    }
+  });
+})
+
+
+
+/*Adicionando fluxos*/
+function addFluxos(tipo){
+
+  dados = new FormData();
+  id = $("#id-for-fluxo").val();
+  dados.append('id', id);
+
+  if(tipo == 'texto'){
+    dados.append('texto', $('#texto-fluxo').val().trim());
+
+  }else if(tipo == 'midia'){
+    dados.append('texto', $("#texto-imagem-fluxo").val())
+    dados.append('imagem', $("#imagem-fluxo")[0].files[0]);
+    dados.append('type', $("#imagem-fluxo")[0].files[0].type);
+
+  }else if(tipo == 'audio'){
+    dados.append('audio', $("#audio-fluxo")[0].files[0]);
+  }else if(tipo == 'pdf'){
+     dados.append('pdf', $("#pdf-fluxo")[0].files[0]);
+  }else if(tipo == 'espera'){
+    dados.append('timer', $("#espera-fluxo").val());
+  }else if(tipo == 'gravando'){
+    dados.append('tempo', $("#tempo-gravacao").val());
+  }else if(tipo == 'escrevendo'){
+    dados.append('tempo', $("#tempo-escrevendo").val());
+  }
+
+   
+    
+
+     $.ajax({
+          url: `whats/chatbot/fluxo/adicionar-${tipo}.php`,
+          data: dados,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function(t){
+            if(t == 1){
+            success("Fluxo Adicionado");
+            clean(tipo, id);
+            listar_fluxos(id);
+            }
+          }
+    });
+
+}
+/*Adicionando fluxos*/
+
+/*Limpando*/
+function clean(tipo){
+  $(`#add-${tipo}`).modal("hide");
+  $(`add-${tipo}`).find("textarea").html("");
+  $(`add-${tipo}`).find("input").val("");
+}
+/*Limpando*/
+
+/*Selecionando a imagem*/
+  function imagemFluxo(){
+    $("#imagem-fluxo").click();
+  }
+
+ $("#imagem-fluxo").change(function(){
+    readURL(this);
+  
+  })
+
+
+  function readURL(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    
+    reader.onload = function(e) {
+      $(".imagem-fluxo").attr('src', e.target.result);
+    }
+    
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+/*Selecionando a imagem*/
+
+/*Selecionando o audio*/
+function addaudio(){
+  $("#audio-fluxo").click();
+}
+
+$("#audio-fluxo").change(function(){
+  readAudio(this);
+})
+
+
+function readAudio(input){
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+     
+
+        var audio = document.createElement('audio');
+        audio.src = e.target.result;
+        audio.controls = true;
+
+        // Adiciona o elemento audio ao elemento com a classe "audio-container"
+        $('.audio-container').html(audio);
+     
+    }
+
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+/*Selecionando o audio*/
+
+/*Selecionando PDF*/
+function buscararquivo(){
+  $("#pdf-fluxo").click();
+}
+
+$("#pdf-fluxo").change(function(){
+  nome = $(this)[0].files[0].name;
+  $("#nome-pdf").html(nome);
+});
+/*Selecionando PDF*/
+
+/*Back*/
+function back(){
+ $("#wreply").click();
+}
+/*Back*/
+</script>
+
+
+<!-- Escrevendo -->
+<div class="modal fade" id="add-escrevendo" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-body">  
+        <h4 class="text-center">Tempo de Escrita</h4>
+
+        <div class="form-group">
+          <label>Em segundos</label>
+          <input class="form-control" id="tempo-escrevendo">
+        </div>
+        <hr>
+         <div class="mt-2">
+        <button class="btn btn-sm btn-danger btn-block" onclick="cancelar()">
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-success btn-block" onclick="addFluxos('escrevendo')">
+          Adicionar
+        </button>
+      </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Gravando -->
+<div class="modal fade" id="add-gravando" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-body">  
+        <h4 class="text-center">Tempo de Gravação</h4>
+
+        <div class="form-group">
+          <label>Em segundos</label>
+          <input class="form-control" id="tempo-gravacao">
+        </div>
+        <hr>
+         <div class="mt-2">
+        <button class="btn btn-sm btn-danger btn-block" onclick="cancelar()">
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-success btn-block" onclick="addFluxos('gravando')">
+          Adicionar
+        </button>
+      </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal add lista -->
+<div class="modal fade" id="add-texto" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">  
+        <h4 class="text-center">Adicionar Texto</h4>
+        <p>Para retornar o nome do remetente da mensagem, utilize as chaves {nome}, para ser substituida pelo nome no texto.</p>
+        <hr>
+        <div class="form-group">
+          <textarea class="form-control" id="texto-fluxo" style="min-height:300px;">
+Olá, {nome}! isso aqui é um exemplo.
+          </textarea>
+        </div>
+
+
+        <hr>
+      <div class="mt-2" style="text-align:end;">
+        <button class="btn btn-sm btn-danger" onclick="cancelar()">
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-success" onclick="addFluxos('texto')">
+          Adicionar
+        </button>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Espera -->
+<div class="modal fade" id="add-espera" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-body">  
+        <h4 class="text-center">Tempo de Espera</h4>
+
+        <div class="form-group">
+          <label>Em segundos</label>
+          <input class="form-control" id="espera-fluxo">
+        </div>
+        <hr>
+         <div class="mt-2">
+        <button class="btn btn-sm btn-danger btn-block" onclick="cancelar()">
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-success btn-block" onclick="addFluxos('espera')">
+          Adicionar
+        </button>
+      </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Midia -->
+<div class="modal fade" id="add-midia" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">  
+         <h4 class="text-center">Adicionar Mídia</h4>
+         <hr>
+
+        <div class="row">
+          <div class="col-5 text-center">
+            <div class="form-group">
+              <label>Imagem ou Vídeo</label>
+             <img class="img-fluid imagem-fluxo" onclick="imagemFluxo()" src="https://cdn-icons-png.flaticon.com/512/3616/3616929.png" style="border: 1px solid white;border-style: dashed;border-radius: 5px;padding: 7px;cursor: pointer;" width="150">
+                   <input type="file"  accept=".png, .jpg, .jpeg, .mp4" id="imagem-fluxo" style="display:none;">
+            </div>
+            
+          </div>
+          <div class="col-7">
+            <div class="form-group">
+              <label>Texto de Envio</label>
+              <textarea class="form-control" id="texto-imagem-fluxo" style="min-height:150px;"></textarea>
+            </div>
+          </div>      
+        </div>
+
+
+           <hr>
+      <div class="mt-2" style="text-align:end;">
+        <button class="btn btn-sm btn-danger" onclick="cancelar()">
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-success" onclick="addFluxos('midia')">
+          Adicionar
+        </button>
+      </div>
+  </div>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- PDF -->
+<div class="modal fade" id="add-pdf" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body text-center">  
+        
+        <h4 class="text-center">Adicionar PDF</h4>
+         <hr>
+         <div class="audio-container">
+          <span class="badge badge-danger" style="padding:10px;">
+            <b style="text-transform: uppercase;"><i class="fas fa-folder-open"></i> PDF: <span id="nome-pdf"></span></b>
+          </span>
+         </div>
+        
+        <input type="file" id="pdf-fluxo" accept=".pdf" style="display:none;">
+
+        <button class="btn btn-sm btn-primary mt-2" style="width: 60%;" onclick="buscararquivo()">
+          Buscar Arquivo
+        </button>
+
+
+        <hr>
+        <div class="mt-2" style="text-align:end;">
+        <button class="btn btn-sm btn-danger" onclick="cancelar()" style="width: 30%;">
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-success" onclick="addFluxos('pdf')" style="width:30%;">
+          Adicionar
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+
+
+<!-- Audio -->
+<div class="modal fade" id="add-audio" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body text-center">  
+        <h4 class="text-center">Adicionar Audio</h4>
+         <hr>
+         <div class="audio-container">
+          <span class="badge badge-default" style="padding:10px;">
+            <b style="text-transform: uppercase;">Nenhum Audio Carregado</b>
+          </span>
+         </div>
+        
+        <input type="file" id="audio-fluxo" accept=".ogg" style="display:none;">
+
+        <button class="btn btn-sm btn-primary mt-2" style="width: 60%;" onclick="addaudio()">
+          Adicionar audio
+        </button>
+
+
+        <hr>
+        <div class="mt-2" style="text-align:end;">
+        <button class="btn btn-sm btn-danger" onclick="cancelar()" style="width: 30%;">
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-success" onclick="addFluxos('audio')" style="width:30%;">
+          Adicionar
+        </button>
+      </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,343 @@
+ <style>
+   .badge.badge-danger-default {
+  background: #b2042e;
+  border: 1px solid #b2042e;
+  color: white;
+  padding: 7px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+h6.uppercase {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.text-purple2 {
+  color: #5e17eb!important;
+}
+.badge-purple {
+  background-color: #5e17eb;
+  color: white;
+}
+ </style>
+
+ <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Andamentos</h1>
+          </div>
+         
+           <div class="col-auto">
+            <button class="btn btn-info btn-sm bmt" id="add">
+              Nova Função
+            </button>
+          </div>
+
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section class="container text-center" style="position: relative;top: -30px;">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+
+
+            <div class="col-md-9 col-12">
+              <h6 class="uppercase"></h6>
+            
+                  <div class="card">
+                    <div class="card-body table-responsive p-0">
+                       <table class="table">
+                        <thead>
+                          <tr>
+                            <th class="no-border">#</th>
+                            <th class="no-border">Função</th>
+                            <th class="no-border">Orçamento</th>
+                            <th class="no-border">Status</th>
+                            <th class="no-border">Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                      </table>
+
+
+                    </div>
+                  </div>
+            </div>
+           
+
+            <div class="col-md-3">
+              <div class="card">
+                <div class="card-body">
+
+
+
+                  <div class="form-group" style="text-align:initial;">
+                    <label>Filtrar por</label>
+                    <select class="form-control" onchange="filtrar(this)">
+                        <option value="5">TODOS</option>
+                        <option value="1">COCLUIDO</option>
+                        <option value="0">REJEITADOS</option>
+                        <option value="2">EM ANDAMENTO</option>
+                        <option value="3">AGUARDANDO</option>
+                    </select>
+                  </div>
+                  <hr>
+                  <div class="mb-3" style="display: flex;">
+                    <span class="btn btn-sm btn-success">
+                      <i class="fas fa-check"></i>
+                    </span>
+                    <strong class="ml-3">APROVAR</strong>
+                  </div>
+
+
+
+                  <div class="mb-3" style="display: flex;">
+                    <span class="btn btn-sm btn-danger">
+                      <i class="fas fa-trash"></i>
+                    </span>
+                    <strong class="ml-3">REJEITAR</strong>
+                  </div>
+
+                 
+                </div>
+              </div>
+            </div>
+
+
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+</div>
+
+
+<script>
+  $("#add").click(()=>{
+    $("#modal-add").modal('show');
+  })
+
+
+function filtrar(t){
+  listar(t.value);
+}
+
+listar(5);
+function listar(f){
+  filtro = 'filtro='+f;
+  console.log(filtro);
+  $.post("whats/list-func.php",filtro, (t)=>{
+    l = '';
+    if(t != 0){
+      t  = JSON.parse(t);
+      
+      console.log(t);
+
+      t.forEach((t)=>{
+        valor = t.valor;
+      if(t.status == 1){
+
+        if(t.pago == 1){
+
+           status_b = `<span class="badge badge-purple text-purple2" style="width: 14px;height: 14px;">0</span>`;
+        status = `<span class="badge badge-success">CONCLUIDO</span>
+                  <span class="badge badge-purple">PAGO</span>`;
+
+        valor = '<s>0.00</s>';
+        }else{
+
+           status_b = `<span class="badge badge-success text-success" style="width: 14px;height: 14px;">0</span>`;
+        status = `<span class="badge badge-success">CONCLUIDO</span>
+        <span class="badge badge-warning">AGUARDANDO PAGAMENTO</span>`;
+
+        }
+       
+         btn  = '';
+
+      }else if(t.status == 2){
+
+        status_b = `<span class="badge badge-primary text-primary" style="width: 14px;height: 14px;">0</span>`;
+        status = `<span class="badge badge-primary">EM ANDAMENTO</span>`;
+        btn  = `<button class='btn btn-sm btn-success bmt' onclick="conc(${t.id})">
+                  Concluir
+                </button>`;
+
+      }else if(t.status == 3){
+        status_b = `<span class="badge badge-warning text-warning" style="width: 14px;height: 14px;">0</span>`;
+         status = `<span class="badge badge-warning">AGUARDANDO</span>`;
+         btn = `<button class='btn btn-sm btn-success' onclick="apro(${t.id})">
+                  <i class="fas fa-check"></i>
+                </button>
+
+
+                <button class='btn btn-sm btn-danger' onclick="reject(${t.id})">
+                  <i class="fas fa-trash"></i>
+                </button>
+                `;
+      }else if(t.status == 0){
+         status_b = `<span class="badge badge-danger text-danger" style="width: 14px;height: 14px;">0</span>`;
+         status = `<span class="badge badge-danger">REJEITADO</span>`;
+          btn  = '';
+        
+      }
+
+
+  
+       l += `<tr style="white-space: nowrap;">
+                  <td>${status_b}</td>
+                  <td>${t.funcao}</td>
+                  <td><b>R$ ${valor}</b></td>
+                  <td>${status}</td>
+                  <td>
+                  ${btn}
+                  </td>
+                </tr>`;
+
+    });
+
+    }else{
+       l += `<tr style="white-space: nowrap;">
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                </tr>`;
+    }
+
+    $("tbody").html(l);
+  })
+}
+
+
+
+
+$(".fechar").click(()=>{
+  $("#modal-add").modal("hide");
+})
+
+function apro(id){
+   $.post("whats/apro-func.php", 'id='+id, (t)=>{
+    if(t == 1){
+      success("Função Aprovada");
+      listar(5);
+    }
+  })
+}
+
+function reject(id){
+  $.post("whats/del-func.php", 'id='+id, (t)=>{
+    if(t == 1){
+      error("Função Regeitada");
+      listar(5);
+    }
+  })
+}
+
+function conc(id){
+
+  $.confirm({
+    theme: 'dark',
+    title: 'Conclusão do Serviço',
+
+    content: '' +
+    '<form action="" class="formName">' +
+    '<div class="form-group">' +
+    '<label>Digite a Senha</label>' +
+    '<input type="text" class="senha form-control" required />' +
+    '</div>' +
+    '</form>',
+
+      buttons: {
+        formSubmit: {
+            text: 'Concluir',
+            btnClass: 'btn-success',
+            action: function () {
+                var name = this.$content.find('.senha').val();
+                if(name == '120746'){
+                    $.post("whats/conc.php", 'id='+id, (t)=>{
+                      if(t == 1){
+                        success("Serviço concluído");
+                        listar(5);
+                      }
+                    })
+                }else{
+                  $.alert({
+                    theme: 'dark',
+                    title: 'Ops!',
+                    content: 'Senha incorreta!'
+                  });
+                }
+                
+            }
+        },
+        Cancelar: function () {
+            //close
+        },
+    }
+
+
+  })
+   
+}
+
+
+$("#adicionar").click(()=>{
+  dados = 'func='+$("#func").val()+'&orc='+$("#orc").val();
+
+  $.post("whats/func.php", dados, (t)=>{
+    if(t == 1){
+      $("#func").val("");
+      $("#orc").val("");
+      $("#modal-add").modal('hide');
+      success("Novo pedido adicionado");
+      listar(5);
+
+
+    }
+  })
+
+})
+</script>
+
+
+
+<!-- Modal add lista -->
+<div class="modal fade" id="modal-add" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+
+
+         <div class="form-group">
+           <label>Função</label>
+           <input class="form-control" id="func">
+         </div>
+
+         <div class="form-group">
+           <label>Orçamento</label>
+           <input class="form-control" id="orc">
+         </div>
+
+
+         <div class="container" style="text-align:end;">
+           <button class="btn btn-danger btn-sm fechar">
+            <strong>Cancelar</strong>
+           </button>
+           <button class="btn btn-success btn-sm" id="adicionar">
+             <strong>Adicionar</strong>
+           </button>
+         </div>
+      </div>
+    </div>
+  </div>
+</div>

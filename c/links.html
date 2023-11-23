@@ -1,0 +1,220 @@
+
+<style>
+  #html-link {
+    border: 1px solid #e1dfdf;min-height: 440px;border-radius: 5px;
+  }
+  #body-link{
+    width: 65%;margin: 56px auto 0px;padding: 0 24px;
+  }
+  #imagem-link{
+    text-align: center;
+  }
+
+  #footer-link{
+    text-align: center;position: relative;bottom: -45px;background: rgba(0,0,0,0.2);padding: 10px;
+  }
+
+  #ul-first-links{
+    list-style: none;display: flex;flex-direction: column;gap: 16px;padding: 24px 0;text-align: center;
+  }
+
+  #li-first-links{
+
+  }
+
+  #ul-first-links li {
+    border: 1px solid;padding: 5px;border-radius: 5px;
+  }
+  #icons-link{
+    display: flex;list-style: none;justify-content: center;gap: 12px;
+  }
+  #icons-link li{
+    background: rgba(0,0,0,0.2);width: 45px;height: 45px;padding: 3px;font-size: 25px;border-radius: 30px;cursor: pointer;
+  }
+</style>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+     <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Link na Bio</h1>
+          </div>
+          <div class="col-auto">
+           
+          </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section  style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      
+
+
+      <div class="row">
+        <div class="col-12 col-lg-7">
+          <div class="card">
+            <div class="card-body">
+                
+                <div class="text-center">
+                    <!--Body imagem-->
+                <div id="body-link">
+                     
+                    <!--Profile imagem-->
+                    <div id="imagem-link">
+                      <img class="img-fluid" src="https://cdn-icons-png.flaticon.com/512/219/219983.png" width="100">
+                    </div>
+                    <!--Profile imagem-->
+                    
+                    <!--Links li-->
+                    <ul id="ul-first-links">
+                      <li>Acesse aqui</li>
+                      <li>Acesse aqui</li>
+                      <li>Acesse aqui</li>
+                    </ul>
+                    <!--Links li-->
+
+                    <ul id="icons-link">
+                      <li><i class="fab fa-line"></i></li>
+                      <li><i class="fas fa-link"></i></li>
+                      <li><i class="fab fa-linux"></i></li>
+                    </ul>
+                   
+                   
+                </div>
+                <!--Body imagem-->
+                </div>
+
+            </div>
+            <div class="card-footer">
+              <div class="text-center">
+                <i>https://api.enviame.com.br</i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+          <div class="card">
+            <div class="card-header">
+              Criar Elementos
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>
+                  Selecione o tipo de elemento
+                </label>
+                <select class="form-control">
+                  <option value="botoes"></option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+</div>
+
+<script>
+  function adicionar(){
+    $("#img-add").click();
+  }
+  $("#img-add").on('change', function(){
+    data = new FormData();
+    data.append('image', $("#img-add")[0].files[0]);
+
+     $.ajax({
+          url: `whats/admin/banners/add.php`,
+          data: data,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function(t){
+            if(t == 1){
+            listar();
+            sort();
+            success("Imagem Inserida");
+            }
+          }
+    });
+
+
+  });
+
+  listar();
+  function listar(){
+    $.post("whats/admin/banners/listar.php", (t)=>{
+      if(t != 0){
+        t = JSON.parse(t);
+        images = '';
+        t.forEach((r)=>{
+          images += `<div class="col-12 draggable" id="${r.id}">
+                   <button class="btn btn-xs btn-danger" onclick="del(${r.id})" style="position: absolute;left: 97%;top: -5px;z-index: 2;">
+                      <i class="fas fa-trash"></i>
+                    <div></div></button>
+                  <div class="card">
+                    <div class="card-body">
+                      <img class="img-fluid" src="whats/admin/banners/img/${r.img}">
+                    </div>
+                  </div>
+                </div>`;
+        })
+        $(".row.sortable").html(images);
+      }else{
+        $(".row.sortable").html(`<h5>Nenhum Banner encontrado!</h5>`);
+      }
+    })
+  }
+
+  function del(id){
+    $.confirm({
+      theme: 'dark',
+      title: 'Atenção',
+      content: 'Deseja realemente deletar este banner ?',
+      buttons: {
+        SIM: function(){
+          $.post("whats/admin/banners/del.php", 'id='+id, (t)=>{
+            error("Deletado com sucesso");
+            listar();
+          })
+        },
+        NÃO: {
+          
+        }
+      }
+    })
+  }
+
+  sort();
+  function sort(){
+
+  $(".sortable").sortable({
+    update: function(event, ui) {
+      var order = $(this).sortable('toArray', {attribute: 'id'}); // obtém uma matriz de IDs na nova ordem
+      $.each(order, function(index, value){
+        var id = value; // obtém o ID da col-12
+        var posicao = index+1; // obtém a nova posição da imagem
+        
+       // console.log(`id: ${id} posição: ${posicao}`);
+
+        // envia a solicitação AJAX para atualizar a posição no banco de dados
+        $.ajax({
+          url: 'whats/admin/banners/update.php',
+          method: 'POST',
+          data: {id: id, posicao: posicao},
+          success: function(response){
+            //console.log(response);
+          }
+        });
+      });
+    }
+  });
+
+  }
+</script>
+
+
+

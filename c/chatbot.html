@@ -1,0 +1,219 @@
+  <style>
+
+    .linechat::before {
+      border-radius: 0.25rem;
+      background-color: white!important;;
+      bottom: 0;
+      content: "";
+      left: 31px;
+      margin: 0;
+      position: absolute;
+      top: 0;
+      width: 2px;
+    }
+
+.droppable-list {
+  min-height: 350px;
+  border: 1px solid white;
+  border-style: dashed;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+}
+
+li {
+  list-style: none;
+}
+
+ul {
+  padding: 15px;
+}
+
+
+  </style>
+
+  <div class="content-wrapper">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Chatbot</h1>
+          </div>
+          <div class="col-auto">
+
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section style="padding: 18px;position: relative;top: -70px;">
+  <div class="card">
+    <div class="card-header">
+      Meus Fluxos
+    </div>
+    <div class="card-body">
+      
+     <div class="container-fluid">
+  <div class="row">
+    <div class="col-8">
+      <h2>Área droppable</h2>
+      <ul class="droppable-list">
+      </ul>
+    </div>
+    <div class="col-4">
+      <h2>Itens arrastáveis</h2>
+      <ul class="sortable-list">
+        <li class="item">
+          <div class="card">
+            <div class="card-body">
+              Item 01
+            </div>
+          </div>
+        </li>
+
+
+        <li class="item">
+          <div class="card">
+            <div class="card-body">
+              Item 02
+            </div>
+          </div>
+        </li>
+
+
+        <li class="item">
+          <div class="card">
+            <div class="card-body">
+              Item 03
+            </div>
+          </div>
+        </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+    
+    </div>
+  </div>
+
+</section>
+
+
+
+<script>
+  $(function() {
+  // tornar os elementos da lista de itens arrastáveis arrastáveis
+  $(".sortable-list .item").draggable({
+    revert: "invalid",
+    containment: "document",
+    helper: "clone"
+  });
+
+  // tornar a lista droppable
+  $(".droppable-list").droppable({
+    accept: ".sortable-list .item",
+    drop: function(event, ui) {
+      // criar um novo elemento a partir do elemento arrastado
+      var newItem = ui.draggable.clone();
+       newItem.css("width", "45%");
+      // adicionar o novo elemento à lista droppable
+       newItem.append('<button class="btn btn-sm btn-danger remove-button" style="position: relative;left: 86%;border-radius: 48%;top: -87px;"><i class="fas fa-trash"></i></button>');
+     
+      $(this).append(newItem);
+      
+      // adicionar função para remover o item quando o botão "Remover" for clicado
+      $(".remove-button").click(function() {
+        $(this).parent().remove();
+      });
+
+
+       $(this).sortable({
+        axis: "y", // permitir movimento vertical
+        update: function(event, ui) {
+          // atualizar a posição dos elementos na lista
+        }
+      });
+
+
+    }
+  });
+});
+
+
+
+  /*
+$(function() {
+  $("#sortable1 .item").draggable({
+    revert: "invalid",
+    containment: "document",
+    helper: "clone"
+  });
+
+  // tornar os elementos de #sortable2 arrastáveis
+  $("#sortable2 .item").draggable({
+    revert: "invalid",
+    containment: "document",
+    helper: "clone"
+  });
+
+  $("#sortable2").sortable({
+    revert: true,
+    update: function(event, ui) {
+      var ids = [];
+      $("#sortable2 .item").each(function() {
+        ids.push($(this).attr("id"));
+      });
+      console.log(ids);
+
+      var position = ui.item.index();
+      console.log("Posição do item: " + position);
+    }
+  });
+
+  // tornar a lista #sortable2 droppable
+  $("#sortable2").droppable({
+    accept: "#sortable1 .item, #sortable2 .item",
+    drop: function(event, ui) {
+      console.log("colado: "+ui.draggable.attr("id"));
+
+      // criar um novo elemento a partir do elemento arrastado
+      var newItem = ui.draggable.clone();
+
+      // ajustar a posição e largura do novo elemento
+      newItem.css({
+        width: "55%",
+        left: "25px"
+      });
+
+      // adicionar os ícones "fa-circle" e "fa-trash" ao novo elemento
+      newItem.append(`<i class="fas fa-circle" style="position: absolute;left: -16px;top: 15px;background-color: #adb5bd00;"></i>`);
+      newItem.append(`<i class="fas fa-trash delete-icon" style="position: absolute;left: 100%;top: 11px;color: white;cursor: pointer;background: rgb(255, 0, 0);width: 25px;height: 25px;text-align: center;line-height: inherit;border-radius: 4px;"></i>`);
+
+      // adicionar o novo elemento como filho de #sortable2
+      $(this).append(newItem);
+    }
+  });
+
+  $("#sortable2").on("click", ".delete-icon", function() {
+    $(this).parent().remove();
+  });
+});
+*/
+
+
+
+/*Ações do botão
+- Adicionar em lista
+- Remover de lista
+- Black List
+- Adicionar em grupo
+- Devolver resposta
+
+
+
+Ações do botão*/
+</script>

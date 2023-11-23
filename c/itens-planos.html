@@ -1,0 +1,386 @@
+
+<link rel="stylesheet" href="switch.css">
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+     <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Itens Planos</h1>
+          </div>
+          <div class="col-auto">
+             <button class="btn btn-sm bmt" id="novoitem">
+              Novo Item
+            </button>
+          </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section  style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+
+      <div class="row">
+        <div class="col-12 col-lg-8">
+          <div class="card">
+                        <div class="card-header">
+                          <h3 class="card-title">Meus Planos</h3>
+                          <div class="card-tools">
+
+                            <div class="row">
+                              
+                            </div>
+                          </div> 
+                        </div>
+
+                        <div class="card-body table-responsive p-0">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th class="no-border">Função</th>
+                                <th class="no-border">Valor</th>
+                                <th class="no-border">Status</th>
+                                <th class="no-border">Ações</th>
+                                
+                              </tr>
+                            </thead>
+                            <tbody></tbody>
+                          </table>
+                        </div>
+                        <div class="card-footer">
+
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <h5 class="text-center">Token Mercado pago</h5>
+                          <hr>
+
+                           <div class="form-group">
+                      <label>Public Key</label>
+                      <div class="input-group mb-3">
+                        
+                        <input type="password" class="form-control" id="pubkey">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-secondary ver">
+                            <i class="fas fa-eye-slash"></i>
+
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Access Token</label> 
+                      <div class="input-group mb-3">
+                        
+                        <input type="password" class="form-control" id="actoken">
+
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-secondary ver">
+                            <i class="fas fa-eye-slash"></i>
+
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                       <button class="btn mt-3 btn-sm btn-outline-success btn-block" onclick="salvar()">
+                      Salvar Dados
+                    </button>
+
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+    </section>
+
+</div>
+
+<script>
+  $("#add-plano").click(()=>{
+    $("#modal-plano").modal("show");
+  })
+
+/*Buscando credenciais mp*/
+  credenciais();
+  function credenciais(){
+    $.post("whats/admin/planos/mp.php", 'tipo=list', (r)=>{
+      r = JSON.parse(r);
+      $("#pubkey").val(r.pubkey);
+      $("#actoken").val(r.actoken);
+    })
+  }
+/*Buscando credenciais mp*/
+
+/*Atualizando credenciais mp*/
+  function salvar(){
+    pubkey = $("#pubkey").val();
+    actoken = $("#actoken").val();
+    dados = `tipo=update&pubkey=${pubkey}&actoken=${actoken}`;
+    $.post("whats/admin/planos/mp.php", dados, (t)=>{
+      if(t == 1){
+        success("Dados atualizados");
+        credenciais();
+      }
+    })
+  }
+/*Atualizando credenciais mp*/
+
+/*Listando*/
+  listar();
+  function listar(){
+    $.post("whats/functions/list.php", (t)=>{
+      list = ''; 
+      if(t != 0){
+        t = JSON.parse(t);
+        t.forEach((r)=>{
+
+          if(r.status == 1){
+            status = `<button class="btn btn-sm btn-toggle statusBlock active" id="${r.id}" type="button"  data-toggle="button" aria-pressed="true" autocomplete="off">
+                      <div class="handle"></div>
+                    </button>`;
+          }else{
+             status = `<button class="btn btn-sm btn-toggle statusBlock" id="${r.id}" type="button"  data-toggle="button" aria-pressed="false" autocomplete="off">
+                      <div class="handle"></div>
+                    </button>`;
+          }
+
+          var formatoReais = r.valor.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          });
+
+
+          list += `<tr style="white-space: nowrap;">
+                        <th>${r.nome}</th>
+                        <th>${formatoReais}</th>
+                        <th>${status}</th>
+                        <th>
+                          <button class="btn btn-sm btn-success" onclick="editFunc(${r.id})">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm btn-danger" onclick="del(${r.id})">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </th>
+                       </tr>`;
+        })
+      }else{
+        list = `<tr style="white-space: nowrap;">
+                        <th>----</th>
+                        <th>----</th>
+                        <th>----</th>
+                        <th>----</th>
+                       </tr>`;
+      }
+
+      $("tbody").html(list);
+    })
+  }
+/*Listando*/
+
+  $("#novoitem").click(function(){
+     $.confirm({
+          title: `Nova Funcionalidade`,
+          content: `<div class="form-group">
+                      <label>Nome a ser Exibido</label>
+                      <input class="form-control mb-2" id="nomefunc" placeholder="ex: Envio de botões">
+                    </div>
+
+                    <div class="form-group">
+                      <label>Id para identificação</label>
+                      <input class="form-control mb-2" id="idfunc" placeholder="ex: sendButton">
+                    </div>
+
+                    <div class="form-group">
+                      <label>Valor</label>
+                      <input class="form-control mb-2" id="valorfunc" placeholder="ex: 10.22">
+                    </div>`,
+          buttons: {
+           
+            CANCELAR: function(){
+
+            },
+            ADICIONAR: { 
+              btnClass: 'btn-green',
+              action: function(){
+                nomeFunc = this.$content.find("#nomefunc").val();
+                idFunc = this.$content.find("#idfunc").val();
+                valorFunc = this.$content.find("#valorfunc").val();
+
+                dados = `id=${idFunc}&nome=${nomeFunc}&valor=${valorFunc}`;
+                $.post("whats/functions/add.php", dados, (t)=>{
+                  if(t == 1){
+                    listar();
+                  }
+                });
+                
+
+              }
+            }
+          }
+        })
+  })
+
+/*Editando plano*/
+  function editFunc(id){
+    $.post("whats/functions/get.php",'id='+id, (r)=>{
+      r = JSON.parse(r);
+   
+        $.confirm({
+          theme: 'light',
+          title: `Editar`,
+          content: `<div class="form-group">
+                      <input class="form-control mb-2" id="nomefunc" value="${r.nome}">
+                      <input class="form-control" id="valorfunc" value="${r.valor}">
+                    </div>`,
+          buttons: {
+           
+            CANCELAR: function(){
+
+            },
+            EDITAR: { 
+              btnClass: 'btn-green',
+              action: function(){
+                nomeFunc = this.$content.find("#nomefunc").val();
+                valorFunc = this.$content.find("#valorfunc").val();
+
+                dados = `id=${id}&nome=${nomeFunc}&valor=${valorFunc}`;
+                $.post("whats/functions/edit.php", dados);
+                listar();
+
+              }
+            }
+          }
+        })
+     })
+  }
+/*Editando plano*/
+
+/*Deletando*/
+function del(id){
+  $.confirm({
+    title: 'Atenção',
+    content: 'Serviços ou envios pode parar pros usuários que possuir essa funcionalidade! desesa realmente deletar ?',
+    buttons:{
+      NÃO: {
+
+      },
+      SIM: function(){
+        $.post("whats/functions/del.php", 'id='+id, (t)=>{
+          if(t == 1){
+            error("Função deletada");
+            listar();
+          }
+        })
+      }
+    }
+  })
+}
+/*Deletando*/
+/*Bloquear planos*/
+  $("tbody").on('click', '.statusBlock', function(){
+    
+    setTimeout(()=>{
+    id = $(this).attr('id');
+    status = $(this).attr("aria-pressed");
+
+    if(status == 'true'){
+      status = 1;
+    }else if(status == 'false'){
+      status = 0;
+    }
+
+    dados = `id=${id}&status=${status}`;
+    $.post("whats/functions/change.php", dados, (r)=>{
+      if(r == 1){
+        success("Status Alterado");
+        listar();
+      }
+    })
+  },1000);
+  })
+/*Bloquear planos*/
+
+/*Adicionando planos*/
+  $(".addplan").click(()=>{
+    data = new Object();
+    data.nome = $("#nome-do-plano").val();
+    data.valor = $("#valor-do-plano").val();
+    data.instancias = $("#total-de-instancias").val();
+
+    data.modulos = $(".modulo-list").map(function(){
+      status =  $(this).find(".block").attr("aria-pressed");
+      if(status == 'true'){
+        var modulo = $(this).find(".block").attr("id");
+        if(modulo == 'whats-listas'){
+          var lista = $(this).closest("li").find("ul").find('.form-check').map(function(){
+            return {
+              mod: $(this).find("input").attr("id"),
+              status: $(this).find("input").is(":checked")
+            };
+          }).get();
+          return { 
+            modulo: modulo,
+            lista: lista
+          };
+        } else {
+          return {
+            modulo: modulo
+          };
+        }
+      }
+}).get();
+
+   
+    dados = JSON.stringify(data);
+
+    $.post("whats/admin/planos/add.php", dados, (t)=>{
+      if(t == 1){
+        success("Plano adicionado");
+        $(".modal.fade.show").modal("hide");
+        listar();
+      }
+    })
+  })
+/*Adicionando planos*/
+
+/*Cancelar*/
+  $(".cancelar").click(()=>{
+     $(".modal.fade.show").modal("hide");
+  })
+/*Cancelar*/
+
+
+/*Mercado pago*/
+  $(".ver").on('click', function(){
+  if($(this).closest(".input-group").find("input").attr("type") == "password"){
+  $(this).closest(".input-group").find("input").attr("type", "text");
+   $(this).closest(".input-group").find(".ver").find("i").attr("class", "fas fa-eye");
+  }else{
+  $(this).closest(".input-group").find("input").attr("type", "password");
+  $(this).closest(".input-group").find(".ver").find("i").attr("class", "fas fa-eye-slash");
+  }
+  
+})
+/*Mercado pago*/
+
+/*Exibindo envios*/
+    $('button[id="whats-listas"]').on('click',function(){
+    //console.log($(this).attr("aria-pressed"));
+    if($(this).attr("aria-pressed") == 'false'){
+       $(this).closest("li").find("ul").slideToggle('down');
+    }else{
+      $(this).find("ul").css("display", "none");
+    }
+   
+  })
+/*Exibindo envios*/
+</script>
+

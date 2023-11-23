@@ -1,0 +1,174 @@
+ <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Encurtador</h1>
+          </div>
+        
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+   <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="card">
+        <div class="card-body">
+
+
+            <div class="row" style="position: relative;top: -35px;">
+              <div class="col-12 col-sm-8">
+                  <div class="card">
+                    <div class="card-header">
+              <h3 class="card-title">Meus links</h3>
+              
+          </div>
+
+                    <div class="card-body table-responsive p-0">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th class="no-border">Url</th>
+                            <th class="no-border">Link</th>
+                            <th class="no-border">Cliques</th>
+                            <th class="no-border">Ações</th>
+                            
+                          </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+              </div>
+
+              <div class="col-12 col-sm-4">
+                  <div class="card card-outline card-tabs">
+                    <div class="card-body">
+
+                      <div class="form-group" style="text-align: initial;">
+                        <label>Minha Url</label>
+                        <input class="form-control" id="url" placeholder="ex: https://www.meu-site.com">
+                      
+                      </div>
+                      <div class="form-group">
+                        <label>Encurtar como</label>
+                        <input class="form-control" id="enc" placeholder="ex: CURSOSONLINE">
+                      </div>
+
+
+                      <button class="btn btn-outline-success btn-block" onclick="enc()">Encurtar</button>
+                    </div>
+                  </div>
+              </div>
+
+            </div>
+
+
+        </div>
+      </div>
+    </section>
+</div>
+
+<script>
+
+links();
+function links(){
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/encurl/listar.php", user, (t)=>{
+    l = '';
+    if(t != 0){
+      t = JSON.parse(t);
+      t.forEach((r)=>{
+
+         l += `<tr style="white-space: nowrap;">
+                  <td>${r.url}</td>
+                  <td>http://app.litly.fun/${r.enc}</td>
+                  <td>${r.cliques}</td>
+                  <td>
+                  <button class='btn btn-outline-success btn-sm' onclick="copy('${r.enc}')">
+                  Copiar
+                  </button>
+
+                  <button class='btn btn-danger btn-sm' onclick="deletar('${r.id}')">
+                  <i class='fas fa-trash'></i>
+                  </button>
+
+                  </td>
+                </tr>`;
+
+      })
+    }else {
+        l += `<tr style="white-space: nowrap;">
+                  <td>------</td>
+                  <td>------</td>
+                  <td>------</td>
+                  <td>------</td>
+                </tr>`;
+    }
+
+    $("tbody").html(l);
+  })
+}
+
+function enc(){
+  url = $("#url").val();
+  url = url.replaceAll("&", "#");
+  encurtada = $("#enc").val();
+  encurtada = encurtada.replaceAll(" ", "-");
+
+  user = localStorage.getItem('usermail');
+
+  dados = `url=${url}&enc=${encurtada}&user=${user}`;
+
+
+  //console.log(dados);
+
+  $.post("whats/encurl/add.php", dados, (t)=>{
+    if(t == 1){
+      success("Url encurtada");
+      links();
+      $("#url").val("");
+      $("#enc").val("");
+    }else{
+      $.alert({
+        theme: 'dark',
+        title: 'Ops, erro',
+        content: 'Link já está sendo usado'
+      })
+    }
+  })
+}
+
+
+function deletar(id){
+  $.confirm({
+    theme:'dark',
+    title:'Atenção',
+    content: 'Deseja realmente deletar esse link ?',
+ 
+    buttons: {
+      SIM: function(){
+          $.post("whats/encurl/del.php", 'id='+id, (t)=>{
+            if(t == 1){
+              error("Deletado com Sucesso");
+              links();
+            }
+          })
+      },
+      NÃO: {
+
+      }
+    }
+  })
+
+}
+
+function copy(url){
+
+  navigator.clipboard.writeText("http://app.litly.fun/"+url);
+
+  success("Link Copiado");
+}
+</script>
+

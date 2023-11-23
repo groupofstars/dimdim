@@ -1,0 +1,449 @@
+ <link rel="stylesheet" href="plugins/summernote/summernote-bs4.min.css">
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Minhas Faturas</h1>
+          </div>
+        
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+
+<section class="content" style="padding: 30px;position: relative;top: -70px;">
+  <div class="card">
+         <div class="card-header">
+              <h3 class="card-title">Todas as faturas</h3>
+              <div class="card-tools">
+
+            
+              </div>
+              
+          </div>
+
+
+    <div class="card-body table-responsive p-0" id="faturasPay">
+      <table class="table">
+            <thead>
+              <tr>
+                <th class="no-border"></th>
+                <th class="no-border">Valor</th>
+                <th class="no-border">Vencimento</th>
+                <th class="no-border">Status</th>
+                <th class="no-border">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+                    
+            </tbody>
+      </table>
+
+
+      <!--Formulario de pagamento-->
+      <div class="container col-12 col-lg-6 mt-4 mb-5" id="formularioPayPix" style="display:none;">
+         <div style="display: flex;">
+                <a href="#faturasPayment" id="reload">
+                  Voltar para Faturas
+                </a>
+                 <a style="position: absolute;right: 15px;" href="#" id="payCartao">
+                  Pagar com Cartão de Crédito
+                </a>
+             </div>      
+
+              <h5 class="text-center text-muted mb-3 mt-2">Preencha os dados</h5>
+
+
+              <div class="mt-2">
+
+                <input type="hidden" id="valorPay">
+                <input type="hidden" id="idPay">
+                <div class="container text-center">
+                  <img class="img-fluid" src="" id="qrcode64" width="300">
+                </div>
+
+                <div class="form-group">
+                  <input class="form-control" id="pixCode" placeholder="Codigo Pix">
+                </div>
+
+                <a href="#faturasPayment" class="btn btn-sm btn-success btn-block mb-4" id="paymentFinish">
+                  Pagamento Realizado
+                </a>
+              </div>
+
+      </div>
+      <div class="container col-12 col-lg-6 mt-4" id="formularioPay" style="display:none;">
+             <div style="display: flex;">
+                <a href="#faturasPayment" id="reload">
+                  Voltar para Faturas
+                </a>
+                 <a style="position: absolute;right: 15px;" href="#" id="payPix">
+                  Pagar com Pix
+                </a>
+             </div>        
+            <h5 class="text-center text-muted mb-3 mt-2">Preencha os dados</h5>
+
+          <form id="form-checkout" class="mt-2">
+
+            <div class="form-group">
+              <div class="form-control" id="form-checkout__cardNumber"></div>
+            </div>
+
+            <div class="row">
+              <div class="col-12 col-lg-6">
+                <div class="form-group">
+                  <div class="form-control" id="form-checkout__expirationDate"></div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="form-group">
+                  <div class="form-control" id="form-checkout__securityCode"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <input class="form-control" type="text" id="form-checkout__cardholderName" />
+            </div>
+
+           
+              <select style="display:none;" class="form-control" id="form-checkout__issuer"></select>
+        
+       
+              <select style="display:none;" class="form-control" id="form-checkout__installments"></select>
+          
+
+            <div class="row">
+
+               <div class="col-12 col-lg-4">
+                <div class="form-group">
+                  <select class="form-control" id="form-checkout__identificationType"></select>
+                </div>
+              </div>
+              
+              <div class="col-12 col-lg-8">
+                <div class="form-group">
+                  <input class="form-control" type="text" id="form-checkout__identificationNumber" />
+                </div>
+              </div>
+             
+            </div>
+
+            
+            <div class="form-group">
+              <input class="form-control" type="email" id="form-checkout__cardholderEmail" />
+            </div>
+
+            <button class="btn btn-block btn-success" type="submit" id="form-checkout__submit">Pagar</button>
+            <progress value="0" class="progress-bar" style="display:none;">Carregando...</progress>
+          </form>
+
+      </div>
+      <!--Formulario de pagamento-->
+    </div>
+</div>
+</section>
+</div>
+
+
+
+<script>
+
+var mp;
+
+$(()=>{
+  console.log("MP init");
+
+ $.post("mp/token.php", (t)=>{
+    t = JSON.parse(t);
+    key = t.key;
+    mp = new MercadoPago(key);
+  })
+  
+})
+/*Configuração e pagamento*/
+function pay(id, valor){
+  $("#valorPay").val(valor);
+  $("#idPay").val(id);
+  $("#faturasPay").slideToggle('up');
+  $("#formularioPay").css("display", "block");
+  $("table").css("display", "none");
+  cardForm = null;
+  setTimeout(()=>{
+    $("#faturasPay").slideToggle('down');
+     mercadoPagoPay(id,valor);
+  },500);
+  
+}
+
+/*Pagando com o pix*/
+$("#payPix").click(function(){
+
+  $("#formularioPay").css("display", "none");
+  $("#formularioPayPix").slideToggle('down');
+
+  setTimeout(()=>{
+
+  dados = new Object();
+  dados.email = localStorage.getItem('usermail');
+  dados.valor = $("#valorPay").val();
+  dados.hash = $("#idPay").val();
+  dados = JSON.stringify(dados);
+
+  $.post("mp/pagarPix.php", dados, (r)=>{
+    r = JSON.parse(r);
+    if(r.status == true){
+    $("#qrcode64").attr("src", `${r.qrcode}`);
+    $("#pixCode").val(r.codePix);
+    }else if(r.status == false){
+      $.alert({
+        title: 'Ops',
+        content: 'Ocorreu um Erro ao pagar com Pix',
+        buttons: {
+          SAIR: function(){
+            $('#reload').click();
+          }
+        }
+      })
+    }
+  })
+  },500);
+})
+
+
+
+$("#paymentFinish").click(()=>{
+  $.alert({
+    title: 'Perfeito!',
+    content: 'Estamos processando o pagamento, a mudança de status da fatura ocorrerá em breve!',
+    buttons: {
+      CONTINUAR: function() {
+        $("#reload").click();
+      }
+    }
+  })
+})
+/*Pagando com o pix*/
+
+
+/*Mudando pro cartão*/
+$("#payCartao").click(()=>{
+
+  $("#formularioPayPix").css("display", "none");
+  $("#formularioPay").slideToggle('down');
+})
+/*Mudando pro cartão*/
+function mercadoPagoPay(hash, valor){
+
+    cardForm = mp.cardForm({
+      amount: valor,
+      iframe: true,
+      form: {
+        id: "form-checkout",
+        cardNumber: {
+          id: "form-checkout__cardNumber",
+          placeholder: "Número do cartão",
+        },
+        expirationDate: {
+          id: "form-checkout__expirationDate",
+          placeholder: "MM/YY",
+        },
+        securityCode: {
+          id: "form-checkout__securityCode",
+          placeholder: "Código de segurança",
+        },
+        cardholderName: {
+          id: "form-checkout__cardholderName",
+          placeholder: "Titular do cartão",
+        },
+        issuer: {
+          id: "form-checkout__issuer",
+          placeholder: "Banco emissor",
+        },
+        installments: {
+          id: "form-checkout__installments",
+          placeholder: "Parcelas",
+        },        
+        identificationType: {
+          id: "form-checkout__identificationType",
+          placeholder: "Tipo de documento",
+        },
+        identificationNumber: {
+          id: "form-checkout__identificationNumber",
+          placeholder: "Número do documento",
+        },
+        cardholderEmail: {
+          id: "form-checkout__cardholderEmail",
+          placeholder: "E-mail",
+        },
+      },
+      callbacks: {
+        onFormMounted: error => {
+          if (error) return console.warn("Form Mounted handling error: ", error);
+          console.log("Form mounted");
+        },
+        onSubmit: event => {
+          event.preventDefault();
+
+          const {
+            paymentMethodId: payment_method_id,
+            issuerId: issuer_id,
+            cardholderEmail: email,
+            amount,
+            token,
+            installments,
+            identificationNumber,
+            identificationType,
+          } = cardForm.getCardFormData();
+
+          fetch("mp/pagar.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              hash: hash,
+              token,
+              issuer_id,
+              payment_method_id,
+              transaction_amount: Number(amount),
+              installments: Number(installments),
+              description: "Descrição do produto",
+              payer: {
+                email,
+                identification: {
+                  type: identificationType,
+                  number: identificationNumber,
+                },
+              },
+            }),
+          }).then(response => response.json()).then(data => {
+
+            if(data.status === true){
+              $.alert({
+                title: 'Pagamento Realizado',
+                content: 'Assim que o pagamento for aprovado, irá ser alterado o status da Fatura no painel',
+                buttons: {
+                  OK: function(){
+                    $('#reload').click();
+                  }
+                }
+              })
+            }
+          }).catch(error => {
+            console.error("Erro no pagamento: ", error);
+          });
+        },
+        onFetching: (resource) => {
+          //console.log("Fetching resource: ", resource);
+
+          // Animate progress bar
+           progressBar = document.querySelector(".progress-bar");
+          progressBar.removeAttribute("value");
+
+          return () => {
+            progressBar.setAttribute("value", "0");
+          };
+        }
+      },
+    });
+
+    $("#form-checkout__cardholderEmail").val(localStorage.getItem('usermail'));
+    cardForm.init();
+}
+
+/*Configuração e pagamento*/
+
+/*Função para voltar*/
+$(document).ready(function() {
+  // Seu código jQuery aqui
+
+  // Exemplo de recarregar a página quando um botão for clicado
+  $('#reload').click(function() {
+    setTimeout(()=>{
+      location.reload(); // Recarrega a página
+    },500);
+    
+  });
+});
+
+
+/*Função para voltar*/
+  listar();
+function listar(){
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("mp/listar.php", user, (t)=>{
+
+    faturas = '';
+
+
+    if(t != 0){
+      t = JSON.parse(t);
+      
+      t.forEach((r)=>{
+        if(r.status == 'pago'){
+          status_b = `<i class="fas fa-square text-success"></i>`;
+          status = `<span class="badge badge-success">FATURA PAGA</span>`;
+          valor = r.valorPago;
+        }else if(r.status == 'emdia'){
+          status_b = `<i class="fas fa-square text-primary"></i>`;
+          status = `<span class="badge badge-primary">EM DIA</span>`;
+        }else if(r.status == 'atrasada'){
+          status_b = `<i class="fas fa-square text-warning"></i>`;
+          status = `<span class="badge badge-warning">ATRASADA</span>`;
+        }else if(r.status == 'vencida'){
+          status_b = `<i class="fas fa-square text-danger"></i>`;
+          status = `<span class="badge badge-danger">VENCIDA</span>`;
+        }
+
+        if(r.status != 'pago'){
+          btn = ` <button class="btn btn-sm btn-primary" onclick="pay('${r.id}', '${r.valor}')">
+                           <b> PAGAR FATURA</b>
+                          </button>`;
+          valor = r.valor;
+          
+        }else{
+          btn = '';
+          
+        }
+
+
+         faturas += `<tr style="white-space: nowrap;">
+                        <th>${status_b}</th>
+                        <th>R$ ${valor}</th>
+                        <th>${r.vencimento}</th>
+                        <th>${status}</th>
+                        <th>
+                         ${btn}
+                        </th>
+                       </tr>`;
+        
+        
+        
+      })
+
+      
+    }else{
+      faturas = `<tr style="white-space: nowrap;">
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                </tr>`;
+    }
+
+    $("tbody").html(faturas);
+  })
+}
+
+
+
+
+</script>
+
+

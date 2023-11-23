@@ -1,0 +1,389 @@
+<style>
+   .avatar-group {
+      display: flex;
+      align-items: center;
+      }
+      .avatar {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        position: relative;
+        z-index: 0;
+        margin-left: -5px;
+        cursor: pointer;
+      }
+
+      .avatar-group .avatar:hover {
+       z-index:3;
+       border: 1px solid white;
+        
+      }
+      
+      .aviso-card {
+        background: rgba(0,0,0,0.1);
+        border-radius: 4px;
+        text-align: center;
+        display: grid;
+        padding: 5px;
+      }
+
+      .aviso-card:hover{
+        cursor: pointer;
+      }
+
+       .aviso-card.pendente {
+        border-left: 2px solid yellow;
+       }
+      .aviso-card.pagos {
+        border-left: 2px solid green;
+       }
+      .aviso-card.atrasados {
+        border-left: 2px solid red;
+       }
+</style>
+
+ <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Sistema de cobranças</h1>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm bmt" id="add-nova">
+              Nova Cobrança 
+            </button>
+          </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+   <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="card">
+        <div class="card-body">
+          <div class="row listar-cobrancas">
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+</div>
+
+
+
+<script>
+  listar();
+  function listar(){
+    user = 'user='+localStorage.getItem('usermail');
+    $.post("whats/cobrancas/listar.php", user, (t)=>{
+      cards = '';
+      if(t != 0){
+        t = JSON.parse(t);
+        t.forEach((r)=>{
+          cards += ` <div class="col-md-4 col-12">
+        
+                      <div class="card card-white card-outline grupo-clientes">
+                          <div class="card-header">
+                            <h5 class="card-title">
+                              ${r.nome}
+                            </h5>
+                            <div class="card-tools">
+                              <div class="avatar-group">
+                                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Avatar 1" class="avatar">
+                                <img alt="Avatar 2" class="avatar" src="https://cdn-icons-png.flaticon.com/512/219/219983.png">
+                                <img alt="Avatar 3" class="avatar" src="https://cdn-icons-png.flaticon.com/512/219/219969.png">
+                              </div>
+                            </div>
+                          </div>  
+                         <div class="container mt-2 mb-2">
+                            <div class="row">
+                              <div class="col-4">
+                                <div class="aviso-card pendente">
+                                   <b>3</b>
+                                  <small>Pendentes</small>
+                                </div>
+                              </div>
+                              <div class="col-4">
+                                <div class="aviso-card pagos">
+                                  <b>5</b>
+                                  <small>Pagos</small>
+                                </div>
+                              </div>
+                              <div class="col-4">
+                                <div class="aviso-card atrasados">
+                                   <b>2</b>
+                                  <small>Atrasados</small>
+                                </div>
+                              </div>
+                            </div>
+                         </div>
+
+                          <div class="container mt-2 mb-2">
+                           <div class="progress progress-sm" style="height:15px;">
+                              <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100" style="width: 33.4%">
+                                33,4%
+                              </div>
+
+                              <div class="progress-bar bg-success" role="progressbar" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100" style="width: 43.5%">
+                               43.5%
+                              </div>
+
+                              <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100" style="width: 23.1%">
+                               23.1%
+                              </div>
+
+                            </div>
+
+                            <div class="row">
+                              <div class="col">
+                                <small>
+                                  10 CLIENTES
+                                </small>
+                              </div>
+                              <div class="col-auto">
+                                <button class="btn btn-xs btn-primary mt-2" onclick="trash(${r.id})">
+                                    <i class="fas fa-users"></i>
+                                </button>
+
+                                <button class="btn btn-xs btn-success text-white mt-2" onclick="view(${r.id})">
+                                <i class="far fa-eye"></i>
+                                </button>
+
+                                <button class="btn btn-xs btn-danger mt-2" onclick="trash(${r.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                              </div>
+                            </div>
+                           
+                          </div>
+                      </div>
+               
+          </div>`;
+        })
+      }else{
+        cards += `<h4 class="text-center">Nenhuma lista de cobrança encontrada</h4>`;
+      }
+
+
+      $(".listar-cobrancas").html(cards);
+    })
+  }
+  function view(id){
+
+  }
+  function trash(id){
+    $.confirm({
+      theme: 'dark',
+      title: 'Atenção',
+      content: 'Deseja deletar este grupo de cobranças ?',
+      buttons: {
+        SIM: function(){
+          $.post("whats/cobrancas/del.php", 'id='+id, (t)=>{
+            if(t == 1){
+              erro("Deletado");
+              listar();
+            }
+          })
+        }
+      }
+    })
+  }
+
+  $("#add-nova").click(()=>{
+    dias = '';
+    for (var i = 0; i <= 31; i++) {
+      if(i == 1){
+        d = i+' Dia Antes';
+      }else if(i == 0){
+        d = 'Avisar na Data';
+      }else{
+        d = i+' Dias Antes';
+      }
+      dias += `<option value="${i}">${d}</option>`;
+    }
+
+    user = 'user='+localStorage.getItem('usermail');
+    $.post("whats/tasks/etapas/instancias.php", user, (t)=>{
+      instancias = '';
+      if(t != 0){
+        t = JSON.parse(t);
+        t.forEach((r)=>{
+          instancias += `<option value="${r.instancia}">${r.nome}</option>`;
+        })
+      }else{  
+        instancias += `<option value="0">Nenhuma Conectada</option>`;
+      }
+
+      $("#minhas-instancias").html(instancias);
+    })
+    $("#dias-atencedencia").html(dias);
+    $("#nova-cobranca").modal("show");
+  })
+
+  $(".adicionar").click(()=>{
+    user = localStorage.getItem('usermail');
+    nome = $("#nome-identifica").val();
+    mp = $("#h-mercadopago").val();
+    text = $("#texto").val().trim();
+    instancia = $("#minhas-instancias").val();
+    horario = $("#horario-init").val();
+    antecede = $("#dias-atencedencia").val();
+
+    dados = `user=${user}&nome=${nome}&mp=${mp}&text=${text}&instancia=${instancia}&horario=${horario}&antecede=${antecede}`;
+
+    $.post("whats/cobrancas/add.php", dados, (r)=>{
+      if(r == 1){
+        $("#nome-identifica").val("");
+        $("#texto").val("");
+        $(".modal.fade.show").modal("hide");
+        success("Novo Grupo criado");
+        listar();
+      }
+    }) 
+  })
+
+
+  /*Em caso de atraso*/
+  $("#caso-atraso").on('change', function(){
+    tipo = $(this).val();
+    if(tipo != 'nenhuma-action'){
+      $("#action-vencimento").modal("show");
+    }
+    //console.log($(this).val());
+  })
+
+  $(".cancel-action").click(()=>{
+    $("#action-vencimento").modal("hide");
+    $("#caso-atraso").val("nenhuma-action");
+  })
+  /*Em caso de atraso*/
+
+
+</script>
+<!-- Modal -->
+
+<div class="modal fade" id="action-vencimento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index:1300;">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-body">
+        <h5>Configuração pós vencimento</h5>
+        <hr>
+
+        <div class="form-group">
+          <label>Tipo </label>
+        </div>
+        <div class="form-group">
+          <label>Tipo </label>
+        </div>
+         <div class="form-group">
+          <label>Tipo </label>
+        </div>
+
+        <div class="mt-2" style="text-align:end;">
+          <button class="btn btn-sm btn-danger btn-block cancel-action">
+            CANCELAR
+          </button>
+          <button class="btn btn-sm btn-success okay btn-block">
+            OKAY
+          </button>
+        </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="nova-cobranca" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-body">
+        <h5>Nova Cobrança</h5>
+        <hr>
+
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label>Nome Identificador</label>
+            <input class="form-control" id="nome-identifica">
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-group">
+            <label>Gerar Link</label>
+            <select class="form-control" id="h-mercadopago">
+              <option value="false">NÃO</option>
+              <option value="true">SIM</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+        <div class="form-group">
+          <label>Texto de Envio</label>
+          <p>
+          <small>O texto abaixo, substitui as chaves pelas informações do banco de dados, modifique conforme a sua necessidade!</small></p>
+          <textarea class="form-control" id="texto" style="min-height:150px;">
+              Ex:
+              Olá, {nome} sua fatura do mês de {mes} chegou!
+              Clique no link abaixo para efetuar os pagamentos
+
+              link: {link}
+          </textarea>
+        </div>
+
+        <div class="row">
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label>Instância de envio</label>
+              <select class="form-control" id="minhas-instancias">
+              
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label>Horario de Inicio</label>
+              <input class="form-control" type="time" id="horario-init">
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label>Dias de Antecedencia</label>
+              <select class="form-control"  id="dias-atencedencia">
+              </select>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label>Após Vencimento</label>
+              <select class="form-control" id="caso-atraso">
+                <option value="nenhuma-action">Nenhuma Ação</option>
+                <option value="aplicar-multa">Aplicar Multa</option>
+               
+              </select>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-2" style="text-align:end;">
+          <button class="btn btn-sm btn-danger">
+            CANCELAR
+          </button>
+          <button class="btn btn-sm btn-success adicionar">
+            ADICIONAR
+          </button>
+        </div>
+      </div>
+     
+    </div>
+  </div>
+</div>

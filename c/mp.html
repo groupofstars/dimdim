@@ -1,0 +1,218 @@
+ <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Minhas Contas</h1>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm bmt nova-conta">
+              Adicionar nova
+            </button>
+          </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+   <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="card">
+        <div class="card-body">
+            <div class="row list-mp">
+              
+            </div>
+        </div>
+      </div>
+    </section>
+</div>
+
+
+<script>
+
+
+$(".salvar").on('click', function(){
+  access_token = $(this).closest(".card").find("#actoken").val();
+  pub_key = $(this).closest(".card").find("#pubkey").val();
+
+  $.post("whats/cobrancas/mp/update.php", dados, (t)=>{
+    if(t == 1){
+      success("Nova conta adicionada");
+      listar();
+    }
+  })
+})
+
+listar();
+function listar(){
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/cobrancas/mp/list.php", user, (t)=>{
+    
+    mps = '';
+    if(t != 0){
+      t = JSON.parse(t);
+      
+      t.forEach((r)=>{
+        mps += `<div class="col-12 col-md-4">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="card-title">${r.nome}</h5>
+                    <input id="id" type="hidden" value="${r.id}">
+                    <div class="card-tools">
+                      <button class="btn btn-sm btn-success mp-button">
+                        <i class="fas fa-cogs"></i>
+                      </button>
+
+                      <button class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body" style="display:none;">
+
+                    <div class="form-group">
+                      <label>Public Key</label>
+                      <div class="input-group mb-3">
+                        
+                        <input type="password" class="form-control" value="${r.pk}" id="pubkey">
+                        <div class="input-group-append">
+                          <button class="btn btn-outline-secondary ver">
+                            <i class="fas fa-eye-slash"></i>
+
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Access Token</label> 
+                    <div class="input-group mb-3">
+                      
+                      <input type="password" class="form-control" value="${r.at}" id="actoken">
+
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary ver">
+                          <i class="fas fa-eye-slash"></i>
+
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                    <hr>
+                    <button class="btn btn-sm btn-block bmt salvar">
+                      SALVAR
+                    </button>
+                </div>
+              </div>
+            </div>`;
+      })
+    }else{
+       mps = `<h5 class="text-center">Nenhuma conta encontrada</h5>`;
+    }
+
+    $(".list-mp").html(mps);
+  })
+}
+
+$(".nova-conta").click(()=>{
+  $("#modal-nova").modal("show");
+})
+
+$(".cancelar").click(()=>{
+  $("#modal-nova").modal("hide");
+})
+
+$(".adicionar").click(()=>{
+  user = localStorage.getItem('usermail');
+  nome = $("#nome-insere").val();
+  pk = $("#pk-insere").val();
+  at = $("#at-insere").val();
+  tipo = $("#tipo-gateway").val();
+
+  dados = `user=${user}&nome=${nome}&pk=${pk}&at=${at}&tipo=${tipo}`;
+
+  $.post("whats/cobrancas/mp/add.php", dados, (t)=>{
+    if(t == 1){
+      success("Nova Conta Adicionada");
+      $("#nome-insere").val("");
+      $("#pk-insere").val("");
+      $("#at-insere").val("");
+      $("#tipo-gateway").val("");
+      $(".modal.fade.show").modal("hide");
+      listar();
+    }
+  })
+
+})
+
+
+$(".list-mp").on('click', '.mp-button', function(){
+  console.log("clicado");
+  $(this).closest(".card").find(".card-body").slideToggle('down');
+})
+
+$(".list-mp").on('click', '.ver', function(){
+  if($(this).closest(".input-group").find("input").attr("type") == "password"){
+  $(this).closest(".input-group").find("input").attr("type", "text");
+   $(this).closest(".input-group").find(".ver").find("i").attr("class", "fas fa-eye");
+  }else{
+  $(this).closest(".input-group").find("input").attr("type", "password");
+  $(this).closest(".input-group").find(".ver").find("i").attr("class", "fas fa-eye-slash");
+  }
+  
+})
+</script>
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal-nova" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-body">
+        <h5 class="text-center">Nova Conta</h5>
+        <hr>
+
+        <div class="form-group">
+          <label>Nome Identificador</label>
+          <input class="form-control" id="nome-insere">
+        </div>
+
+         <div class="form-group">
+          <label>Public Key</label>
+          <input class="form-control" id="pk-insere">
+        </div>
+
+         <div class="form-group">
+          <label>Access Token</label>
+          <input class="form-control" id="at-insere">
+        </div>
+
+        <div class="form-group">
+          <label>Tipo Gateway</label>
+          <select class="form-control" id="tipo-gateway">
+            <option value="mercadopago">
+              Mercado Pago
+            </option>
+          </select>
+        </div>
+
+       <div class="mt-2" style="text-align:end;">
+        <button class="btn btn-sm btn-danger cancelar" style="width: 35%;">
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-success adicionar" style="width:35%;">
+          Adicionar
+        </button>
+       </div>
+
+      </div>
+    
+    </div>
+  </div>
+</div>
+
+

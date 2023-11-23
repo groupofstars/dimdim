@@ -1,0 +1,358 @@
+<div class="card cursos-list">
+                    <div class="card-header">
+                      <h3 class="card-title">Meus cursos</h3>
+                      <div class="card-tools">
+                        <input type="hidden" id="curso-id">
+                        <button class="btn btn-sm btn-primary" style="text-transform:uppercase;font-weight: 700;" id="add-curso-button">
+                          Novo Curso
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="card-body table-responsive p-0">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th class="no-border">Imagem</th>
+                            <th class="no-border">Nome</th>
+                            <th class="no-border">Descrição</th>
+                            <th class="no-border">Modulos</th>
+                            <th class="no-border">Ações</th>
+                            
+                          </tr>
+                        </thead>
+                        <tbody class="list-cursos">
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="add-curso-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Adicionar Curso</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-4 col-12">
+            <label>Thumbnail</label>
+            <div class="card" style="border: 1px solid white;border-radius: 5px;border-style: dashed;">
+                    <div class="card-body text-center">
+                      <div id="m-preview"><img class="img-fluid" onclick="upload()" id="upload" src="dist/img/upload.png" style="height:100px;"></div>
+                         <input class="form-control" type="file" id="imagem" name="imagem" style="display: none;" accept=".jpg, .png, .jpeg">
+                      </div>
+                    </div>
+            </div>
+
+            <input type="hidden" id="id-edit-curso">
+            <div class="col-12 col-lg-8">
+              <div class="form-group">
+                <label>Nome</label>
+                <input class="form-control" id="nome-curso">
+              </div>
+
+              <div class="form-group">
+                <label>Descrição</label>
+                <textarea class="form-control" id="desc-curso"></textarea>
+              </div>
+            </div>
+      </div>
+
+      <div class="mt-3" style="text-align:end;">
+        <button class="btn btn-sm btn-danger fechar">
+          <b>CANCELAR</b>
+        </button>
+        <button class="btn btn-sm bmt" id="add">
+          Adicionar
+        </button>
+         <button class="btn btn-sm bmt" id="edit" style="display: none;">
+          Editar
+        </button>
+      </div>
+     
+    
+    </div>
+  </div>
+</div>
+
+<script>
+
+/*Listagem dos modulos*/
+function modulos(id){
+  $("#curso-id").val(id);
+  $(".cursos-list").css("display", "none");
+  $("#modulos-div").load("whats/admin/cursos/modulos.html");
+  $("#modulos-div").css("display", "block");
+  loader();
+setTimeout(()=>{
+  block_loader();
+  $.post("whats/admin/cursos/modulos/listar.php", 'id='+id, (t)=>{
+    console.log(t);
+     if(t != 0){
+
+      t = JSON.parse(t);
+
+     
+
+      /*Listagem dos modulos*/
+      dmodulos = '';
+      t.forEach((t)=>{
+        dmodulos += `<div class="col-md-4">
+                          <div class="card bg-dark collapsed-card">
+                              <div class="card-header">
+                                  <h3 class="card-title">${t.nome}</h3>
+                                  <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" onclick="editmodulo(${t.id})">
+                                    <i class="fas fa-edit"></i>
+                                    </button>
+
+                                    <button class="btn btn-tool" onclick="delmodulo(${t.id})">
+                                    <i class="fas fa-trash"></i>
+                                    </button>
+
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" onclick="listaulas(${t.id})">
+                                    <i class="fas fa-plus"></i>
+                                    </button>
+                                  </div>
+                              </div>
+
+                              <div class="card-body" style="display: none;">
+                                <div class="text-center">
+                                  <button class="btn  btn-sm bmt mb-3" onclick="add_aulas(${t.id})">
+                                    <b>Adicionar Aulas</b>
+                                  </button>
+                                </div>
+
+                               <div class="aulas-list-${t.id}"></div>
+
+                              </div>
+                          </div>
+                        </div>`;
+      })
+      /*Listagem dos modulos*/
+
+        $(".modulos-listar").html(dmodulos);
+     
+
+     }else{
+       $(".modulos-listar").html('<h5 class="text-center">Nenhum modulo encontrado!</h5>');
+     }
+  })
+},1500);
+
+  $(".modal-backdrop.fade.show").css("display", "none");
+}
+/*Listagem dos modulos*/
+
+/*Listagem dos cursos*/
+lista();
+  function lista(){
+    $.post("whats/admin/cursos/list.php", (t)=>{
+      t = JSON.parse(t);
+      //console.log(t);
+      l = '';
+      if(t != 0){
+      
+      t.forEach((r)=>{
+      
+        l += `<tr style="white-space: nowrap;">
+                <td>
+                  <img class='img-fluid' width='40' src='whats/admin/cursos/images/${r.foto}'>
+                </td>
+                <td>${r.nome}</td>
+                <td>${r.desc.substr(0,25)}...</td>
+                <td><span class='badge badge-default'>${r.modulos}</span></td>
+                <td>
+                  
+                  <button class='btn btn-sm btn-success' onclick='modulos(${r.id})'>
+                    <i class='fas fa-list'></i>
+                  </button>
+
+                  <button class='btn btn-sm btn-info' onclick='edit(${r.id})'>
+                    <i class='fas fa-edit'></i>
+                  </button>
+
+                  <button class='btn btn-sm btn-danger' onclick='delcurso(${r.id})'>
+                    <i class='fas fa-trash'></i>
+                  </button>
+
+
+                </td>
+              </tr>`; 
+      })
+
+    }else{
+      l += `<tr style="white-space: nowrap;">
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                </tr>`;
+    }
+
+     $("tbody[class='list-cursos']").html(l);
+    })
+
+  }
+/*Listagem dos cursos*/
+
+/*Edição das informações do curso*/
+function edit(id){
+  $("#id-edit-curso").val(id);
+  $.post("whats/admin/cursos/get.php", 'id='+id, (t)=>{
+    t = JSON.parse(t);
+    $("#upload").attr("src", "whats/admin/cursos/images/"+t.imagem);
+    $("#nome-curso").val(t.nome);
+    $("#desc-curso").val(t.desc);
+  })
+
+  $("#add").css("display", "none");
+  $("#edit").css("display", "inline");
+  $("#add-curso-modal").modal('show');
+
+}
+
+$("#edit").click(()=>{
+  var data = new FormData();
+
+  data.append('id', $("#id-edit-curso").val());
+  data.append('nome', $("#nome-curso").val());
+  data.append('desc', $("#desc-curso").val());
+  data.append('midia', $('#imagem')[0].files[0]);
+
+  console.log(data);
+
+  $.ajax({
+          url: `whats/admin/cursos/edit.php`,
+          data: data,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function(t){
+            if(t == 1){
+              lista();
+              success("Curso Editado");
+              $("#add-curso-modal").modal("hide");
+              clear();
+            }
+          }
+    });
+
+})
+/*Edição das informalções do curso*/
+
+
+/*Modal add curso*/
+$("#add-curso-button").click(()=>{
+  clear();
+  $("#add-curso-modal").modal('show');
+})
+/*Modal add curso*/
+
+/*Adicionando curso*/
+$("#add").click(()=>{
+  var data = new FormData();
+
+  data.append('nome', $("#nome-curso").val());
+  data.append('desc', $("#desc-curso").val());
+  data.append('midia', $('#imagem')[0].files[0]);
+
+  console.log(data);
+
+  $.ajax({
+          url: `whats/admin/cursos/add.php`,
+          data: data,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function(t){
+            if(t == 1){
+              lista();
+              success("Curso adicionado");
+              $("#add-curso-modal").modal("hide");
+            }
+          }
+    });
+
+})
+/*Adicionando curso*/
+
+/*Prévia da imagem*/
+
+file = document.querySelector('#imagem');
+
+  function upload(){
+    file.click();
+  }
+
+   file.addEventListener('change', function(e){
+        let reader = new FileReader();
+
+        reader.onload = function() {
+            tipo = file.files[0].type.split('/');
+            if(tipo[0] == 'video'){
+              $("#m-preview").html(`<video src="${reader.result}" onclick="upload()" style="height:100px;"></video>`);
+
+
+            }else{
+              $("#m-preview").html(`<img src="${reader.result}" onclick="upload()" style="height:100px;">`);
+            }
+           
+        }
+
+        reader.readAsDataURL(file.files[0]);
+
+   })
+/*Prévia da imagem*/
+
+
+/*Deletando curso*/
+function delcurso(id){
+  $.alert({
+    theme: 'dark',
+    title: 'Atenção',
+    content: 'Deseja deletar este curso com todas as aulas e modulos ?',
+    buttons: {
+      SIM: function(){
+        $.post("whats/admin/cursos/del.php", 'id='+id, (t)=>{
+          if(t == 1){
+            error("Curso Deletado");
+            lista();
+          }
+        })
+      },
+      NÃO: {
+
+      }
+    }
+  })
+}
+/*Deletando curso*/
+
+
+/*Fechar modais*/
+$(".fechar").click(()=>{
+  $(".modal.fade.show").modal('hide');
+  clear();
+})
+
+function clear(){
+    $("#upload").attr("src", "dist/img/upload.png");
+    $("#nome-curso").val("");
+    $("#desc-curso").val("");
+    $("#add").css("display", "inline");
+    $("#edit").css("display", "none");
+}
+/*Fechar modais*/
+
+
+
+
+
+</script>

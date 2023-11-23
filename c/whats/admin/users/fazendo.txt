@@ -1,0 +1,33 @@
+
+
+> Criar as instancias com seus planos [CONCLUIDO]
+
+> Inserir mensalidade  a ser cobrada com base na proxima expiração [CONCLUIDO]
+
+> Se o mês da expiração for superior, a cobrança vai pro proximo mês após expiração [CONCLUIDO]
+
+> Calcular a mensalidade com base nos itens, selecionando o dia e o mês que cada funcionalidade foi ativada ou desativada
+
+> Verificar a expiração pra poder cobrar o cadastro de itens nas instâncias
+
+> Pagar a mensalidade e inserir pro proximo mês, verificar se após o pagamento a expiração não foi mudada 
+
+> Deleção da Instância
+
+> Conexão e atualização do QRCode
+
+> Fazer a verificação de instância e funcionalidade em todos os arquivos de envio {
+		- Chatbot [Verificação pra listar]
+		- Envios massivos
+		- envios diretos
+}
+
+> Scan de instancias desconectadas [CONCLUIDO]
+> Descontar o valor na criação de instancia, aṕos ser desabilitado o switch [CONCLUIDO]
+
+
+
+>> ARQUIVOS <<
+- Pasta de arquivos whats > whats
+- Banco de dados functions, mensalidades, myplan, diplan
+- Pasta de arquivos em admin > users

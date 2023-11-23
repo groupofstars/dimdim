@@ -1,0 +1,526 @@
+ <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Programar</h1>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm bmt" id="adicionarlista">
+              Nova Campanha
+            </button>
+          </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section class="container text-center" style="position: relative;top: -30px;">
+      <div class="card">
+        <div class="card-body  table-responsive p-0">
+          
+           <table class="table">
+            <thead>
+              <tr>
+                <th class="no-border">#</th>
+                <th class="no-border">Nome</th>
+                <th class="no-border">Programado</th>
+                <th class="no-border">Status</th>
+                <th class="no-border">Ações</th>
+
+
+              </tr>
+            </thead>
+            <tbody>
+                    
+            </tbody>
+          </table>
+
+
+        </div>
+      </div>
+    </section>
+
+</div>
+
+
+<script>
+  $("#adicionarlista").click(()=>{
+    user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/user/numeros.php", user, (t)=>{
+    t = JSON.parse(t);
+    n = '';
+    if(t != 0){
+      t.forEach((t)=>{
+         n += `<option class="format-num" value='${t.num}'>${t.nome}</option>`;
+      })
+
+
+     
+    }else{
+      n += '<option>Nada Encontrado</option>';
+    }
+    
+    $("#m-keys").html(n);
+    // $(".format-num").mask("+00 (00) 00000-0000");
+    
+  })
+
+    $("#addnoticia").modal('show');
+  })
+
+noticias = 0;
+  function mais(){
+    noticias = noticias+1;
+
+     not = $("#not").html();
+
+    not += `<div class="noticia" id="${noticias}">
+            <button class="btn btn-sm btn-danger" onclick="deleta_item(${noticias})" style="position: absolute;left: 90%;border-radius: 50%;">
+              <i class="fas fa-trash"></i>
+            </button>
+            <div class="form-group">
+              <label>Noticia ${noticias}</label>
+              <div class="row">
+                <div class="col-sm-6">
+                   <input class="form-control" type="file" id="${noticias}" onchange="encodeImage(this)">
+                </div>
+                <div class="col-sm-6">
+                   <input class="form-control" type="datetime-local">
+                </div>
+              </div>
+             
+            </div>
+
+            <div class="form-group">
+              <textarea class="form-control" name="caption" style="height:120px;max-height: 200px;overflow-y: scroll;"></textarea>
+              <textarea name="base64" id="base64-${noticias}" style="display: none;"></textarea>
+            </div>
+            <div>`;
+
+    $("#not").html(not);
+  }
+
+function deleta_item(noticia){
+  // supondo que o elemento que você deseja remover tem o ID "elemento-a-remover"
+const elementoARemover = document.getElementById(noticia);
+
+// obtém o pai do elemento que você deseja remover
+const paiDoElementoARemover = elementoARemover.parentNode;
+
+// remove o elemento do pai
+paiDoElementoARemover.removeChild(elementoARemover);
+
+}
+
+function encodeImage(e){
+   file = e.files[0];
+   reader = new FileReader();
+  reader.onloadend = function (){
+    console.log(e.id);
+    $(`#base64-${e.id}`).val(reader.result);
+  }
+
+  reader.readAsDataURL(file);
+}
+
+
+$("#adicionar").click(()=>{
+
+ obj = new Object();
+
+  obj.data = $(".noticia").map(function(){
+      return {
+        file: $(this).find("textarea[name='base64']").val(),
+        name_file: $(this).find("input[type='file']")[0].files[0].name,
+        type: $(this).find("input[type='file']")[0].files[0].type,
+        text: $(this).find("textarea[name='caption']").val(),
+        hora: $(this).find("input[type='datetime-local']").val()
+      }
+  }).get();
+
+  obj.nomelista = $("#nomelista").val();
+  obj.user = localStorage.getItem('usermail');
+  obj.instance = $("#m-keys").val();
+
+console.log(obj);
+
+dados = JSON.stringify(obj);
+
+$.post("whats/noticias/adicionar.php", dados, (t)=>{
+  if(t == 1){
+    success("Noticias Adicionadas");
+    $("#not").html(`<div class="noticia" id="0">
+            <div class="form-group">
+              <label>Noticia 0</label>
+              <div class="row">
+                <div class="col-sm-6">
+                   <input class="form-control" type="file" id="0" onchange="encodeImage(this)">
+                </div>
+                <div class="col-sm-6">
+                   <input class="form-control" type="datetime-local">
+                </div>
+              </div>
+             
+            </div>
+
+            <div class="form-group">
+              <textarea class="form-control" name="caption" style="height:120px;max-height: 200px;overflow-y: scroll;"></textarea>
+              <textarea name="base64" id="base64-0" style="display: none;"></textarea>
+            </div>
+          </div>`);
+    $("#addnoticia").modal('hide');
+    listanot();
+  }else {
+    error("Ocorreu um erro");
+  }
+}) 
+})
+
+listanot();
+function listanot(){
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/noticias/listar.php", user, (t)=>{
+      l = '';
+     
+      
+      if(t != 0){
+        t = JSON.parse(t);
+        t.forEach((t)=>{
+
+          calculo = t.p2*100 / t.p1;
+
+          console.log("id: "+t.id+" p:"+calculo);
+          if(calculo > 0){
+            status = `<div class="progress mt-2">
+                        <div class="progress-bar" role="progressbar" style="width: ${calculo}%;background:#28a745;" aria-valuemax="100">${calculo}%</div>
+                    </div>`;
+                  }else {
+                    status = `<div class="progress mt-2">
+                        <div class="progress-bar" role="progressbar" style="width: 100%;background:#e74c3c;" aria-valuemax="100">0%</div>
+                    </div>`;
+                  }
+          
+
+
+         
+            p = '<span class="badge badge-success">AUTOMÁTICA</span>';
+           
+        
+             l += `<tr style="white-space: nowrap;">
+                  <td>
+                    <span class="badge badge-success">
+                      ${t.contatos} CONTATOS
+                    </span>
+                  </td>
+                  <td>${t.create.split("-").reverse().join("-")}</td>
+                  <td>${p}</td>
+                  <td>${status}</td>
+                  <td>
+                   
+                    
+                    
+                    <button class="btn btn-sm btn-info bmt" onclick="addcontatos('${t.id}')">
+                       + contatos
+                    </button>
+
+                     <button class="btn btn-danger btn-sm bmt" onclick="del('${t.id}')">
+                      Excluir
+                    </button>
+                  </td>
+                </tr>`;
+        })
+
+
+      }else{
+         l += `<tr style="white-space: nowrap;">
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                  <td>-----</td>
+                </tr>`;
+      }
+
+      $("tbody").html(l);
+
+
+  })
+}
+
+function del(id){
+  $.post("whats/noticias/del.php", 'id='+id, (t)=>{
+    if(t == 1){
+      error("Deletado");
+      listanot();
+    }
+  })
+}
+
+function ArrayDelayFunc(array, delegate, delay){
+    array.forEach(function(el, i){
+      setTimeout(function() {
+        delegate(array[i]);
+      }, i * delay);
+    })
+  }
+
+
+function addcontatos(id){
+  $("#id-lista").val(id);
+  $("#modal2").modal('show');
+}
+
+
+
+$("#add").click(()=>{
+
+  console.log("Prosseguindo");
+  $("#progresso").css("display", "block");
+  
+  lista = $("#id-lista").val();
+  contatos = $("#contatos-pra-inserir").val().trim().split("\n");
+ 
+
+ count = 100/contatos.length;
+ contador = contatos.length;
+ porcentagem = 0;
+  ArrayDelayFunc(contatos, (t)=>{
+    env = 'lista='+lista+'&num='+t;
+    console.log(env);
+    $.post("whats/noticias/add-contatos.php", env, (r)=>{
+      if(r == 1){
+        porcentagem = porcentagem+count;
+        $(".progress-bar.contatos").css("width", `${porcentagem}%`);
+        contador = contador-1;
+      }
+
+      if(contador == 0){
+        $("#modal2").modal("hide");
+        success("Contatos adicionados");
+        $("#contatos").val();
+        listanot();
+      }
+
+
+    })
+  },100)
+})
+
+
+
+$("#enviar").click(()=>{
+  id = $("#id-lista").val();
+  num = $("#meus-nums").val();
+  delay = $("#delay").val();
+
+  $("#enviando").css("display", "block");
+  $.post("whats/listas/contatos-lista.php", 'lista='+id, (t)=>{
+      t = JSON.parse(t);
+      contatos = t.contatos;
+      tipo = t.tipo;
+      contador = contatos.length;
+
+      ArrayDelayFunc(contatos, (n)=>{
+        dados = `lista=${id}&cliente=${n.num}&num=${num}`;
+        
+         $.post(`whats/envios/${tipo}.php`, dados, (t)=>{
+            console.log(t);     
+         })
+
+          contador = contador-1;
+
+          if(contador == 0){
+
+            setTimeout(()=>{
+              success("Mensagens enviadas");
+              $("#modal-envia").modal("hide");
+              $("#enviando").css("display", "none");
+              listas();
+            },1000);
+          }
+      },1000*delay);
+  })
+
+})
+
+
+function disparar(id){
+  $("#id-lista").val(id);
+  $("#modal-envia").modal("show");
+
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/user/numeros.php", user, (t)=>{
+    t = JSON.parse(t);
+    n = '';
+    if(t != 0){
+      t.forEach((t)=>{
+         n += `<option class="format-num" value='${t.num}'>${t.nome}</option>`;
+      })
+
+
+     
+    }else{
+      n += '<option>Nada Encontrado</option>';
+    }
+    
+    $("#meus-nums").html(n);
+    // $(".format-num").mask("+00 (00) 00000-0000");
+    
+  })
+}
+
+$(".fechar").click(()=>{
+  $(".modal.fade.show").modal("hide");
+})
+</script>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modal-envia" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <input type="hidden" id="id-lista">
+  
+      <div class="modal-body">
+          <h6 class="text-center">Enviar para a lista</h6>
+
+
+          <div class="form-group">
+            <label>Número de envio</label>
+            <select class="form-control" id="meus-nums"></select>
+          </div>
+          <div class="form-group">
+            <label>Delay para envio</label>
+            <input class="form-control" id="delay">
+          </div>
+
+          <div class="text-center" id="enviando" style="display:none;">
+            
+
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden"></span>
+            </div>
+          
+      </div>
+          <div class="container mt-3">
+            <button class="btn btn-sm btn-success btn-block bmt" id="enviar">
+              Enviar
+            </button>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal add emails -->
+<div class="modal fade" id="modal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+     <input type="hidden" id="id-lista">
+      <div class="modal-body">
+          <div class="form-group">
+            <label>Números</label>
+            <h6 style="font-weight: 500;font-size: 12px;">
+              - Adicione os números, separando os por quebra de linha.
+            </h6>
+            <textarea id="contatos-pra-inserir" class="form-control mt-3" style="height:120px;overflow-y: scroll;">
+              
+            </textarea>
+          </div>
+        
+        <div id="progresso" style="display: none;">
+          <div class="progress">
+            <div class="progress-bar contatos" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+
+      <div class="container mt-3" style="text-align:end;">
+        <button id="cancelar" class="btn btn-danger btn-sm bmt fechar" data-bs-dismiss="modal">Cancelar</button>
+        <button id="add" class="btn btn-success btn-sm bmt">Adicionar</button>
+      </div>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="addnoticia" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h5>Novo Grupo de Campanhas</h5>
+
+        <div class="form-group">
+            <label>Nome da lista</label>
+            <input class="form-control" id="nomelista">
+          </div>
+
+
+          <div class="row">
+
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                  <label>Selecione a Instância</label>
+                  <select class="form-control" id="m-keys">
+                    
+                  </select>
+                </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label>Mais Noticias</label>
+                <input class="form-control" type="button" value="Adicionar" onclick="mais()">
+              </div>
+            </div>
+          </div>
+
+      <div id="not">
+          <div class="noticia" id="0">
+            <div class="form-group">
+              <label>Noticia 0</label>
+              <div class="row">
+                <div class="col-sm-6">
+                   <input class="form-control" type="file" id="0" accept=".png, .jpg, .jpeg, .mp4" onchange="encodeImage(this)">
+                </div>
+                <div class="col-sm-6">
+                   <input class="form-control" type="datetime-local">
+                </div>
+              </div>
+             
+            </div>
+
+            <div class="form-group">
+              <textarea class="form-control" name="caption" style="height:120px;max-height: 200px;overflow-y: scroll;"></textarea>
+              <textarea name="base64" id="base64-0" style="display: none;"></textarea>
+            </div>
+          </div>
+      </div>
+
+
+          <div class="row mt-3">
+            <div class="col-sm-6">
+              <button class="btn btn-sm btn-danger bmt btn-block fechar">
+                Cancelar
+              </button>
+            </div>
+            <div class="col-sm-6">
+              <button class="btn btn-sm btn-success btn-block bmt" id="adicionar">
+                Enviar
+              </button>
+            </div>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>

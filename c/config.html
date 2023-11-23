@@ -1,0 +1,314 @@
+ <link rel="stylesheet" href="plugins/toastr/build/toastr.css">
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+     <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Minhas Contas</h1>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm bmt nova-conta">
+              Adicionar nova
+            </button>
+          </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section  style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+     <div class="row">
+       <div class="col-12 col-md-4">
+          <div class="card">
+          <div class="container mt-3">
+                
+              <div class="image-user" style="position: ;text-align: center;border: 1px solid;border-style: dashed;width: 50%;padding: 10px;border-radius: 5px;margin-left: 25%;cursor: pointer;" >
+                <img class="img-fluid"  src="" width="100" onclick="trocar_img()">
+                <input type="file" style="display:none;" id="seleciona-img">
+               
+              </div>
+
+                <div class="col-12">
+                  <div class="form-group">
+                    <label>Nome</label>
+                    <input class="form-control" id="nomec">
+                  </div>
+                </div>
+
+                 <div class="col-12">
+                  <div class="form-group">
+                    <label>CPF</label>
+                    <input type="hidden" id="cpfv">
+                    <span class="form-control" id="cpf"></span>
+                  </div>
+                </div>
+
+
+                <div class="col-12">
+                  <div class="form-group">
+                    <label>Email</label>
+                    <input class="form-control" id="email">
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="form-group">
+                    <label>Senha</label>
+                    <input class="form-control" id="senha" type='password'>
+                  </div>
+                </div>
+              
+               
+              
+           
+              <div class="container mt-3 mb-3 row">
+                <div class="col-4"></div>
+                <button class="btn btn-success btn-sm btn-block" id="edit">
+                  Salvar Dados
+                </button>
+              </div>
+
+          </div>
+      </div>
+       </div>
+       <div class="col-12 col-md-8">
+        <div class="card">
+          <div class="card-header">
+            Dados de Endereço
+          </div>
+          <div class="card-body">
+            
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <div class="form-group">
+                  <label>CEP</label>
+                  <input class="form-control" id="cep">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-8 col-md-6">
+                <label>Endereço</label>
+                <input class="form-control" id="endereco">
+              </div>
+              <div class="col-4 col-md-3">
+                <label>Número*</label>
+                <input class="form-control" id="numero">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-12 col-md-5">
+                <div class="form-group">
+                  <label>Bairro</label>
+                  <input class="form-control" id="bairro">
+                </div>
+              </div>
+              <div class="col-8 col-md-4">
+                 <div class="form-group">
+                  <label>Cidade</label>
+                  <input class="form-control" id="cidade">
+                </div>
+              </div>
+              <div class="col-4 col-md-3">
+                 <div class="form-group">
+                  <label>Estado</label>
+                    <select class="form-control" id="uf">
+                        <option value="AC">AC</option>
+                        <option value="AL">AL</option>
+                        <option value="AP">AP</option>
+                        <option value="AM">AM</option>
+                        <option value="BA">BA</option>
+                        <option value="CE">CE</option>
+                        <option value="DF">DF</option>
+                        <option value="ES">ES</option>
+                        <option value="GO">GO</option>
+                        <option value="MA">MA</option>
+                        <option value="MT">MT</option> 
+                        <option value="MS">MS</option> 
+                        <option value="MG">MG</option> 
+                        <option value="PA">PA</option> 
+                        <option value="PB">PB</option> 
+                        <option value="PR">PR</option> 
+                        <option value="PE">PE</option> 
+                        <option value="PI">PI</option> 
+                        <option value="RJ">RJ</option> 
+                        <option value="RN">RN</option> 
+                        <option value="RS">RS</option> 
+                        <option value="RO">RO</option> 
+                        <option value="RR">RR</option> 
+                        <option value="SC">SC</option> 
+                        <option value="SP">SP</option> 
+                        <option value="SE">SE</option> 
+                        <option value="TO">TO</option>
+                    </select>           
+                  </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer" style="text-align:end;">
+              <button class="btn btn-sm btn-success" style="width:35%;" onclick="dados_end()">
+                Salvar Dados
+              </button>
+          </div>
+
+        </div>
+
+       </div>
+     </div>
+    </section>
+
+</div>
+
+<script src="plugins/toastr/build/toastr.min.js"></script> 
+<script>
+
+  /*Mudando a imagem*/
+  function trocar_img(){
+    $("#seleciona-img").click();
+  }
+
+  $("#seleciona-img").change(function(){
+    readURL(this);
+  
+  })
+
+
+  function readURL(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    
+    reader.onload = function(e) {
+      $(".image-user").find('img').attr('src', e.target.result);
+    }
+    
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+  /*Mudando a imagem*/
+function dados_end(){
+  cep = $("#cep").val();
+  endereco = $("#endereco").val();
+  numero = $("#numero").val();
+  bairro = $("#bairro").val();
+  cidade = $("#cidade").val();
+  estado = $("#uf").val();
+  user = localStorage.getItem('usermail');
+
+  dados = `user=${user}&cep=${cep}&endereco=${endereco}&numero=${numero}&bairro=${bairro}&cidade=${cidade}&estado=${estado}`;
+
+  $.post("whats/dados/endereco.php", dados, (t)=>{
+    if(t == 1){
+      success("Endereço Atualizado!");
+    }else{
+      erro("Dados Incompletos");
+    }
+  })
+}
+
+$(()=>{
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/dados/end-list.php", user, (t)=>{
+    if(t != 0){
+      t = JSON.parse(t);
+        $("#cep").val(t.cep);
+        $("#endereco").val(t.endereco);
+        $("#numero").val(t.numero);
+        $("#bairro").val(t.bairro);
+        $("#cidade").val(t.cidade);
+        $("#uf").val(t.estado);
+
+
+    }
+  })
+})
+
+$("#cep").on('keyup', function(){
+  cep = $(this).val();
+  if(cep.length == 8){
+
+    loader();
+
+    setTimeout(()=>{
+
+    $.get("https://viacep.com.br/ws/"+cep+"/json/", (r)=>{
+        
+
+      $("#cep").val(r.cep);
+      $("#endereco").val(r.logradouro);
+      $("#bairro").val(r.bairro);
+      $("#cidade").val(r.localidade);
+      $("#uf").val(r.uf);
+    })
+
+     block_loader();
+  },1200);
+
+  }else{
+
+  }
+})
+
+dados();
+function dados(){
+  user = 'user='+localStorage.getItem('usermail');
+    $.post("whats/dados/dados.php", user, (t)=>{
+      t = JSON.parse(t);
+      $("#nomec").val(t.nome);
+      $("#email").val(t.email);
+      $("#senha").val(t.senha);
+      $("#cpfv").val(t.cpf);
+      $("#cpf").html(t.cpf);
+
+       $(".image-user").find("img").attr("src",`whats/dados/images/${t.image}`);
+
+    })
+}
+
+$("#edit").click(()=>{
+
+    data = new FormData();
+
+
+    nome = $("#nomec").val();
+    email = $("#email").val();
+    senha = $("#senha").val();
+    cpf = $("#cpfv").val();
+    image = $("#seleciona-img")[0].files[0];
+
+    data.append('nome', nome);
+    data.append('email', email);
+    data.append('senha', senha);
+    data.append('cpf', cpf);
+    data.append('image', image);
+ 
+    //data = 'nome='+nome+'&email='+email+'&senha='+senha+'&cpf='+cpf+'&image='+img; 
+
+   // console.log(dados);
+  
+  
+
+
+  $.ajax({
+          url: `whats/dados/edit.php`,
+          data: data,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function(t){
+            if(t == 1){
+            dados();
+            success("Dados atualizados com sucesso");
+            }
+          }
+    });
+
+  
+})
+
+
+  
+</script>

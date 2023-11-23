@@ -1,0 +1,334 @@
+ <style>
+   .list-group-item {
+      cursor: pointer;
+      border: none;
+      margin-top: 5px;
+      border-radius: 5px;
+   }
+   .list-group-item:hover{
+    background: rgba(0,0,0,0.1);
+    font-weight: 700;
+   } 
+   .modulo {
+      cursor: pointer;
+   }
+
+   .img-fluid.h{
+      position: relative;
+      top: -35px;
+      border-radius: 5px;
+      height: 120px;
+      cursor: pointer;
+   }
+   .img-fluid.h:hover{
+      padding: 5px;
+      border-radius: 10px;
+   }
+
+.card-success.card-outline {
+  border-top: 2px solid #419f7b!important;
+}
+
+ </style>
+
+ <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>Treinamentos</h1>
+          </div>
+        
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+   <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="card">
+        <div class="card-body">
+
+          <div class="row cursos mt-3"></div>
+
+
+          <div class="row aulas" style="display: none;">
+
+            <div class="col-12 col-md-8">
+              <div class="card">
+                <div class="card-header">
+                  <h4 id="curso-name">Nome do Curso</h4>
+                </div>
+                <div class="card-body">
+
+                  <div class="text-center" id="video">
+                    <div style="background: rgba(0,0,0,0.5);height: 400px;">
+                      
+                      <div class="container" style="position: relative;top: 60px;">
+
+                        <h3 class="text-center">Selecione um vídeo</h3>
+                      <div class="spinner-border text-light" role="status" style="position: relative;top: 45px;width: 6rem;height: 6rem;">
+                          <span class="sr-only">Loading...</span>
+                      </div>
+                    </div>
+                  </div>
+                  </div>
+                   
+
+                      <div class="mt-2">
+                          <input type="hidden" id="prox">
+
+                          <a class="btn btn-sm btn-danger bmt" onclick="back()" style="width: 135px;">
+                            Voltar
+                          </a>
+                       
+                          <a class="btn btn-sm bmt" style="position: absolute;right: 130px;" id="anterior">
+                            Aula anterior
+                          </a>
+
+                          <a class="btn btn-sm bmt" style="position: absolute;right: 20px;" id="proximo">
+                            Próxima aula
+                          </a>
+                    
+                      </div>
+                    </div>
+                </div>
+
+                <h6 class="text-center"><b>DESCRIÇÃO</b></h6>
+                <hr>
+                <p class="text-center" id="desc-curso">Descrição do curso</p>
+              </div>
+         
+
+
+            <div class="col-12 col-md-4 modulos-listar">
+                
+            </div>
+
+
+
+        </div>
+      </div>
+    </section>
+</div>
+
+<style>
+   .send-post{
+    color: #ffc107 !important;
+    font-weight: 700;
+    margin-left: 15px;
+  }
+
+  .send-post.breve{
+    color: #00b7ff !important;
+    font-weight: 700;
+    margin-left: 15px;
+  }
+  .after-post{
+    position: relative;
+    right: -15px;
+    font-weight: 600;
+    font-size: 14px;
+    top: 1px;
+  }
+  .doc{
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    background: #545c63f0;
+    padding: 5px;
+    text-align: center;
+    width: 100%;
+    margin-top: 3px;
+  }
+  .doc:hover{
+    cursor: pointer;
+    
+  }
+
+  .card-modulo{
+    margin-bottom: 5px!important;
+  }
+
+</style>
+<script>
+
+
+  cursos();
+  function cursos(){
+    $.post("whats/admin/cursos/list.php", (t)=>{
+      t = JSON.parse(t);
+      cursos_list = '';
+     
+      t.forEach((t)=>{
+        cursos_list += `<div class="col-6 col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                  <div class="text-center">
+                    <img class="img-fluid h" src="whats/admin/cursos/images/${t.foto}">
+                  </div>
+
+                    <h5 class="text-center" style="position: relative;top: -25px;">
+                      ${t.nome}
+                    </h5>
+
+                    <button class="btn btn-sm btn-block bmt accss" onclick="acessar(${t.id})">
+                      Acessar
+                    </button>
+                  </div>
+                </div>
+            </div>`;
+      })
+
+      $(".row.cursos").html(cursos_list);
+
+    })
+  }
+
+/*Função para voltar aos cursos*/
+function back(){
+  $(".row.aulas").css("display", "none");
+  cursos();
+  $(".row.cursos").toggle(500);
+}
+/*Função para voltar aos cursos*/
+
+
+function acessar(id){
+  loader();
+
+  /*Buscando conteúdo*/
+  $.post("whats/admin/cursos/acessa.php",'id='+id, (t)=>{
+    
+    if(t != 0){
+      t = JSON.parse(t);
+      $("#curso-name").html(t.nome);
+      $("#desc-curso").html(t.desc);
+      modulos_list = '';
+      t.cont.forEach((t)=>{
+        modulos_list += ` <div class="card card-success card-outline card-modulo">
+                 
+                      <div class="card-header modulo" id="${t.id}" data-id="0" onclick="model(${t.id})">
+                          <h4 class="card-title w-100" style="font-weight: 700;text-transform: uppercase;font-size: 15px;">
+                              ${t.modulo}
+                          </h4>
+                      </div>
+                 
+                      <div class="card-body id-${t.id}" style="padding:10px!important;display: none;">
+                      
+                          <ul class="list-group aulas-${t.id}">
+                             
+                          </ul>
+                      </div>
+                </div>`;
+      })
+
+      $(".modulos-listar").html(modulos_list);
+    }else{
+
+    }
+
+
+    /*Exibindo o conteudo*/
+    $(".row.cursos").css("display", "none");
+    setTimeout(()=>{
+      block_loader();
+      $(".row.aulas").toggle(500);
+    },1500);
+    /*Exibindo o conteudo*/
+
+  })
+  /*Buscando conteúdo*/
+
+
+
+}
+
+
+/*Exibindo aulas do modulo*/
+function model(modulo){
+  open = $(`#${modulo}`).attr("data-id");
+ 
+   if(open == 0){
+    $.post("whats/admin/cursos/get-aulas.php", 'id='+modulo, (t)=>{
+      if(t != 0){
+        t = JSON.parse(t);
+        console.log(t);
+        all_aulas = '';
+       
+        t.forEach((r)=>{
+          all_aulas += `<li class="list-group-item d-flex justify-content-between align-items-center" 
+          onclick="aulaClick(${r.id})">
+                                ${r.nome}
+                                <input type="hidden" id="link-aula-${r.id}" value="${r.link}">
+                                <i class="far fa-circle" id="icon-${r.id}"></i>
+                              </li>`;
+        
+        })
+      }else{  
+          all_aulas = '<h6 class="text-center">Modulo Sem Aulas</h6>';
+      }
+
+      $(`.aulas-${modulo}`).html(all_aulas);
+      $(`#${modulo}`).attr("data-id", "1");
+    })
+  }else{
+    console.log("Já existente");
+  }
+
+  $(`.card-body.id-${modulo}`).toggle(500);
+}
+/*Exibindo aulas do modulo*/
+
+/*Anterior e Prox*/
+$("#anterior").click(function(){
+  prox = $("#prox").val();
+   $(`#link-aula-${prox}`).closest("li").prev("li").click();
+
+})
+
+$("#proximo").click(function(){
+  prox = $("#prox").val();
+  $(`#link-aula-${prox}`).closest("li").next("li").click();
+
+})
+/*Anterior e Prox*/
+
+
+/*Mudando de aula*/
+function aulaClick(aula){
+  $("#prox").val(aula);
+
+  $("#video").html(`<div style="background: rgba(0,0,0,0.5);height: 400px;">
+                      
+                      <div class="container" style="position: relative;top: 60px;">
+
+                        <h3 class="text-center">Carregando...</h3>
+                      <div class="spinner-border text-light" role="status" style="position: relative;top: 45px;width: 6rem;height: 6rem;">
+                          <span class="sr-only">Loading...</span>
+                      </div>
+                    </div>
+                  </div>`);
+
+  link = $(`#link-aula-${aula}`).val();
+  $(".fas.fa-circle").attr("class", "far fa-circle");
+  $(`#icon-${aula}`).attr("class", "fas fa-circle");
+ 
+  console.log("id: "+link);
+
+  setTimeout(()=>{
+    $("#video").html(` <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${link}"></div>`);
+
+    player = new Plyr('#player', {
+    modestbranding: 1,
+    autohide: 1,
+    showinfo: 0
+
+  });
+
+  },1500);
+  
+}
+/*Mudando de aula*/
+
+
+</script>

@@ -1,0 +1,1141 @@
+ <link rel="stylesheet" href="plugins/summernote/summernote-bs4.min.css">
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Lista de Grupos</h1>
+          </div>
+          <div class="col-auto">
+           
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+
+
+<style>
+  .dropdown-item{
+    cursor: pointer!important;
+  }
+  .dropdown-item:hover{
+      color: white!important;   
+      background:#008cff!important;
+  }
+  .seleciona-grupo{
+    cursor: pointer;
+  }
+</style>
+<section class="content" style="padding: 30px;position: relative;top: -70px;">
+  <div class="card">
+         <div class="card-header">
+              <div class="card-title" style="display:flex;">
+                <select class="form-control" id="nums" onchange="grupos(this)">
+                  <option>Selecione uma Instância</option>
+                </select>
+
+              
+              </div>
+              <div class="card-tools">
+
+                 <div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background:#008cff;color:white;border-color:#008cff;">
+                          FUNCIONALIDADES
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          
+                          <a class="dropdown-item c-grupo" style="display:none;">
+                            CRIAR GRUPO
+                          </a>
+
+                          <a class="dropdown-item" onclick="criar_lista()">
+                            CRIAR LISTA DE CONTATOS
+                          </a>
+
+
+                          <a class="dropdown-item" onclick="allgroups()">
+                           DISPARAR PARA TODOS
+                          </a>
+
+                          <a class="dropdown-item" onclick="allexport()">
+                            EXPORTAR TODOS
+                          </a>
+
+                           <a class="dropdown-item" onclick="select()">
+                            SELECIONAR PARA CAMPANHA
+                          </a>
+
+                        </div>
+                      </div>
+
+
+
+              </div>
+              
+          </div>
+
+
+    <div class="card-body table-responsive p-0">
+       <table class="table">
+            <thead>
+              <tr>
+                <th class="no-border">Nome</th>
+                <th class="no-border">Instancia</th>
+                <th class="no-border">Id do grupo</th>
+                <th class="no-border">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+                    
+            </tbody>
+      </table>
+
+    </div>
+</div>
+</section>
+</div>
+
+<script>
+ function ArrayDelayFunc(array, delegate, delay){
+    array.forEach(function(el, i){
+      setTimeout(function() {
+        delegate(array[i]);
+      }, i * delay);
+    })
+  } 
+  
+all_grupos = [];
+all_complete_groups = [];
+contatos = [];
+function grupos(t){
+  $(".c-grupo").attr("onclick", `criar('${t.value}')`);
+  $(".c-grupo").css("display", "block");
+
+  instancia = 'key='+t.value;
+  inst = t.value;
+
+l = '';
+   $.post("whats/grupos/list.php", instancia, (t)=>{
+            d = JSON.parse(t);
+            console.log(d);
+            contatos.push(d.instance_data);
+            Object.keys(d.instance_data).forEach((g)=>{
+
+
+              idg  = g.split("@")[0];
+          
+              all_grupos.push(g);
+              
+
+              completo = {
+                  nome: d.instance_data[g].subject,
+                  id: d.instance_data[g].id
+              }
+
+              all_complete_groups.push(completo);
+          
+              
+              l += `
+                    <tr style="white-space: nowrap;">
+                    <textarea style="display:none;">
+                      
+                    </textarea>
+                      <input type="hidden" id="${idg}" value="${d.instance_data[g].id}">
+                      <td>${d.instance_data[g].subject}</td>
+                      <td><span class="format_num">${inst}</span></td>
+                      <td>${d.instance_data[g].id}</td>
+                      <td>
+
+
+                      <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background:transparent;">
+                          Ações
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          
+                          <a class="dropdown-item" onclick="copy('${idg}')">
+                            COPIAR ID
+                          </a>
+
+                          <a class="dropdown-item" onclick="addcon('${idg}', '${d.instance_data[g].subject}')">
+                           ADICIONAR CONTATOS
+                          </a>
+
+                          <a class="dropdown-item" onclick="addmanual('${idg}', '${d.instance_data[g].subject}')">
+                            ADD CONTATOS MANUAL
+                          </a>
+
+
+                          <a class="dropdown-item" onclick="extrair('${g}')">
+                            EXTRAIR PARA ENVIO
+                          </a>
+
+                          <a class="dropdown-item" onclick="savecon('${g}')">
+                            SALVAR CONTATOS
+                          </a>
+
+                           <a class="dropdown-item" onclick="leave('${idg}')">
+                            SAIR
+                          </a>
+                        </div>
+                      </div>
+
+
+                      </td>
+                    </tr>`;
+            })
+
+            $("tbody").html(l);
+            //$(".format_num").mask("+00 (00) 00000-0000"); 
+          })
+
+}
+
+
+function select(){
+
+
+    key = 'key='+$("#nums").val();
+
+  $.post("whats/noticias/lista-ins.php", key, (t)=>{
+     if(t != 0){
+        t = JSON.parse(t);
+        li = '';
+        t.forEach((l)=>{
+          li += `<option value='${l.id}'>${l.nome}</option>`;
+        })
+
+        $("#minhas-campanhas").html(li);
+        
+
+         listagem = '';
+
+
+  all_complete_groups.forEach((t)=>{
+
+    selid = t.id.replaceAll("@g.us", "");
+   listagem += `  <li class="list-group-item d-flex justify-content-between align-items-center seleciona-grupo" onclick="selecionaGrupo('${selid}')" id="sele-${selid}">
+                
+                ${t.nome}
+                
+                  <input type="hidden" id="grupo" value="${t.id}">
+                  <i class="far fa-circle" id="icon-${t.id}"></i>
+            </li>`;
+  })
+
+  $(".listagem-grupos").html(listagem);
+  $("#select-grupos").modal("show");
+
+
+        
+     }else{
+      error("Nenhuma lista encontrada");
+     }
+  })
+
+ 
+}
+
+function selecionaGrupo(id){
+
+  id = `sele-${id}`;
+
+ 
+  $("#"+id).toggleClass("selecionado");
+
+  check = $("#"+id).hasClass("selecionado");
+  if(check == true){
+      $("#"+id).find(".far.fa-circle").attr("class", "fas fa-check-circle");
+  }else{
+     $("#"+id).find(".fas.fa-check-circle").attr("class", "far fa-circle");
+  } 
+  
+}
+
+
+$("#insere-grupos-selecionados").click(()=>{
+
+  $("#timer-seleciona").css("display", "block");
+  campanha = $("#minhas-campanhas").val();
+
+  selecionados = $(".selecionado").map(function(){
+  
+    num = $(this).find("#grupo").val();
+    dados = `lista=${campanha}&num=${num}`;
+
+    $.post("whats/noticias/add-contatos.php", dados, (t)=>{
+      if(t == 1){
+        setTimeout(()=>{
+          $("#timer-seleciona").css("display", "none");
+          success("Grupo inserido");
+          $("#select-grupos").modal("hide");
+        },1500);
+      }
+    })
+  }) 
+
+})
+
+
+function allexport(){
+  key = 'key='+$("#nums").val();
+
+  $.post("whats/noticias/lista-ins.php", key, (t)=>{
+     if(t != 0){
+        t = JSON.parse(t);
+        li = '';
+        t.forEach((l)=>{
+          li += `<option value='${l.id}'>${l.nome}</option>`;
+        })
+
+        $("#m-not-list").html(li);
+        $("#not-list").modal('show');
+     }else{
+      error("Nenhuma lista encontrada");
+     }
+  })
+}
+
+function copy(id){
+  let grupo = $("#"+id).val();
+  navigator.clipboard.writeText(grupo);
+
+  success("Id do grupo Copiado");
+}
+
+
+function extrair(id){
+
+  $("#grupo").val(id);
+  user = 'user='+localStorage.getItem('usermail'); 
+  $.post("whats/contatos/listar.php", user, (t)=>{
+      
+
+      if(t != 0){
+        t = JSON.parse(t);
+        opt = '';
+        t.forEach((l)=>{
+          opt += `<option value='${l.id}'>${l.nome}</option>`;
+
+        })
+
+        $("#m-listas").html(opt);
+      }else{
+        $("#m-listas").html("<option value='none'>Nenhuma lista encontrada</option>");
+      }
+  })
+
+
+  $("#list").modal("show");
+}
+
+
+
+
+
+
+$("#extrair").click(()=>{
+  grupo = $("#grupo").val();
+  lista = $("#m-listas").val();
+
+  if(lista == "none"){
+    error("Você Não possui listas");
+  }else{
+    $("#enviando").css("display", "block");
+    contatos[0][grupo].participants.forEach((n)=>{
+      dados = 'lista='+lista+'&num='+n.id.split("@")[0];
+        $.post("whats/listas/add-contatos.php", dados, (t)=>{
+            console.log(t);
+        })    
+    });
+    $("#enviando").css("display", "none");
+    $("#list").modal("hide");
+    success("Contatos Extraidos");
+  }
+})
+
+
+function allgroups(){
+   user = 'user='+localStorage.getItem('usermail'); 
+  $.post("whats/contatos/listar.php", user, (t)=>{
+      
+
+      if(t != 0){
+        t = JSON.parse(t);
+        opt = '';
+        t.forEach((l)=>{
+          opt += `<option value='${l.id}'>${l.nome}</option>`;
+
+        })
+
+        $("#m-lista-grupo").html(opt);
+      }else{
+        $("#m-lista-grupo").html("<option value='none'>Nenhuma lista encontrada</option>");
+      }
+  })
+
+  $("#allgrupos").modal('show');
+
+}
+
+$("#inseregrupos").click(()=>{
+  lista = $("#m-lista-grupo").val();
+
+if(lista == 'none'){
+  error("Você não possui listas");
+}else{
+     $("#enviando-grupo").css("display", "block");
+    all_grupos.forEach((g)=>{
+      dados = 'num='+g+'&lista='+lista;
+      $.post("whats/listas/add-contatos.php", dados, (t)=>{
+        console.log(t);
+      });
+    });
+    $("#enviando-grupo").css("display", "none");
+    $("#allgrupos").modal("hide");
+    success("Grupos Extraidos");
+  }
+})
+
+
+$(()=>{
+   user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/user/numeros.php", user, (t)=>{
+    t = JSON.parse(t);
+    n = $("#nums").html();
+    if(t != 0){
+      t.forEach((t)=>{
+         n += `<option class="format-num" onchange="grupos(this)" value='${t.num}'>${t.nome}</option>`;
+      })
+
+
+     
+    }else{
+      n += '<option>Nada Encontrado</option>';
+    }
+    
+    $("#nums").html(n);
+    // $(".format-num").mask("+00 (00) 00000-0000");
+    
+  })
+})
+
+
+$("#all_etx").click(()=>{
+  $("#enviando-m").css("display", "block");
+  lista = $("#m-not-list").val();
+  ArrayDelayFunc(all_grupos, (t)=>{
+    dados = `num=${t}&lista=${lista}`;
+    $.post("whats/noticias/add-extract.php", dados, ()=>{
+
+    })
+  },100);
+
+
+  success("Grupos adicionados");
+  $("#enviando-m").css("display", "none");
+  $("#not-list").modal('hide');
+})
+
+
+function criar(id){
+  $("#criar-grupo").modal('show');
+  $("#key-grupo").val(id);
+  
+
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/grupos/listas/list.php", user, (t)=>{
+    l = '';
+
+    if(t != 0){
+      t = JSON.parse(t);
+      
+      t.forEach((t)=>{
+        l += `<option value="${t.id}">${t.nome}</option>`; 
+      })
+
+    }else{
+       l += `<option value="0">Sem listas</option>`; 
+    }
+
+    $("#all-list-contacts").html(l);
+  })
+
+  $("#criar-grupo").modal('show');
+}
+
+$("#criar-grupo-button").click(()=>{
+  dados = new FormData();
+
+  key = $("#key-grupo").val();
+  img = $("#imagem-grupo")[0].files[0];
+  nome = $("#nome-grupo").val();
+  desc = $("#desc-grupo").val().trim();
+  add = $("#add-prev-cont").val();
+  lista = $("#all-list-contacts").val();
+
+  dados.append('key', key);
+  dados.append('imagem', img);
+  dados.append('nome', nome);
+  dados.append('desc', desc);
+  dados.append('add', add);
+  dados.append('list', lista);
+
+
+  console.log(dados);
+
+$.ajax({
+          url: `whats/grupos/criar.php`,
+          data: dados,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function(t){
+            $("#criar-grupo").modal('hide');
+          }
+    });
+
+
+})
+
+
+
+
+   file = document.querySelector('#imagem-grupo');
+
+
+  function upload(){
+    file.click();
+  }
+
+   file.addEventListener('change', function(e){
+        let reader = new FileReader();
+
+        reader.onload = function() {
+            
+            
+              $("#m-preview").html(`<img src="${reader.result}" onclick="upload()" style="width:100%;">`);
+            
+           
+        }
+
+        reader.readAsDataURL(file.files[0]);
+
+   })
+
+
+function criar_lista(){
+  $("#criar-lista").modal('show');
+
+}
+
+
+$("#criar-lista-save").click(()=>{
+  nome = 'nome='+$("#nome-save-list").val()+'&user='+localStorage.getItem('usermail');
+
+  $.post("whats/grupos/listas/create.php", nome, (t)=>{
+    if(t == 1){
+      success("Lista criada com sucesso");
+      $("#criar-lista").modal('hide');
+      $("#nome-save-list").val();
+    }else{
+      error("Erro ao criar lista");
+    }
+  })
+})
+
+
+
+function addcon(id, nome){
+  $("#m-id-grupo").val(id);
+  $("#m-grupo").html(nome);
+ 
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/grupos/listas/list.php", user, (t)=>{
+    l = '';
+
+    if(t != 0){
+      t = JSON.parse(t);
+      
+      t.forEach((t)=>{
+        l += `<option value="${t.id}">${t.nome}</option>`; 
+      })
+
+    }else{
+       l += `<option value="0">Sem listas</option>`; 
+    }
+
+    $("#m-contatos-list").html(l);
+  })
+  
+  $("#add-conn-grupo").modal('show');
+}
+
+$("#insere-conn").click(()=>{
+  m = $("#m-contatos-list").val();
+  if(m != 0){
+    lista = 'list='+m+'&key='+$("#nums").val()+'&grupo='+$("#m-id-grupo").val();
+
+    $.post("whats/grupos/add-contato.php", lista, (t)=>{
+      if(t == '1'){
+        success("Contatos adicionados");
+        $("#add-conn-grupo").modal('hide');
+      }else if(t == 2){
+        $.alert({theme:'dark',title:'Oops', content:'Você não é o administrador'});
+      }else if(t == 0){
+        $.alert({theme:'dark',title:'Oops', content:'Lista sem contatos'});
+      }
+    })
+
+  }else{
+    $.alert({
+      theme: 'dark',
+      title: 'Ops!',
+      content: 'Você não possui listas!'
+    });
+  }
+})
+
+
+
+function savecon(id){
+    $("#save-grupo-id").val(id);
+   user = 'user='+localStorage.getItem('usermail');
+  $.post("whats/grupos/listas/list.php", user, (t)=>{
+    l = '';
+
+    if(t != 0){
+      t = JSON.parse(t);
+      
+      t.forEach((t)=>{
+        l += `<option value="${t.id}">${t.nome}</option>`; 
+      })
+
+    }else{
+       l += `<option value="0">Sem listas</option>`; 
+    }
+
+    $("#m-contatos-list-save").html(l);
+  })
+
+
+  $("#grupo-con-save").modal("show");
+
+}
+
+function ArrayDelayFunc(array, delegate, delay){
+    array.forEach(function(el, i){
+      setTimeout(function() {
+        delegate(array[i]);
+      }, i * delay);
+    })
+  }
+
+
+$("#salvar-cont").click(()=>{
+  grupo = $("#save-grupo-id").val();
+  lista = $("#m-contatos-list-save").val();
+
+  if(lista == "0"){
+    error("Você Não possui listas");
+  }else{
+    $("#enviando-m").css("display", "block");
+    allcontatos = contatos[0][grupo].participants;
+
+    ArrayDelayFunc(allcontatos, (n)=>{
+      dados = 'lista='+lista+'&num='+n.id.split("@")[0];
+        $.post("whats/grupos/listas/save-contatos.php", dados, (t)=>{
+            console.log(t);
+        })    
+    },300);
+    $("#enviando-m").css("display", "none");
+    $("#grupo-con-save").modal("hide");
+    success("Contatos salvos");
+  }
+})
+
+
+function leave(id){
+  key = $("#nums").val();
+  dados = `id=${id}&key=${key}`;
+
+  $.confirm({
+    theme:'dark',
+    title: 'Atenção',
+    content: 'Deseja realmente sair desse grupo ?',
+    buttons: {
+      SIM: function(){
+        $.post("whats/grupos/sair.php", dados, (t)=>{
+          if(t == 1){
+            $.alert({
+              theme: 'dark',
+              title: 'Sucesso',
+              content: 'Você deixou este grupo!'
+            })
+          }
+        })
+      },
+      NÃO: {
+
+      }
+    }
+  })
+}
+
+
+$(".cancel").click(()=>{
+  $(".modal.fade.show").modal("hide");
+})
+
+
+
+
+function addmanual(grupo, nome){
+  console.log(nome);
+  $("#add-manual-grupo").val(grupo);
+  $("#m-grupo-m").html(nome);
+  $("#add-contatos-manual").modal('show');
+
+}
+
+/*Dados de retorno*/
+  erros = [];
+  inseridos = 0;
+/*Dados de retorno*/
+
+
+$("#add-manual-button").click(()=>{
+  erros = [];
+  inseridos = 0;
+  $("#inseridos").html("0");
+  $("#erros").html("0");
+  $("#erros-list").html("");
+  $("#erros-list").css("display", "none");
+
+  $("#add-manual-button").attr("disabled", "");
+  $("#loader-manual").css("display", "block");
+  grupo = $("#add-manual-grupo").val();
+  all = $("#all-contatos-manual").val();
+  all = all.split("\n");
+
+  dados = new Object();
+  dados.key = $("#nums").val();
+  dados.grupo = grupo;
+
+  total = all.length;
+  console.log("t > "+total);
+  ArrayDelayFunc(all, (c)=>{
+     total = total-1;
+     c = c.replaceAll("+", "").replaceAll("(","").replaceAll(")", "").replaceAll("-", "").replaceAll(" ","");
+     dados.contato = c;
+     data = JSON.stringify(dados);
+  
+    if(total == 0){
+        $("#all-contatos-manual").val("");
+        $("#add-manual-button").removeAttr("disabled");
+        $("#loader-manual").css("display", "none");
+        success("Contatos Adicionados");
+        $("#fecharmanual").css("display", "block");
+     }else{
+      //console.log("total e "+total);
+     }
+
+    $.post("whats/grupos/add-m-contatos.php", data, (t)=>{
+        console.log(t);
+      t = JSON.parse(t);
+        if(t.status == 1){
+            console.log(t.resp);
+            inseridos = inseridos+1;
+            $("#inseridos").html(inseridos);
+        }else{
+          error("Erro > "+c);
+          erros.push(c);
+          $("#erros").html(erros.length);
+        }
+  })
+
+
+     
+
+
+  },1000);
+ 
+
+  
+  
+})
+
+$("#erros-btn").click(()=>{
+
+  if(erros.length > 0){
+    erros = erros.join(", ");
+    $("#erros-list").html(erros);
+  }else{
+    $("#erros-list").html(`<h6 class="text-center text-danger">Sem erros</h6>`);
+  }
+  
+
+  $("#erros-list").toggle('down');
+})
+
+$("#fecharmanual").click(()=>{
+  $("#inseridos").html("0");
+  $("#erros").html("0");
+  $("#erros-list").html("");
+  $("#erros-list").css("display", "none");
+  $("#all-contatos-manual").val("");
+  $("#add-contatos-manual").modal('hide');
+  $("#fecharmanual").css("display", "none");
+})
+
+</script>
+
+
+<div class="modal fade" id="select-grupos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+    
+      <div class="modal-body">
+        <input id="save-grupo-id" type="hidden">
+          <h6 class="text-center">Exportar em</h6>
+          <div class="form-group">
+            <label>Escolha a Campanha</label>
+            <select class="form-control" id="minhas-campanhas"></select>
+          </div>
+          
+        <ul class="list-group listagem-grupos" style="height:350px;overflow-y: scroll;">
+          
+        </ul>
+
+
+
+        <div class="text-center" id="timer-seleciona" style="display:none;">
+          <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden"></span>
+          </div>
+        </div>
+
+          <div class="container mt-3">
+            <button class="btn btn-sm btn-success btn-block bmt" id="insere-grupos-selecionados">
+              Salvar Selecionados
+            </button>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="add-contatos-manual" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+    
+      <div class="modal-body">
+        <input id="add-manual-grupo" type="hidden">
+          <h6 class="text-center">Adicionar em <span id="m-grupo-m"></span></h6>
+          <div class="form-group">
+            <small>Adicione os contatos separando por quebra de linha</small>
+            <textarea class="form-control" id="all-contatos-manual" style="min-height: 150px;"></textarea>
+          </div>
+         
+        
+          <div class="container text-center mt-3">
+            <div class="mb-3" id="loader-manual" style="display:none;">
+              <div class="spinner-border text-light" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-success btn-block bmt" id="add-manual-button">
+              Inserir
+            </button>
+            <button class="btn btn-sm btn-danger btn-block bmt" id="fecharmanual" style="display:none;">
+              Fechar
+            </button>
+
+            <div class="mt-2" style="display:flex;">
+              <h6 class="mr-3"><b>INSERIDOS</b>: 
+                <strong id="inseridos" class="text-success">0</strong>
+              </h6>
+              <h6><a class="text-danger" href="#" id="erros-btn"><b>ERROS</b></a>: 
+                <strong id="erros" class="text-danger">0</strong>
+              </h6>
+            </div>
+
+            <div class="mt-2" id="erros-list" style="display:none;"></div>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="grupo-con-save" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+    
+      <div class="modal-body">
+        <input id="save-grupo-id" type="hidden">
+          <h6 class="text-center">Salvar contatos</h6>
+          <div class="form-group">
+            <label>Escolha a lista</label>
+            <select class="form-control" id="m-contatos-list-save"></select>
+          </div>
+         
+        <div class="text-center" id="enviando-m" style="display:none;">
+          <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden"></span>
+          </div>
+        </div>
+
+          <div class="container mt-3">
+            <button class="btn btn-sm btn-success btn-block bmt" id="salvar-cont">
+              Salvar
+            </button>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="add-conn-grupo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+    
+      <div class="modal-body">
+        <input id="m-id-grupo" type="hidden">
+          <h6 class="text-center">Adicionar em <span id="m-grupo"></span></h6>
+          <div class="form-group">
+            <label>Escolha a lista</label>
+            <select class="form-control" id="m-contatos-list"></select>
+          </div>
+         
+        
+          <div class="container mt-3">
+            <button class="btn btn-sm btn-success btn-block bmt" id="insere-conn">
+              Inserir
+            </button>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="modal fade" id="criar-lista" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+    
+      <div class="modal-body">
+          <h6 class="text-center">Criar lista de contatos</h6>
+          <div class="form-group">
+            <label>Nome da lista</label>
+            <input class="form-control" id="nome-save-list">
+          </div>
+         
+        
+          <div class="container mt-3">
+            <button class="btn btn-sm btn-success btn-block bmt" id="criar-lista-save">
+              Criar lista
+            </button>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="modal fade" id="criar-grupo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+          <h6 class="text-center">Criar Grupo</h6>
+          <hr>
+          <input id="key-grupo" type="hidden">
+          <div class="row">
+            <div class="col-12 col-lg-6">
+               <label> Imagem</label>
+                  <div class="card" style="border: 1px solid white;border-radius: 5px;border-style: dashed;">
+                      <div class="card-body text-center">
+                      <div id="m-preview">
+                         <img class="img-fluid" onclick="upload()" src="dist/img/upload.png" style="height:100px;">
+                       </div>
+                         <input class="form-control" type="file" id="imagem-grupo" name="imagem" style="display: none;" accept=".jpg, .png, .jpeg">
+                      </div>
+                  </div>
+
+                  <small style="font-size:11px;font-weight:700;">
+                    Suportado (.png |.jpg, .jpeg)
+                  </small>
+
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="form-group">
+                  <label>Nome do Grupo</label>
+                  <input  id="nome-grupo" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label>Descrição</label>
+                  <textarea  id="desc-grupo" class="form-control">
+                    
+                  </textarea>
+                </div>
+
+            </div>
+          </div>
+          <hr>
+          <div class="row mt-3">
+            <div class="col-12 col-lg-6">
+              <div class="form-group">
+                  <label>Adicionar contatos</label>
+                  <select class="form-control" id="add-prev-cont">
+                    <option value="sim">SIM</option>
+                    <option value="nao">NÃO</option>
+                  </select>
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <label>Lista de contatos</label>
+              <div class="form-group">
+                <select class="form-control" id="all-list-contacts">
+                    
+                  </select>
+              </div>
+
+            </div>
+          </div>
+           
+
+          <div class="mt-3" style="text-align: end;">
+            <button class="btn btn-success btn-sm" id="criar-grupo-button">
+              <b>CRIAR GRUPO</b>
+            </button>
+            <button class="btn btn-danger btn-sm cancel">
+              <b>CANCELAR</b>
+            </button>
+
+          </div>
+
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="not-list" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <input type="hidden" id="grupo">
+      <div class="modal-body">
+          <h6 class="text-center">Inserir Grupos em lista</h6>
+          <div class="form-group">
+            <label>Selecione uma  lista</label>
+            <select class="form-control" id="m-not-list"></select>
+          </div>
+         
+          <div class="text-center" id="enviando-m" style="display:none;">
+            
+
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden"></span>
+            </div>
+          
+      </div>
+          <div class="container mt-3">
+            <button class="btn btn-sm btn-success btn-block bmt" id="all_etx">
+              Extrair
+            </button>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="allgrupos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-body">
+          <h6 class="text-center">Inserir grupos</h6>
+          <div class="form-group">
+            <label>Selecione uma  lista</label>
+            <select class="form-control" id="m-lista-grupo"></select>
+          </div>
+         
+          <div class="text-center" id="enviando-grupo" style="display:none;">
+            
+
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden"></span>
+            </div>
+          
+      </div>
+          <div class="container mt-3">
+            <button class="btn btn-sm btn-success btn-block bmt" id="inseregrupos">
+              Extrair
+            </button>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="modal fade" id="list" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <input type="hidden" id="grupo">
+      <div class="modal-body">
+          <h6 class="text-center">Extrair Contatos</h6>
+          <div class="form-group">
+            <label>Selecione uma  lista</label>
+            <select class="form-control" id="m-listas"></select>
+          </div>
+         
+          <div class="text-center" id="enviando" style="display:none;">
+            
+
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden"></span>
+            </div>
+          
+      </div>
+          <div class="container mt-3">
+            <button class="btn btn-sm btn-success btn-block bmt" id="extrair">
+              Extrair
+            </button>
+          </div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+

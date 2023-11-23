@@ -1,0 +1,136 @@
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Imagens</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+              <li class="breadcrumb-item active">Imagens</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <section class="content">
+      <div class="card">
+        <div class="card-body">
+           
+            <div class="row" id="list-imagens">
+
+            </div>
+
+            <div class="container text-center col-12 col-lg-6 mt-3">
+              <button id="enviar" class="btn btn-info btn-sm btn-block">
+                ENVIAR
+              </button>
+            </div>
+        </div>
+      </div>
+    </section>
+
+</div>
+
+<script type="text/javascript">
+
+
+  listImg();
+  function listImg(){
+    user  = 'user='+localStorage.getItem('usermail');
+    $.post("api/list-images.php", user,(t)=>{
+       
+        img = "";
+
+        if(t.length > 0){   
+         t = JSON.parse(t); 
+        t.forEach((d)=>{
+          img += ` <div class="col-6 col-md-2">
+                <div class="card">
+                  
+                 <button class="btn btn-sm btn-danger" onclick="del(${d.id})" style="position: absolute;right: 4px;border-radius: 100%;padding: 5px;height: 22px;top: -6px;">
+                        <i class="fas fa-trash" style="font-size: 10px;position: relative;top: -6px;"></i>
+                        </button>
+                    <input type="hidden" id="link${d.nome}" value="">
+                    <div class="card-body text-center">
+                       <img class="img-fluid" src="../images/${d.nome}" style="height:80px;">
+                    </div>
+                </div>
+              </div>`;
+        })
+      }else{
+        console.log("Sem arquivos");
+      }
+        img += `<div class="col-6 col-md-2">
+                <div class="card" style="border: 1px solid white;border-radius: 5px;border-style: dashed;">
+                    <div class="card-body text-center">
+                       <img class="img-fluid"  id="upload" src="dist/img/upload.png" style="height:80px;">
+                       <input class="form-control" type="file" id="imagem" name="imagem" style="display: none;">
+                    </div>
+                </div>
+              </div>`;
+
+
+        $("#list-imagens").html(img);
+
+         upload = document.querySelector('#upload');
+        file = document.querySelector('#imagem');
+
+        upload.addEventListener('click', function(){
+              file.click();
+          })
+
+   file.addEventListener('change', function(e){
+        let reader = new FileReader();
+
+        reader.onload = function() {
+            upload.src = reader.result
+            upload.style.width = '100px';
+        }
+
+        reader.readAsDataURL(file.files[0]);
+   })
+
+
+
+    })
+
+
+  }
+  
+
+function del(id){
+  id = 'id='+id;
+  $.post("api/delete-image.php", id, (t)=>{
+      if(t == 1){
+        listImg();
+      }
+  })
+}
+
+  $("#enviar").click(function(){
+ 
+    var data = new FormData();
+    user =  localStorage.getItem('usermail');
+    data.append('imagem', $('#imagem')[0].files[0]);
+    data.append('user', user);
+
+    $.ajax({
+          url: 'api/upload-image.php',
+          data: data,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function(t){
+            if(t == 1){
+              console.log("success");
+              listImg();
+            }
+          }
+    });
+});
+</script>

@@ -1,0 +1,54 @@
+<div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col">
+            <h1>PRIMEIROS PASSOS</h1>
+          </div>
+          <div class="col-auto">
+                     </div>
+         
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+   <section style="position: relative;top: -30px;padding-left: 5px;padding-right: 5px;">
+      <div class="card">
+        <div class="card-body">
+          <div style="width: 100%;position: relative;margin: 0 auto;max-width: 700px;">
+          <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="pRfTFv-eI5U"></div>
+        </div>
+          <hr>
+          <div class="container">
+              <h5 class="text-center">Descrição</h5>
+          <p class="text-center mt-2" style="font-size: 15px;font-weight: 200;">
+            Whats Afiliado é uma ferramenta altamente atualizada que veio para revolucionar na sua empresa,  possui um sistema  de automação com atendimento aos seus clientes de 24hrs por dia , nos sete dias na semana sem pausa. Este vídeo se trata de um passo a passo,  pois o sistema esta em atualizações constantes que darão cada vez mais assistência e credibilidade no seu negócio, trazemos para você a maior automação já vista  em uma empresa.
+          </p>
+          </div>
+        </div>
+      </div>
+    </section>
+</div>
+
+
+
+<style>
+  .plyr{
+    width: 700px!important;
+  }
+</style>
+
+<script>
+
+  $(()=>{
+    player = new Plyr('#player', {
+      modestbranding: 1,
+      autohide: 1,
+      showinfo: 0,
+      width: 700
+
+    });
+  })
+
+</script>

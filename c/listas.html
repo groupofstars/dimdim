@@ -1,0 +1,393 @@
+ <link rel="stylesheet" href="plugins/summernote/summernote-bs4.min.css">
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="max-height: 609px;overflow-y: scroll;">
+    <div style="">
+    <!-- Content Header (Page header) -->
+    <section class="content-header bg-primary" style="height:120px">
+      <div class="container-fluid">
+        <div class="row mb-5">
+          <div class="col">
+            <h1 class="">Listas</h1>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-info btn-sm" id="composemail">
+              Adicionar lista
+            </button>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+
+<section class="content" style="padding: 30px;position: relative;top: -70px;">
+  <div class="card">
+         <div class="card-header">
+              <h3 class="card-title">Suas listas de Emails</h3>
+              <div class="card-tools">
+
+                <div class="row">
+                  <div class="col">
+                    <div class="input-group input-group-sm" style="width: 180px;">
+                      <input type="text" id="search" class="form-control float-right" placeholder="Buscar">   
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+          </div>
+
+
+    <div class="card-body table-responsive p-0">
+      <table class="table table-hover text-nowrap">
+          
+      </table>
+    </div>
+</div>
+</section>
+</div>
+
+<script src="plugins/summernote/summernote-bs4.min.js"></script>
+<script>
+  function ArrayDelayFunc(array, delegate, delay){
+    array.forEach(function(el, i){
+      setTimeout(function() {
+        delegate(array[i]);
+      }, i * delay);
+    })
+  }
+
+  $("#composemail").click(function(){
+    $("#modal1").modal("show");
+  })
+
+
+
+
+
+  function addemails(id){
+     $("#modal2").modal("show");  
+     $("#id-lista").val(id);
+  }
+
+$("#add").click(function(){
+    $("div[id='progresso']").css("display", "block");
+    emails = $("textarea[id='emails']").val().replaceAll(" ", "").split('\n');
+    id = $("#id-lista").val();
+
+    total = 100/emails.length;
+    stop = 0;
+    ArrayDelayFunc(emails, (t)=>{
+      
+      stop = stop+1;
+      //console.log(stop*total);
+      $(".progress-bar").css("width", stop*total+"%");
+      $("#email-send").html("Adicionando: "+t);
+
+      /*Limit 100%*/
+      if(stop*total == 100){
+        $("#email-send").html("Todos Emails Adicionados");
+        $("#modal2").modal("hide");
+        $(".progress-bar").css("width", "0%");
+        $("textarea[id='emails']").val("");
+        $("div[id='progresso']").css("display", "none");
+        listas();
+
+      }
+      /*Limit 100%*/
+
+      /*Add in database*/
+      if(t != ""){
+        mail = localStorage.getItem('usermail');
+        dados = 'email='+t+'&lista='+id+'&user='+mail;
+        console.log(dados);
+        $.post("api/add-emails.php", dados, (e)=>{
+          console.log(e);
+        });
+      }
+      /*Add in database*/
+    },1000);
+  });
+
+
+
+
+$(function () {
+    //Add text editor
+    $('#compose-textarea').summernote()
+     $('#message-edit').summernote()
+    $("div[class='form-group note-form-group note-group-select-from-files']").css("display", "none")
+    $("div[class='note-editable card-block']").css("height", "250px")
+    $("div[class='form-group note-group-image-url']").css("display", "none")
+    $("input[value='Insert Image']").css("display", "none");
+    $("button[class='close']")[1].style.display = "none";
+    $("button[aria-label='Video']").css("display", "none");
+    $("button[aria-label='Help']").css("display", "none");
+    
+    corpo = document.querySelector('div[aria-label="Insert Image"]').querySelector("div[class='modal-body']");
+
+    divImg = document.createElement("div");
+    divImg.setAttribute("id", "list-images");
+    divImg.setAttribute("class", "row");
+    divImg.setAttribute("style", "height:300px;overflow-y:scroll;")
+    corpo.appendChild(divImg);
+    
+    $("div[aria-label='Insert Image']").find("h4[class='modal-title']").html("Inserir Imagens");
+
+
+
+    listImg();
+    listas();
+
+
+function listImg(){
+    user  = 'user='+localStorage.getItem('usermail');
+    $.post("api/list-images.php", user,(t)=>{
+       
+        img = "";
+
+        if(t.length > 0){   
+         t = JSON.parse(t); 
+        t.forEach((d)=>{
+          img += ` <div class="col-6 col-md-4">
+                <div class="card imagem" id="${d.nome}">
+                    <div class="card-body text-center">
+                       <img class="img-fluid" src="../images/${d.nome}" >
+                    </div>
+                </div>
+              </div>`;
+        })
+
+          
+      }else{
+        console.log("Sem arquivos");
+      }
+      
+      $("#list-images").html(img);
+      $(".imagem").click(function(){
+        nome = "https://app.whatsafiliado.online/images/"+$(this).attr("id");
+        input = $("input[class='note-image-url form-control note-form-control note-input']");
+        input.val(nome);
+        botao = $("input[class='btn btn-primary note-btn note-btn-primary note-image-btn']");
+        botao.click();
+      });
+
+    })
+  }
+
+})
+
+$("#save").click(function(){
+  console.log("clicado");
+  user = localStorage.getItem('usermail');
+  nome = $("#nome-lista").val();
+  assunto = $("#assunto-lista").val();
+  message = encodeURIComponent($("#compose-textarea").val().replaceAll("&nbsp;", "").replaceAll("\n", ""));
+  
+  dados = 'nome='+nome+'&message='+message+'&user='+user+'&assunto='+assunto;
+  $.post("api/add-lista.php", dados, (t)=>{
+    if(t == 1){
+      $("#modal1").modal('hide');
+      listas();
+    }else{
+      console.log(t);
+    }
+  })
+})
+
+function listas(){
+  user = 'user='+localStorage.getItem('usermail');
+  $.post("api/list-listas.php", user, (l)=>{
+    $("table").html(l);
+  }) 
+}
+
+$("#alterar").click(function(){
+  id = $("#lista-edit").val();
+  nome = $("#nome-edit").val();
+  message = $("#message-edit").val();
+
+  dados = 'id='+id+'&nome='+nome+'&message='+message;
+
+  $.post("api/edit-lista.php", dados, (e)=>{
+    if(e == 1){
+      $("#modal3").modal('show');
+      listas();
+    }
+  })
+})
+
+
+/*Criando o botão close modal*/
+document.querySelectorAll("#cancelar").forEach(b=>b.addEventListener('click', ()=>{
+        $(".modal.fade.show").modal('hide');
+}))
+/*Criando o botão close modal*/
+
+
+function deleta(id){
+  id = 'id='+id;
+  $.post("api/delete-lista.php", id, (l)=>{
+    if(l == 1){
+      listas();
+    }
+  })
+}
+
+function ArrayDelayFunc(array, delegate, delay){
+          array.forEach(function(el, i){
+            setTimeout(function() {
+              delegate(array[i]);
+            }, i * delay);
+          })
+        }
+
+function sendmessage(id){
+  $("#aviso").modal('show');
+  ow = localStorage.getItem('usermail');
+  id = id;
+  dados = 'lista='+id+'&owner='+ow;
+  $.post("api/get-emails.php", dados, (t)=>{
+    t = JSON.parse(t);
+    e = [];
+    c = [];
+    console.log(t);
+    t.forEach((el)=>{
+       el.forEach((ee)=>{
+
+          if(ee.nivel == 1){
+            c.push(ee.email);
+          }else if(ee.nivel == 0){
+            e.push(ee.email);
+          }
+          
+       })
+    })
+    send(id);
+    function send(id){
+      
+      if(c.length == 0){
+        $("#logs").html("E-mails Enviados!");
+        setTimeout(()=>{$("#aviso").modal('hide')},1000)
+        console.log("dados enviados");
+      }else if(e.length == 0){
+        $("#logs").html("Limite de envio atingido ou Erro interno!");
+        setTimeout(()=>{$("#aviso").modal('hide')},1000)
+      }else{
+        conta = e.slice(0,1);
+        cliente = c.shift();
+
+        data = "email="+conta+"&cliente="+cliente+'&lista='+id;
+        $.post("api/teste.php", data, (r)=>{
+              r = JSON.parse(r);
+              console.log(r);
+              if(r.status == 1){
+                console.log(r.email+" > "+r.cliente);
+                $("#logs").html(r.email+" > "+r.cliente);
+                setTimeout(()=>{send()},1000)
+              }else if(r.status == 0){
+                c.push(r.cliente);
+                $("#logs").html("Problem: "+r.erro);
+                e.splice(e.indexOf(r.email), 1);
+                setTimeout(()=>{send()},1000)
+              }
+            })
+
+        
+      }
+           
+
+    }
+    
+  })
+}
+
+$("#search").on("keyup", ()=>{
+  lista = 'lista='+$("#search").val()+'&'+'user='+localStorage.getItem('usermail');
+  $.post("api/list-listas.php", lista, (t)=>{
+      $("table").html(t);
+  })
+})
+</script>
+
+<!-- Modal add lista -->
+<div class="modal fade" id="modal1" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog  modal-xl">
+    <div class="modal-content">
+      <div class="modal-body">  
+        <h4 class="text-center">Adicionar lista</h4>
+
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <input class="form-control" id="nome-lista" placeholder="Nome da lista" required>
+            </div>
+          </div>
+            <div class="col">
+               <div class="form-group">
+                <input class="form-control" id="assunto-lista" placeholder="Assunto do E-mail" required>
+                </div>
+            </div>
+      </div>
+         <div class="form-group">
+            <textarea id="compose-textarea" class="form-control" style="height: 300px">
+                      
+              </textarea>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelar" class="btn btn-danger">Cancelar</button>
+        <button id="save" class="btn btn-success">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Modal add emails -->
+<div class="modal fade" id="modal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+     <input type="hidden" id="id-lista">
+      <div class="modal-body">
+          <div class="form-group">
+            <label> - Adicione os E-mails a lista, seperando os por Quebra de linha</label>
+            <textarea id="emails" class="form-control mt-3" style="height:120px;">
+              
+            </textarea>
+          </div>
+        
+        <div id="progresso" style="display: none;">
+          <div  class="container text-center mb-2">
+            <span id="email-send"></span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button id="cancelar" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+        <button id="add" class="btn btn-success">Adicionar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- Modal add lista -->
+<div class="modal fade" id="aviso" tabindex="-1" aria-labelledby="exampleModalLabel" data-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+          <div id="logs"></div>
+      </div>
+    </div>
+  </div>
+</div>
